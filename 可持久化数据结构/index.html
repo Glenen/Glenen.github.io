@@ -1,0 +1,1061 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Menlo:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Introduction介绍When you hear the word persistence in programming, most often, you think of an application saving its data to some type of storage, such as a database, so that the data can be retrieved">
+<meta property="og:type" content="article">
+<meta property="og:title" content="可持久化数据结构">
+<meta property="og:url" content="https://glenen.github.io/可持久化数据结构/index.html">
+<meta property="og:site_name" content="Glenn Blog">
+<meta property="og:description" content="Introduction介绍When you hear the word persistence in programming, most often, you think of an application saving its data to some type of storage, such as a database, so that the data can be retrieved">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/LinkedList-0.png">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/LinkedList-1.png">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/LinkedList-2.png">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/LinkedList-3.png">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/LinkedList-4.png">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/LinkedList-5.png">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/PersistentTree-0.png">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/PersistentTree-1.png">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/RandomAccessList-0.png">
+<meta property="og:image" content="https://glenen.github.io/可持久化数据结构/RandomAccessList-1.png">
+<meta property="og:updated_time" content="2017-04-04T12:59:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="可持久化数据结构">
+<meta name="twitter:description" content="Introduction介绍When you hear the word persistence in programming, most often, you think of an application saving its data to some type of storage, such as a database, so that the data can be retrieved">
+<meta name="twitter:image" content="https://glenen.github.io/可持久化数据结构/LinkedList-0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://glenen.github.io/可持久化数据结构/"/>
+
+
+
+
+
+  <title> 可持久化数据结构 | Glenn Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ab401c60b8e38f295484a7ab6b8b0614";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Glenn Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/可持久化数据结构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Glenn">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Glenn Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                可持久化数据结构
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-01T00:00:00+08:00">
+                2016-11-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/可持久化数据结构/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="可持久化数据结构/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h4><h4 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h4><p>When you hear the word persistence in programming, most often, you think of an application saving its data to some type of storage, such as a database, so that the data can be retrieved later when the application is run again. There is, however, another meaning for the word persistence when it is used to describe data structures, particularly those used in functional programming languages. In that context, a persistent data structure is a data structure capable of preserving the current version of itself when modified. In essence, a persistent data structure is immutable.</p>
+<p>当你在编程过程中听到持久化这个单词的时候，大多数情况下，你会认为是应用程序将其数据为存储为某种类型的文件中，例如数据库，以便于以后当应用程序再次运行时能够从介质中重新获取数据。然而这里的持久化讲的是另外一个意思，用其来描述一种数据结构，通常会用在一些函数式的编程语言中。从这个意义上来讲，一个具有持久化能力的数据结构在其被修改后可以保存当前的状态，从本质上来说，这样的数据结构是不可改变类型（immutable）。</p>
+<a id="more"></a>
+<p>An example of a class that uses this type of persistence in the .NET Framework is the string class. Once a string object is created, it cannot be changed. Any operation that appears to change a string generates a new string instead. Thus, each version of a string object can be preserved. An advantage for a persistent class like the string class is that it basically gives you undo functionality built-in. As newer versions of a persistent object are created, older versions can be pushed onto a stack and popped off when you want to undo an operation. Another advantage is that because persistent data structures cannot change state, they are easier to reason about and are thread safe.</p>
+<p>.NET Framework中的String类正好是使用了持久化能力的一个例子。一旦创建了一个String类型实例，它便不能被改变了，对于欲改变其值的任何操作都将被产生一个新的String对象，通过这样，每一个版本的String实例都将被驻留下来。这样的具有持久化特点的类型像String类型都内置了撤销（Undo）功能，当该对象的新一个版本产生的时候，旧版本将被压入栈中，如果需要执行撤销动作的时候，只需将旧版本从堆栈中取出。另外一个优点是由于可持久化数据类型不能更改其内部状态，很容易得知它是线程安全的。</p>
+<p>There is an overhead that comes with persistent data structures, however. Each operation that changes a persistent data structure creates a new version of that data structure. This can involve a good deal of copying to create the new version. This cost can be mitigated to a large degree by reusing as much of the internal structure of the old version in creating a new one. I will explore this idea in making two common data structures persistent: the singly linked list and the binary tree, and describe a third data structure that combines the two. I will also describe several classes I have created that are persistent versions of some of the classes in the System.Collections namespace.</p>
+<p>然而持久化的数据结构会带来一些开销，任何改变持久化数据结构的操作都将创建一个新的版本，这可能会涉及到大量的拷贝操作，通常我们可以通过重用旧版本对象的内部数据结构来创建一个新的对象，这种办法可以极大地降低拷贝操作所带来的消耗。我将会通过两个常用的数据结构来阐述这个思想：单向列表以及二叉树，然后通过这两个数据结构来组合第三个数据结构。同时我也会讲述System.Collection命名空间下面的那些持久化的类型。</p>
+<h4 id="Persistent-Singly-Linked-Lists"><a href="#Persistent-Singly-Linked-Lists" class="headerlink" title="Persistent Singly Linked Lists"></a>Persistent Singly Linked Lists</h4><h4 id="持久化的单向链表"><a href="#持久化的单向链表" class="headerlink" title="持久化的单向链表"></a>持久化的单向链表</h4><p>The singly linked list is one of the most widely used data structures in programming. It consists of a series of nodes linked together one right after the other. Each node has a reference to the node that comes after it, and the last node in the list terminates with a null reference. To traverse a singly linked list, you begin at the head of the list and move from one node to the next until you have reached the node you are looking for or have reached the last node:</p>
+<p>单向链表是一个在编程中使用非常广泛的基础数据结构，它是由一系列相互链接的节点组成。每一个节点都拥有一个指向下一个节点的引用，链表中的最后一个节点将拥有一个空引用。如果你想遍历一个单向链表，可以从第一个节点开始，逐个向后移动，直到到达最后的节点。如下图所示：</p>
+<p><img src="/可持久化数据结构/LinkedList-0.png" alt=""></p>
+<p>Let’s insert a new item into the list. This list is not persistent, meaning that it can be changed in-place without generating a new version. After taking a look at the insertion operation on a non-persistent list, we’ll look at the same operation on a persistent list.</p>
+<p>让我们插入一个新的节点到这个链表中去，并且该链表是非持久化的，也就是说这个链表可以被改变而无需产生一个新的版本。在查看了非持久化链表的插入操作之后，我们将会查看同样的操作在持久化链表中。</p>
+<p>Inserting a new item into a singly linked list involves creating a new node:</p>
+<p>插入一个新的节点到单向列表中会涉及到创建一个新的节点：</p>
+<p><img src="/可持久化数据结构/LinkedList-1.png" alt=""></p>
+<p>We will insert the new node at the fourth position in the list. First, we traverse the list until we’ve reached that position. Then the node that will precede the new node is unlinked from the next node…</p>
+<p>我们将会在第四个位置插入新的节点，第一我们遍历链表到达指定位置，也就是插入节点前面的那个节点，将其与后面节点断开。</p>
+<p><img src="/可持久化数据结构/LinkedList-2.png" alt=""></p>
+<p>…and relinked to the new node. The new node is, in turn, linked to the remaining nodes in the list:</p>
+<p>然后链接该节点与待插入节点，在下来，链接新的节点与上一步剩余的节点。</p>
+<p><img src="/可持久化数据结构/LinkedList-3.png" alt=""></p>
+<p>Inserting a new item into a persistent singly linked list will not alter the existing list but create a new version with the item inserted into it. Instead of copying the entire list and then inserting the item into the copy, a better strategy is to reuse as much of the old list as possible. Since the nodes themselves are persistent, we don’t have to worry about aliasing problems.</p>
+<p>如果插入一个新的节点到持久化的单向链表中，我们不应该改变当前链表的状态，而需要创建一个新的链表而后插入指定节点。相对于拷贝当前链表，而后插入指定节点，一个更好的策略是尽可能的重用旧的链表。因为节点本身是可持久化的，所以我们不必担心对象混淆的问题。</p>
+<p>To insert a new node at the fourth position, we traverse the list as before only copying each node along the way. Each copied node is linked to the next copied node:</p>
+<p>为了插入新节点到第四个位置，我们遍历链表到指定位置，拷贝每个遍历节点，同时指定拷贝的节点指向其下一个节点的拷贝。</p>
+<p><img src="/可持久化数据结构/LinkedList-4.png" alt=""></p>
+<p>The last copied node is linked to the new node, and the new node is linked to the remaining nodes in the old list:</p>
+<p>最后一个拷贝的节点指向新的插入节点，而后，新节点指向旧链表剩下的节点。</p>
+<p><img src="/可持久化数据结构/LinkedList-5.png" alt=""></p>
+<p>On an average, about N/2 nodes will be copied in the persistent version for insertions and deletions, where N equals the number of nodes in the list. This isn’t terribly efficient but does give us some savings. One persistent data structure where this approach to singly linked list buys us a lot is the stack. Imagine the above data structure with insertions and deletions restricted to the head of the list. In this case, N nodes can be reused for pushing items onto a stack and N - 1 nodes can be reused for popping a stack.</p>
+<p>平均来看，对于插入和删除操作，大约有N/2的节点将被拷贝，而N等于链表长度。这并不是特别的高效，仅仅只是节省了一些空间。与通过这样的方式来构建单向链表一样的一个数据结构是堆栈，我们可以想象一下在链表起始位置的插入以及删除操作，在这个场景中，对于堆栈来讲，压栈操作时全部节点都可以被重用，而出栈操作也有N-1个节点被重用。 </p>
+<h4 id="Persistent-Binary-Trees"><a href="#Persistent-Binary-Trees" class="headerlink" title="Persistent Binary Trees"></a>Persistent Binary Trees</h4><h4 id="持久化二叉树"><a href="#持久化二叉树" class="headerlink" title="持久化二叉树"></a>持久化二叉树</h4><p>A binary tree is a collection of nodes in which each node contains two links, one to its left child and another to its right child. Each child is itself a node, and either or both of the child nodes can be null, meaning that a node may have zero to two children. In the binary search tree version, each node usually stores a key/value pair. The tree is searched and ordered according to its keys. The key stored at a node is always greater than the keys stored in its left descendents and always less than the keys stored in its right descendents. This makes searching for any particular key very fast.</p>
+<p>一个二叉树是一系列节点的集合，每一个节点都包含有两个子节点，一个称之为左节点，而另一个称之为右节点。而子节点也是这样一个节点，也有一个左节点和一个右节点，当然也可以没有子节点，也就是说一个节点可能有零个或者两个子节点。在二叉查找树中，每一个节点通常包含了一个键值对，树结构将会依照节点的键来进行查找和组织。节点的键会永远大于其左节点的键，永远小于其右节点的键，这将使得对于特定键的查找非常迅速。</p>
+<p>Here is an example of a binary search tree. The keys are listed as numbers; the values have been omitted but are assumed to exist. Notice how each key as you descend to the left is less than the key of its predecessor, and vice versa as you descend to the right:</p>
+<p>下图是一个二叉查找树的例子，节点的键作为数字被列出，而节点的值则被忽略尽管是始终存在的。注意到每一个左边节点的键值一定会小于它的父节点即前驱节点，而每一个右边节点的键值一定大于其父节点键值。 </p>
+<p><img src="/可持久化数据结构/PersistentTree-0.png" alt=""></p>
+<p>Changing the value of a particular node in a non-persistent tree involves starting at the root of the tree and searching for a particular key associated with that value, and then changing the value once the node has been found. Changing a persistent tree, on the other hand, generates a new version of the tree. We will use the same strategy in implementing a persistent binary tree as we did for the persistent singly linked list, which is to reuse as much of the data structure as possible when making a new version.</p>
+<p>如果在一个非持久化的树中更改一个特定节点的值，我们会从根节点按照特定键值开始搜索，如果找到则直接更改该节点的值。但是如果是在一个持久化的树上的话，换句话说，我们需要创建一个新版本的树，同时还需要保持同实现一个持久化的二叉树或者单向链表一样的策略，即尽可能的重用当前的数据来创建一个新的版本。</p>
+<p>Let’s change the value stored in the node with the key 7. As the search for the key leads us down the tree, we copy each node along the way. If we descend to the left, we point the previously copied node’s left child to the currently copied node. The previous node’s right child continues to point to nodes in the older version. If we descend to the right, we do just the opposite.</p>
+<p>下面让我们来尝试改变键为7的节点的值，按照自顶向下查找该节点的路径，我们需要拷贝该路径上的每一个节点。如果转向左边，需要将上一个拷贝的节点指向当前拷贝节点，而前一个节点的右侧节点则继续指向原来旧版本的节点。如果转向右边，则采用相反的做法。</p>
+<p>This illustrates the “spine” of the search down the tree. The red nodes are the only nodes that need to be copied in making a new version of the tree:</p>
+<p>下图列出了在树上自顶向下搜索特定节点的路径，在构建新版本的树的时候仅仅需要拷贝那些红色的节点。</p>
+<p><img src="/可持久化数据结构/PersistentTree-1.png" alt=""></p>
+<p>You can see that the majority of the nodes do not need to be copied. Assuming the binary tree is balanced, the number of nodes that need to be copied any time a write operation is performed is at most O(Log N), where Log is base 2. This is much more efficient than the persistent singly linked list.</p>
+<p>你能够发现大多数节点是不要拷贝的，假定二叉树是平衡的，在每一次节点值的写操作中需要拷贝的节点数目大约是O（LogN），对数的底为2。显然比起持久化的单向链表效率很高。</p>
+<p>Insertions and deletions work the same way, only steps should be taken to keep the tree in balance, such as using an AVL tree. If a binary tree becomes degenerate, we run into the same efficiency problems as we did with the singly linked list.</p>
+<p>插入以及删除操作将按照同样的方式进行，但是一些额外的保持树平衡的操作还是必须的，例如使用AVL树作为底层数据结构的时候。如果二叉树变得很不平衡，我们将会碰到同样的效率问题如同在持久化单向链表是一样。</p>
+<h4 id="Random-Access-Lists"><a href="#Random-Access-Lists" class="headerlink" title="Random Access Lists"></a>Random Access Lists</h4><h4 id="随机存取链表"><a href="#随机存取链表" class="headerlink" title="随机存取链表"></a>随机存取链表</h4><p>An interesting persistent data structure that combines the singly linked list with the binary tree is Chris Okasaki’s random-access list. This data structure allows for random access of its items as well as adding and removing items from the beginning of the list. It is structured as a singly linked list of completely balanced binary trees. The advantage of this data structure is that it allows access, insertion, and removal of the head of the list in O(1) time as well as provides logarithmic performance in randomly accessing its items.</p>
+<p>一个比较有意思的持久化数据结构是Chris Okasaki的随机存取列表，它结合了单向链表和二叉树的特点。这个数据结构除了允许用户随机操作其节点外，还支持在列表的起始位置添加和删除节点。它被组织成为一个使用二叉树来平衡的单向链表，其优点是当在其起始位置进行节点操作时，只需要O(1)的复杂度，而在随机操作节点的时候，也只有O(Log(N)).</p>
+<p>Here is a random-access list with 13 items:</p>
+<p>下面是一个具有13个子节点的随机存取列表： </p>
+<p><img src="/可持久化数据结构/RandomAccessList-0.png" alt=""></p>
+<p>When a node is added to the list, the first two root nodes (if they exist) are checked to see if they both have the same height. If so, the new node is made the parent of the first two nodes; the current head of the list is made the left child of the new node, and the second root node is made the right child. If the first two root nodes do not have the same height, the new node is simply placed at the beginning of the list and linked to the next tree in the list.</p>
+<p>当添加一个节点到列表中的时候，前两个根节点会被查看它们的高度是否相同，如果是的话，那新的节点将是这两个节点的父节点，第一个节点将会作为插入节点的左子节点，而第二个节点会作为右节点。而如果这两个节点高度不同，新的节将会直接被放在节点的起始位置，然后链接到剩余节点。</p>
+<p>To remove the head of the list, the root node at the beginning of the list is removed, with its left child becoming the new head and its right child becoming the root of the second tree in the list. The new head of the list is right linked with the next root node in the list:</p>
+<p>如果要删除链表的头节点，也就是要删除链表的起始根节点，然后将其左侧子节点作为新的头节点，而右侧子节点则作为链表中第个树的根节点。新的头节点会指向链表中向右的第二个根节点。</p>
+<p><img src="/可持久化数据结构/RandomAccessList-1.png" alt=""></p>
+<p>Keep in mind that all operations that change a random-access list do not change the existing list but rather generate a new version representing the change. As much of the old list is reused in creating a new version.</p>
+<p>记住所有改变随机存取列表的操作都不会改变现有列表，而是创建一个新的版本，并且在创建新版本的时候要尽可能充用现有列表。</p>
+<h4 id="Immutable-Collections"><a href="#Immutable-Collections" class="headerlink" title="Immutable Collections"></a>Immutable Collections</h4><h4 id="不可改变集合类型"><a href="#不可改变集合类型" class="headerlink" title="不可改变集合类型"></a>不可改变集合类型</h4><p>Included with this article are a number of persistent collection classes I have created. These classes are in a namespace called ImmutableCollections. I have created persistent versions of some of the collection classes in the System.Collections namespace. I will describe each one and some of the challenges in making them persistent. There are several collection classes that are currently missing; I need to add a queue, for example. Hopefully, I will get to those in time. Also, even though I’ve taken steps to make these classes efficient, they cannot compete with the System.Collections classes in terms of speed, but they really aren’t meant to. They are meant to provide the advantages of immutability while providing reasonable performance.</p>
+<p>在本文中我创建了许多持久化的集合类型，放在命名空间ImmutableCollections下。对于System.Collection命名空间下的一些集合类，我也创建了一个持久化的版本。我将会逐个讲述这些类型，阐述在持久化这些类时所遇到的问题及挑战。当然有一些遗漏的，例如Queue。希望有时间我能够将它们补上。尽管我已经采取了一些措施来提高性能，在存取速度上这些类还是不能与System.Collection命名空间的类相比较，但是这些类具有不可变类型的优点，而且具有合理的可以接收的性能。</p>
+<h5 id="Stack"><a href="#Stack" class="headerlink" title="Stack"></a>Stack</h5><h5 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h5><p>This one was easy. Simply create a persistent singly linked list and limit insertions and deletions to the head of the list. Since this class is persistent, popping a stack returns a new version of the stack with the next item in the old stack as the new top. In the System.Collections.Stack version, popping the stack returns the top of the stack. The question for the persistent version was how to make the top of the stack available since it cannot be returned when the stack is popped. I chose to create a Top property that represents the top of the stack.</p>
+<p>这个类是比较容易的，可以创建一个持久化的单向链表，然后限定只能在起始位置进行插入和删除操作。因为这个类是持久化的，出栈操作将会返回一个新版本的堆栈，这个堆栈以旧堆栈的第二个节点为头节点。在System.Collection命名空间下，出栈操作仅仅只是删除栈顶元素并返回。</p>
+<h5 id="SortedList"><a href="#SortedList" class="headerlink" title="SortedList"></a>SortedList</h5><h5 id="有序列表"><a href="#有序列表" class="headerlink" title="有序列表"></a>有序列表</h5><p>The SortedList uses AVL tree algorithms to keep the tree in balance. I found it useful to create an IAvlNode interface. Two classes implement this interface, the AvlNode class and the NullAvlNode class. The NullAvlNode class implements the null object design pattern. This simplified many of the algorithms.</p>
+<p>有序列表使用了AVL树的算法来保持树节点的平衡，我创建了一个叫IAvlNode的接口，有两个类实现了这个接口，它们分别是AvlNode以及NullAvlNode类。NullAvlNode类利用了Null对象的设计模式，这将会简化一些算法。</p>
+<h5 id="ArrayList"><a href="#ArrayList" class="headerlink" title="ArrayList"></a>ArrayList</h5><h5 id="动态数组"><a href="#动态数组" class="headerlink" title="动态数组"></a>动态数组</h5><p>This is the class that proved most challenging. Like the SortedList, it uses a persistent AVL tree as its data structure. However, unlike the SortedList, items are accessed by index (or by position) rather than by key. I have to admit that the algorithms for accessing and inserting items in a binary tree by index weren’t intuitive to me, so I turned to Knuth. Specifically, I used Algorithms B and C in section 6.2.3 in volume 3 of The Art of Computer Programming.</p>
+<p>这个类的实现会遇到更多的挑战。与有序列表相同的是它也使用了持久化的AVL树来作为其底层的数据结构，不同的地方是是用户只能通过顺序索引来操作列表元素而不是字符串索引。不得不说的是我的本意并不是在一个二叉树上按照顺序索引来操纵和插入列表元素，所以我查看了Knuth的书籍，准确地来讲是使用了计算机编程的艺术第三卷6.2.3中的算法B和C。</p>
+<p>I made an assumption about the ArrayList in order to improve performance. I assumed that the Add method is by far the most used method. However, adding items to the ArrayList one right after the other causes a lot of tree rotations to keep the tree in balance. To solve this, I created a template tree that is already completely balanced. Since this template tree is immutable, it can exist at the class level and be shared amongst all of the instances of the class.</p>
+<p>为了提高动态数组的性能，我做了一个假设。假定Add方法是动态数组使用最多的方法，然而为了保持树的平衡，添加对象操作会引起多次的树旋转。为了解决这个问题，我创建了一个完全平衡的模板树，因为这个树是不可更改的，它可以在类的级别上存在，且能够被所有类的实例所共享。</p>
+<p>When an instance of the ArrayList class is created, it takes a small subtree of the template tree. As items are added, the nodes in the template tree are replaced with new nodes. Since the tree is completely balanced, no rebalancing is necessary. If the subtree gets filled up, another subtree of equal height is taken from the template tree and joined to the existing tree. Insertions and deletions are handled normally with rebalancing performed if necessary. Again, the assumption is that adding items to the ArrayList occurs much more frequently than inserting or deleting items.</p>
+<p>当一个动态数组的实例被创建的时候，它会抓住模板树的一个子树。当添加子节点的时候，模板树上的节点将会被新添的节点所替换，因为模板树本身就是平衡的，所以无需平衡树的操作。如果这个子树已经被填满，则会在模板树上抓取高度相同的另外一个子树，然后加入当前存在的树。当然插入和删除操作就需要进行平衡操作了。再一次强调的是我们的假设是添加节点的操作会远多于插入以及删除操作，才可以这样做。</p>
+<h5 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h5><h5 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h5><p>The Array class uses the random access list structure to provide a persistent array with logarithmic performance. Unlike a random access list, it has a fixed size.</p>
+<p>数组类使用随机存取列表作为基础的数据结构，而随机存取列表在进行查找的时候只有Log（N）的复杂度，与随机存取列表不同的是，数据具有固定的长度。</p>
+<h5 id="RandomAccessList"><a href="#RandomAccessList" class="headerlink" title="RandomAccessList"></a>RandomAccessList</h5><h5 id="随机存取列表"><a href="#随机存取列表" class="headerlink" title="随机存取列表"></a>随机存取列表</h5><p>This class does not have a parallel in the System.Collections namespace, but it was one of the first persistent classes I wrote, and I decided to include it here. It’s a straightforward implementation of Chris Okasaki’s random-access list described above. This data structure was designed to be used in functional languages where lists have three basic operations: Cons, Head, and Tail. Cons adds an item to the head of the list, Head is the first item in the list, and Tail represents all of the items in the list except for the Head.</p>
+<p>这个类型在.NET类库的System.Collection命名空间下没有对应的实现类，但是它是我写的第一个持久化类，所以我决定在这里也介绍一下。在Chris Okasaki的文章中有一个简单易懂的实现，在一些函数式语言中会经常用到这个数据结构，通常它有三个基本操作：Cons，Head和Tail，Cons会添加一个新的对象到这个列表对象的开头，而Head将会返回列表的第一个对象，通过Tail会得到列表中除了第一个对象外的所有对象。</p>
+<h4 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h4><h4 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h4><p>Persistent data structures help simplify programming by eliminating a whole class of bugs associated with side-effects and synchronization issues. They are not a cure-all but are a useful tool for helping a programmer deal with complexity. I have explored ways of making data structures persistent and have provided a small .NET library of persistent data structures. I hope you have enjoyed the article, and as always, I welcome feedback.</p>
+<p>持久化数据结构会有助于简化编程，将一些线程同步的问题消除掉。它并不是解救一切的灵丹妙药，而是帮助程序员减低程序复杂度的一个工具。我已经阐述了如何构建持久化数据的多种方法，并且打包成一个小的.NET类库。我希望你能够从本文中受益，并且永远欢迎您的反馈信息。</p>
+<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4><p>本帖转载自：<a href="http://www.cnblogs.com/tedzhao/archive/2008/11/12/1332112.html" target="_blank" rel="external">http://www.cnblogs.com/tedzhao/archive/2008/11/12/1332112.html</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/HotSpot虚拟机对象/" rel="next" title="HotSpot虚拟机对象">
+                <i class="fa fa-chevron-left"></i> HotSpot虚拟机对象
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/日常总结—1/" rel="prev" title="日常总结—1">
+                日常总结—1 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Glenn" />
+          <p class="site-author-name" itemprop="name">Glenn</p>
+           
+              <p class="site-description motion-element" itemprop="description">you want more then you could get more.</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Glenen" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-facebook"></i>
+                  
+                  Facebook
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#介绍"><span class="nav-number">2.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Persistent-Singly-Linked-Lists"><span class="nav-number">3.</span> <span class="nav-text">Persistent Singly Linked Lists</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#持久化的单向链表"><span class="nav-number">4.</span> <span class="nav-text">持久化的单向链表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Persistent-Binary-Trees"><span class="nav-number">5.</span> <span class="nav-text">Persistent Binary Trees</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#持久化二叉树"><span class="nav-number">6.</span> <span class="nav-text">持久化二叉树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Random-Access-Lists"><span class="nav-number">7.</span> <span class="nav-text">Random Access Lists</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#随机存取链表"><span class="nav-number">8.</span> <span class="nav-text">随机存取链表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Immutable-Collections"><span class="nav-number">9.</span> <span class="nav-text">Immutable Collections</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不可改变集合类型"><span class="nav-number">10.</span> <span class="nav-text">不可改变集合类型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Stack"><span class="nav-number">10.1.</span> <span class="nav-text">Stack</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#栈"><span class="nav-number">10.2.</span> <span class="nav-text">栈</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SortedList"><span class="nav-number">10.3.</span> <span class="nav-text">SortedList</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#有序列表"><span class="nav-number">10.4.</span> <span class="nav-text">有序列表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ArrayList"><span class="nav-number">10.5.</span> <span class="nav-text">ArrayList</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#动态数组"><span class="nav-number">10.6.</span> <span class="nav-text">动态数组</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Array"><span class="nav-number">10.7.</span> <span class="nav-text">Array</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数组"><span class="nav-number">10.8.</span> <span class="nav-text">数组</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RandomAccessList"><span class="nav-number">10.9.</span> <span class="nav-text">RandomAccessList</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#随机存取列表"><span class="nav-number">10.10.</span> <span class="nav-text">随机存取列表</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Conclusion"><span class="nav-number">11.</span> <span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结论"><span class="nav-number">12.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">13.</span> <span class="nav-text">完结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Glenn</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://Glenen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://glenen.github.io/可持久化数据结构/';
+          this.page.identifier = '可持久化数据结构/';
+          this.page.title = '可持久化数据结构';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://Glenen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+</body>
+</html>
