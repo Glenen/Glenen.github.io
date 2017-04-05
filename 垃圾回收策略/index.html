@@ -104,10 +104,10 @@
 概要此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。
 判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何">
 <meta property="og:image" content="https://glenen.github.io/垃圾回收策略/可达性分析算法.png">
-<meta property="og:image" content="https://glenen.github.io/垃圾回收策略/标记—清除算法.png">
+<meta property="og:image" content="https://glenen.github.io/垃圾回收策略/标记—清理算法.png">
 <meta property="og:image" content="https://glenen.github.io/垃圾回收策略/复制算法.png">
 <meta property="og:image" content="https://glenen.github.io/垃圾回收策略/标记—整理算法.png">
-<meta property="og:updated_time" content="2017-04-05T15:51:07.000Z">
+<meta property="og:updated_time" content="2017-04-05T16:01:55.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="垃圾回收策略">
 <meta name="twitter:description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
@@ -445,7 +445,7 @@
 <h5 id="finalize-方法"><a href="#finalize-方法" class="headerlink" title="finalize()方法"></a>finalize()方法</h5><p>运行代价昂贵、不确定性大、无法保证各个对象的调用顺序，其所能做的工作try-finally或其他方法能做更好更及时。</p>
 <h4 id="回收方法区"><a href="#回收方法区" class="headerlink" title="回收方法区"></a>回收方法区</h4><p>回收主要部分：废弃常量和无用的类。回收废弃常量与堆中对象的回收非常类似。判定无用的类：1、该类的所有的实例都已经被回收；2、加载该类的ClassLoader已经被回收；3、该类对应的java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。无用类可以被回收，但不是必然被回收，HotSpot虚拟机提供-Xnoclassgc参数进行控制。</p>
 <h4 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h4><h5 id="标记—清除算法"><a href="#标记—清除算法" class="headerlink" title="标记—清除算法"></a>标记—清除算法</h5><p>分为“标记”“清除”两个阶段，首先标记出所有需要回收的对象，在标记完成后统一回收所有被标记的对象。问题：1、效率低，标记和清除两个过程都效率低；2、空间，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后在程序运行过程中需要分配较大对象时，无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。如图所示：</p>
-<p><img src="/垃圾回收策略/标记—清除算法.png" alt=""></p>
+<p><img src="/垃圾回收策略/标记—清理算法.png" alt=""></p>
 <h5 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h5><p>将可用内存按容量划分为大小相等的两块，每次只使用其中的一块，当这一块地内存用完了，将还存活着地对象复制到另一块上面，然后再把已使用过的内存空间一次清理掉。优点：分配时不用考虑内存碎片，按顺序分配，实现简单，运行高效。代价：将内存缩小为了原来的一半，未免太高了点。</p>
 <p>现代商业虚拟机都采用此种收集算法来回收新生代，IBM研究：新生代中的对象98%是“朝生夕死”的。HotSpot中，Eden与Survivor的大小比例为8:1，即新生代中可用的内存空间为新生代容量的90%。如图所示：</p>
 <p><img src="/垃圾回收策略/复制算法.png" alt=""></p>
