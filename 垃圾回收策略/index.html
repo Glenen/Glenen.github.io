@@ -1,0 +1,1005 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Menlo:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
+概要此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。
+判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何">
+<meta property="og:type" content="article">
+<meta property="og:title" content="垃圾回收策略">
+<meta property="og:url" content="https://glenen.github.io/垃圾回收策略/index.html">
+<meta property="og:site_name" content="Glenn Blog">
+<meta property="og:description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
+概要此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。
+判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何">
+<meta property="og:image" content="https://glenen.github.io/垃圾回收策略/可达性分析算法.png">
+<meta property="og:image" content="https://glenen.github.io/垃圾回收策略/标记—清除算法.png">
+<meta property="og:image" content="https://glenen.github.io/垃圾回收策略/复制算法.png">
+<meta property="og:image" content="https://glenen.github.io/垃圾回收策略/标记—整理算法.png">
+<meta property="og:updated_time" content="2017-04-05T15:51:07.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="垃圾回收策略">
+<meta name="twitter:description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
+概要此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。
+判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何">
+<meta name="twitter:image" content="https://glenen.github.io/垃圾回收策略/可达性分析算法.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://glenen.github.io/垃圾回收策略/"/>
+
+
+
+
+
+  <title> 垃圾回收策略 | Glenn Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ab401c60b8e38f295484a7ab6b8b0614";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Glenn Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/垃圾回收策略/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Glenn">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Glenn Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                垃圾回收策略
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-01T00:00:00+08:00">
+                2016-12-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM原理/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM原理</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/垃圾回收策略/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="垃圾回收策略/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。</p>
+<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。</p>
+<h4 id="判断对象是否存活算法"><a href="#判断对象是否存活算法" class="headerlink" title="判断对象是否存活算法"></a>判断对象是否存活算法</h4><h5 id="引用计数算法"><a href="#引用计数算法" class="headerlink" title="引用计数算法"></a>引用计数算法</h5><p>给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何时刻计数器为0的对象就是不可能再被使用的。实现简单，判定效率高，很多应用案例。但java虚拟机并未使用该算法(很难解决对象之间相互循环引用的问题)。如下代码所示：</p>
+<a id="more"></a>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 演示JVM没有通过计算计数算法来判断对象的存活：解决相互引用问题</div><div class="line"> *</div><div class="line"> * @author Glenn</div><div class="line"> * @since 2016-12-27</div><div class="line"> */</div><div class="line">@SuppressWarnings(<span class="string">"all"</span>)</div><div class="line">public class ReferenceCountGCTest &#123;</div><div class="line"></div><div class="line">    private ReferenceCountGCTest instance = null;</div><div class="line">    private static final int _1MB = 1024 * 1024;</div><div class="line">    /**</div><div class="line">     * 该属性存在的意义是占用内存，以便能在GC日志中看清楚是否被回收过</div><div class="line">     */</div><div class="line">    private byte[] bigSize = new byte[2 * _1MB];</div><div class="line"></div><div class="line">    public static void <span class="function"><span class="title">testGC</span></span>() &#123;</div><div class="line">        ReferenceCountGCTest A = new ReferenceCountGCTest();</div><div class="line">        ReferenceCountGCTest B = new ReferenceCountGCTest();</div><div class="line"></div><div class="line">        A.instance = B;</div><div class="line">        B.instance = A;</div><div class="line"></div><div class="line">        A = null;</div><div class="line">        B = null;</div><div class="line"></div><div class="line">        // 该处触发垃圾回收：观察GC日志变化</div><div class="line">        System.gc();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h5 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h5><p>java、C#使用，基本思路是通过一系列的称为“GC Roots”的对象作为起点，从这些节点开始向下搜索，搜索所走过的路径称为引用链，当一个对象到GC Roots没有任何引用链相连时，则证明此对象不可用。如下图所示：</p>
+<p><img src="/垃圾回收策略/可达性分析算法.png" alt=""></p>
+<p>图中7、8、9对象虽然之间相互引用，但是他们没有与“GC Roots”对象相关联，垃圾回收的时候会被回收，其他与引用链的对象则不会。</p>
+<h5 id="java中可作为GC-Roots对象包括"><a href="#java中可作为GC-Roots对象包括" class="headerlink" title="java中可作为GC Roots对象包括"></a>java中可作为GC Roots对象包括</h5><p>1.虚拟机栈(栈帧中的本地变量表)中引用的对象；2.方法区中类静态属性引用的对象；3.方法区中常量引用的对象；4.本地方法栈中JNI(一般说Native方法)引用的对象。</p>
+<h4 id="宣告对象死亡"><a href="#宣告对象死亡" class="headerlink" title="宣告对象死亡"></a>宣告对象死亡</h4><p>当根据可达性分析算法分析到该对象没有链接到“GC Roots”的引用链时，并不会真正的宣告该对象死亡。真正宣告一个对象死亡，至少要经历两次标记过程：如果对象在进行可达性分析后，没有发现与GC Roots相连接的引用链，那它将会被第一次标记且进行一次筛选，筛选的条件是是此对象是否有必要执行finalize()方法。没有必要执行：1、对象没有覆盖该方法；2、该方法已被虚拟机调用过。如果有必要执行该方法，则对象会被放置在一个叫做F-Queue的队列中，并在稍后由一个由虚拟机自动建立的、低优先级的Finalizer线程去执行它(触发但不承诺等待它运行结束)。</p>
+<p>finalize()方法是对象逃脱死亡的最后一次机会(重新与引用链上的任何一个对象建立关联即可，如把自己(this关键字)赋值给某个类变量或者对象的成员变量)。稍后GC将对叫做F-Queue队列中的对象进行第二次小规模的标记(成功自救的移除“即将回收”的集合)。如下代码演示了对象逃逸：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * finalize()演示垃圾回收逃逸和回收</div><div class="line"> *</div><div class="line"> * &lt;p&gt;1.一个对象当要被回收的时候可以逃逸.&lt;br&gt;</div><div class="line"> * 2.一个对象只能有一次机会逃逸，因为finalize最多只能被系统调用一次.</div><div class="line"> *</div><div class="line"> * @author Glenn</div><div class="line"> * @since 2016-12-29</div><div class="line"> */</div><div class="line">public class FinalizeEscapeGCTest &#123;</div><div class="line"></div><div class="line">    private static FinalizeEscapeGCTest SAVE_HOOK = null;</div><div class="line"></div><div class="line">    private void isAlive() &#123;</div><div class="line">        System.out.println(&quot;yes, i am still alive :)&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    protected void finalize() throws Throwable &#123;</div><div class="line">        super.finalize();</div><div class="line">        System.out.println(&quot;method finalize executed...&quot;);</div><div class="line">        FinalizeEscapeGCTest.SAVE_HOOK = this;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static void main(String args[]) &#123;</div><div class="line">        SAVE_HOOK = new FinalizeEscapeGCTest();</div><div class="line">        /*the object escape at first*/</div><div class="line">        SAVE_HOOK = null;</div><div class="line">        System.gc();</div><div class="line">        try &#123;</div><div class="line">            Thread.sleep(500);</div><div class="line">        &#125; catch (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        if (SAVE_HOOK == null) &#123;</div><div class="line">            System.out.println(&quot;no, i am dead :(&quot;);</div><div class="line">        &#125; else &#123;</div><div class="line">            SAVE_HOOK.isAlive();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /*the object escape for twice failed*/</div><div class="line">        SAVE_HOOK = null;</div><div class="line">        System.gc();</div><div class="line">        try &#123;</div><div class="line">            Thread.sleep(500);</div><div class="line">        &#125; catch (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        if (SAVE_HOOK == null) &#123;</div><div class="line">            System.out.println(&quot;no, i am dead :(&quot;);</div><div class="line">        &#125; else &#123;</div><div class="line">            SAVE_HOOK.isAlive();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h5 id="finalize-方法"><a href="#finalize-方法" class="headerlink" title="finalize()方法"></a>finalize()方法</h5><p>运行代价昂贵、不确定性大、无法保证各个对象的调用顺序，其所能做的工作try-finally或其他方法能做更好更及时。</p>
+<h4 id="回收方法区"><a href="#回收方法区" class="headerlink" title="回收方法区"></a>回收方法区</h4><p>回收主要部分：废弃常量和无用的类。回收废弃常量与堆中对象的回收非常类似。判定无用的类：1、该类的所有的实例都已经被回收；2、加载该类的ClassLoader已经被回收；3、该类对应的java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。无用类可以被回收，但不是必然被回收，HotSpot虚拟机提供-Xnoclassgc参数进行控制。</p>
+<h4 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h4><h5 id="标记—清除算法"><a href="#标记—清除算法" class="headerlink" title="标记—清除算法"></a>标记—清除算法</h5><p>分为“标记”“清除”两个阶段，首先标记出所有需要回收的对象，在标记完成后统一回收所有被标记的对象。问题：1、效率低，标记和清除两个过程都效率低；2、空间，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后在程序运行过程中需要分配较大对象时，无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。如图所示：</p>
+<p><img src="/垃圾回收策略/标记—清除算法.png" alt=""></p>
+<h5 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h5><p>将可用内存按容量划分为大小相等的两块，每次只使用其中的一块，当这一块地内存用完了，将还存活着地对象复制到另一块上面，然后再把已使用过的内存空间一次清理掉。优点：分配时不用考虑内存碎片，按顺序分配，实现简单，运行高效。代价：将内存缩小为了原来的一半，未免太高了点。</p>
+<p>现代商业虚拟机都采用此种收集算法来回收新生代，IBM研究：新生代中的对象98%是“朝生夕死”的。HotSpot中，Eden与Survivor的大小比例为8:1，即新生代中可用的内存空间为新生代容量的90%。如图所示：</p>
+<p><img src="/垃圾回收策略/复制算法.png" alt=""></p>
+<h5 id="标记—整理算法"><a href="#标记—整理算法" class="headerlink" title="标记—整理算法"></a>标记—整理算法</h5><p>根据老年代的特点，提出了该算法，标记过程仍然与“标记—清除”算法一样，但后续步骤不是对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉边界以外的内存。如图所示：</p>
+<p><img src="/垃圾回收策略/标记—整理算法.png" alt=""></p>
+<h4 id="HotSpot算法实现"><a href="#HotSpot算法实现" class="headerlink" title="HotSpot算法实现"></a>HotSpot算法实现</h4><h5 id="枚举根节点"><a href="#枚举根节点" class="headerlink" title="枚举根节点"></a>枚举根节点</h5><p>可达性分析必须在一个能确保一致性的快照中进行，一致性：整个分析期间整个执行系统看起来就像被冻结在某个时间点上，不可以出现出现分析过程中对象引用关系还在不断的变化，否则无法保证分析结果的准确性。该点是导致GC进行时必须停顿所有java执行线程的一个重要原因。</p>
+<h5 id="HotSpot实现枚举"><a href="#HotSpot实现枚举" class="headerlink" title="HotSpot实现枚举"></a>HotSpot实现枚举</h5><p>使用一组称为OopMap的数据结构，在类加载完成的时候，HotSpot就把对象内什么偏移量上是什么类型的数据计算出来，在JIT编译过程中，也会在特定的位置记录下栈和寄存器中哪些位置是引用。</p>
+<h5 id="安全点safepoint"><a href="#安全点safepoint" class="headerlink" title="安全点safepoint"></a>安全点safepoint</h5><p>HotSpot没有为每条指令都生成OopMap，只是在“特定位置”记录了这些信息，这些位置称为安全点，即程序执行时并非在所有地方都停顿下来开始GC，只有在到达安全点时才停止。safepoint选定标准：是否具有让程序长时间执行的特征。所以只有指令复用如方法调用、循环跳转、异常跳转等具有这些功能等指令才会产生safepoint。如何在GC发生时让所有线程都“跑”到最近的安全点上再停顿下来。</p>
+<h5 id="主动式中断"><a href="#主动式中断" class="headerlink" title="主动式中断"></a>主动式中断</h5><p>当GC需要中断线程的时候，不直接对线程操作，仅仅简单的设置一个标志，各个线程执行时去轮询这个标志，发现中断标志为真时就自己挂起中断。轮询标志的地方和安全点是重合的，另外再加上创建对象需要分配内存的地方。</p>
+<h5 id="安全区域"><a href="#安全区域" class="headerlink" title="安全区域"></a>安全区域</h5><p>safepoint机制保证了程序执行时，在不太长的时间内就会遇到可进入GC的safepoint。但是当线程处于Sleep或者Blocked状态，就无法响应JVM的中断请求，“走”到安全点地方去挂起中断，JVM也不可能等待线程重新被分配CPU时间。安全区域safe region：在一段代码片段中，引用关系不会发生变化。</p>
+<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/二叉树遍历—Morris遍历/" rel="next" title="二叉树遍历—Morris遍历">
+                <i class="fa fa-chevron-left"></i> 二叉树遍历—Morris遍历
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Glenn" />
+          <p class="site-author-name" itemprop="name">Glenn</p>
+           
+              <p class="site-description motion-element" itemprop="description">you want more then you could get more.</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Glenen" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-facebook"></i>
+                  
+                  Facebook
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#判断对象是否存活算法"><span class="nav-number">2.</span> <span class="nav-text">判断对象是否存活算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#引用计数算法"><span class="nav-number">2.1.</span> <span class="nav-text">引用计数算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#可达性分析算法"><span class="nav-number">2.2.</span> <span class="nav-text">可达性分析算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#java中可作为GC-Roots对象包括"><span class="nav-number">2.3.</span> <span class="nav-text">java中可作为GC Roots对象包括</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#宣告对象死亡"><span class="nav-number">3.</span> <span class="nav-text">宣告对象死亡</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#finalize-方法"><span class="nav-number">3.1.</span> <span class="nav-text">finalize()方法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#回收方法区"><span class="nav-number">4.</span> <span class="nav-text">回收方法区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#垃圾收集算法"><span class="nav-number">5.</span> <span class="nav-text">垃圾收集算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#标记—清除算法"><span class="nav-number">5.1.</span> <span class="nav-text">标记—清除算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#复制算法"><span class="nav-number">5.2.</span> <span class="nav-text">复制算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#标记—整理算法"><span class="nav-number">5.3.</span> <span class="nav-text">标记—整理算法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HotSpot算法实现"><span class="nav-number">6.</span> <span class="nav-text">HotSpot算法实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#枚举根节点"><span class="nav-number">6.1.</span> <span class="nav-text">枚举根节点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HotSpot实现枚举"><span class="nav-number">6.2.</span> <span class="nav-text">HotSpot实现枚举</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#安全点safepoint"><span class="nav-number">6.3.</span> <span class="nav-text">安全点safepoint</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#主动式中断"><span class="nav-number">6.4.</span> <span class="nav-text">主动式中断</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#安全区域"><span class="nav-number">6.5.</span> <span class="nav-text">安全区域</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">7.</span> <span class="nav-text">完结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Glenn</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://Glenen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://glenen.github.io/垃圾回收策略/';
+          this.page.identifier = '垃圾回收策略/';
+          this.page.title = '垃圾回收策略';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://Glenen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+</body>
+</html>

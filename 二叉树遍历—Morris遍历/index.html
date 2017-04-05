@@ -94,23 +94,20 @@
 
 
 <meta name="description" content="前言写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。
-二叉树的遍历种类可谓多：深度优先遍历DFS——借助栈，打破砂锅问到底，控制好节点的访问权即可。广度优先遍历BFS——借助队列，浅尝则止。层序遍历——借助队列，父节点出队之时即它孩子入队之日。
-今天所记录的是二叉树的先、中、后序遍历，遍历的方法也是很多：递归、借助栈、递归加迭代、Mor">
+上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="二叉树遍历—借助栈">
-<meta property="og:url" content="https://glenen.github.io/二叉树遍历——借助栈/index.html">
+<meta property="og:title" content="二叉树遍历—Morris遍历">
+<meta property="og:url" content="https://glenen.github.io/二叉树遍历—Morris遍历/index.html">
 <meta property="og:site_name" content="Glenn Blog">
 <meta property="og:description" content="前言写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。
-二叉树的遍历种类可谓多：深度优先遍历DFS——借助栈，打破砂锅问到底，控制好节点的访问权即可。广度优先遍历BFS——借助队列，浅尝则止。层序遍历——借助队列，父节点出队之时即它孩子入队之日。
-今天所记录的是二叉树的先、中、后序遍历，遍历的方法也是很多：递归、借助栈、递归加迭代、Mor">
-<meta property="og:image" content="https://glenen.github.io/二叉树遍历——借助栈/二叉树.png">
-<meta property="og:updated_time" content="2017-04-04T10:16:26.000Z">
+上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。">
+<meta property="og:image" content="https://glenen.github.io/二叉树遍历—Morris遍历/二叉树—Morris.png">
+<meta property="og:updated_time" content="2017-04-05T15:15:19.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="二叉树遍历—借助栈">
+<meta name="twitter:title" content="二叉树遍历—Morris遍历">
 <meta name="twitter:description" content="前言写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。
-二叉树的遍历种类可谓多：深度优先遍历DFS——借助栈，打破砂锅问到底，控制好节点的访问权即可。广度优先遍历BFS——借助队列，浅尝则止。层序遍历——借助队列，父节点出队之时即它孩子入队之日。
-今天所记录的是二叉树的先、中、后序遍历，遍历的方法也是很多：递归、借助栈、递归加迭代、Mor">
-<meta name="twitter:image" content="https://glenen.github.io/二叉树遍历——借助栈/二叉树.png">
+上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。">
+<meta name="twitter:image" content="https://glenen.github.io/二叉树遍历—Morris遍历/二叉树—Morris.png">
 
 
 
@@ -138,13 +135,13 @@
 
 
 
-  <link rel="canonical" href="https://glenen.github.io/二叉树遍历——借助栈/"/>
+  <link rel="canonical" href="https://glenen.github.io/二叉树遍历—Morris遍历/"/>
 
 
 
 
 
-  <title> 二叉树遍历—借助栈 | Glenn Blog </title>
+  <title> 二叉树遍历—Morris遍历 | Glenn Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -317,7 +314,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/二叉树遍历——借助栈/">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/二叉树遍历—Morris遍历/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Glenn">
@@ -338,7 +335,7 @@
             
             
               
-                二叉树遍历—借助栈
+                二叉树遍历—Morris遍历
               
             
           </h1>
@@ -353,8 +350,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-10-02T00:00:00+08:00">
-                2016-10-02
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-20T00:00:00+08:00">
+                2016-11-20
               </time>
             
 
@@ -394,9 +391,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/二叉树遍历——借助栈/#comments" itemprop="discussionUrl">
+                <a href="/二叉树遍历—Morris遍历/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="二叉树遍历——借助栈/" itemprop="commentCount"></span>
+                        data-disqus-identifier="二叉树遍历—Morris遍历/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -428,52 +425,93 @@
 
       
         <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。</p>
-<p>二叉树的遍历种类可谓多：深度优先遍历DFS——借助栈，打破砂锅问到底，控制好节点的访问权即可。广度优先遍历BFS——借助队列，浅尝则止。层序遍历——借助队列，父节点出队之时即它孩子入队之日。</p>
-<p>今天所记录的是二叉树的先、中、后序遍历，遍历的方法也是很多：递归、借助栈、递归加迭代、Morris遍历(最佳方式，后续会补上博文)。前三种方式中，时间复杂度均为O(n)，空间复杂度O(logn)。递归方式也最简单，本质是借助函数栈。在此研究的是借助栈实现三种遍历，不难但却给我们传递了一种借助数据结构解决问题的思想，还是非常值得体会的。</p>
+<p>上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。</p>
 <a id="more"></a>
-<h5 id="一棵二叉树图："><a href="#一棵二叉树图：" class="headerlink" title="一棵二叉树图："></a>一棵二叉树图：</h5><p><img src="/二叉树遍历——借助栈/二叉树.png" alt="二叉树"></p>
-<h5 id="java定义二叉树数据结构："><a href="#java定义二叉树数据结构：" class="headerlink" title="java定义二叉树数据结构："></a>java定义二叉树数据结构：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 定义二叉树</div><div class="line"> */</div><div class="line">@Data</div><div class="line">private class Node &#123;</div><div class="line">    /**</div><div class="line">     * 节点值</div><div class="line">     */</div><div class="line">    private int dataValue;</div><div class="line">    /**</div><div class="line">     * 左孩子节点</div><div class="line">     */</div><div class="line">    private Node left;</div><div class="line">    /**</div><div class="line">     * 右孩子节点</div><div class="line">     */</div><div class="line">    private Node right;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>注：因为本人IDE测试都写在一个类中，所有采用了内部类定义结构。</p>
-<h4 id="先序遍历"><a href="#先序遍历" class="headerlink" title="先序遍历"></a>先序遍历</h4><p>头节点 —&gt; 左孩子节点 —&gt; 右孩子节点。</p>
-<h5 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h5><p>头节点最先压入栈 —&gt; 弹出并打印其节点值 —&gt; 顺序检查其右、左孩子节点是否为null —&gt; 不为null的入栈 —&gt; 继续第二步骤及其后续 —&gt; 栈为空后退出循环。</p>
-<h5 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 二叉树先序遍历：借助栈</div><div class="line"> *</div><div class="line"> * @param head 头节点</div><div class="line"> */</div><div class="line">public static void preTraversal(Node head) &#123;</div><div class="line">    <span class="keyword">if</span> (head == null) &#123;</div><div class="line">        <span class="built_in">return</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        System.out.print(<span class="string">"preTraversal:"</span>);</div><div class="line">        Stack&lt;Node&gt; temp = new Stack&lt;&gt;();</div><div class="line">        // 头节点压入栈</div><div class="line">        temp.push(head);</div><div class="line">        <span class="keyword">while</span> (!temp.isEmpty()) &#123;</div><div class="line">            head = temp.pop();</div><div class="line">            System.out.print(head.dataValue + <span class="string">" "</span>);</div><div class="line">            // 右孩子先入栈</div><div class="line">            <span class="keyword">if</span> (head.right != null) &#123;</div><div class="line">                temp.push(head.right);</div><div class="line">            &#125;</div><div class="line">            // 左孩子后入栈</div><div class="line">            <span class="keyword">if</span> (head.left != null) &#123;</div><div class="line">                temp.push(head.left);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    System.out.println();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="中序遍历"><a href="#中序遍历" class="headerlink" title="中序遍历"></a>中序遍历</h4><p>左孩子节点 —&gt; 头节点 —&gt; 右孩子节点。</p>
-<h5 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h5><p>头节点压入栈 —&gt; 递归将其左孩子及左孩子一条斜线上的节点压入栈：左孩子及左孩子的左孩子… —&gt; 最左的左孩子为null时：弹出栈顶节点 —&gt; 打印其节点值，并把它右孩子节点入栈 —&gt; 继续第二步骤及后续 —&gt; 栈为空时退出循环。</p>
-<h5 id="代码实现-1"><a href="#代码实现-1" class="headerlink" title="代码实现"></a>代码实现</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 二叉树中序遍历：借助栈</div><div class="line"> *</div><div class="line"> * @param head 头节点</div><div class="line"> */</div><div class="line">public static void midTraversal(Node head) &#123;</div><div class="line">    <span class="keyword">if</span> (head == null) &#123;</div><div class="line">        <span class="built_in">return</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        System.out.print(<span class="string">"midTraversal:"</span>);</div><div class="line">        Stack&lt;Node&gt; temp = new Stack&lt;&gt;();</div><div class="line">        temp.push(head);</div><div class="line">        <span class="keyword">while</span> (!temp.isEmpty() || head != null) &#123;</div><div class="line">            // 连续把二叉树最左一条斜线上的节点压入栈</div><div class="line">            <span class="keyword">if</span> (head.left != null) &#123;</div><div class="line">                temp.push(head.left);</div><div class="line">                head = head.left;</div><div class="line">            // 弹出栈顶节点，让其右孩子继续上述过程</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                head = temp.pop();</div><div class="line">                System.out.print(head.dataValue + <span class="string">" "</span>);</div><div class="line">                head = head.right;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    System.out.println();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="后序遍历"><a href="#后序遍历" class="headerlink" title="后序遍历"></a>后序遍历</h4><p>左孩子节点 —&gt; 右孩子节点 —&gt; 头节点。</p>
-<h5 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h5><p>此处借助两个栈实现，也更好理解，当然也可以借助一个栈结构实现。<br>头节点入栈1 —&gt; 栈1弹出节点并压入栈2 —&gt;  顺序检测弹出节点的左、右孩子是否为null —&gt; 不为null则顺序压入栈1 —&gt; 继续步骤2及其后续 —&gt; 栈1为空则退出循环 —&gt; 此时栈2中的节点顺序已是后序遍历顺序，循环弹出打印其节点即可。</p>
-<h5 id="代码实现-2"><a href="#代码实现-2" class="headerlink" title="代码实现"></a>代码实现</h5><pre><code class="bash">/**
- * 二叉树后序遍历：借助栈
+<h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><p>先给出一棵二叉树：</p>
+<p><img src="/二叉树遍历—Morris遍历/二叉树—Morris.png" alt="通"></p>
+<p>如图所示，这树比较奇特，没啥别的，就是叶子节点多了些箭头指向自己上层的节点。平时叶子节点都是干干净净的，今天突然冒出来必然不是冒然的。今天我们就要运用这些箭头完成节点控制权的转移。</p>
+<p>如我们所知，二叉树由上层节点向下层节点转移很容易，因为它有从父节点指向孩子节点的指针，但是孩子节点向父节点转移就没那么容易了—没有直接的指向指针。我们借助栈结构遍历时候，其实做的工作就是完成节点控制权的转移。但现在我们可以利用叶子节点那些大量指向Null的空闲指针来帮助我们完成其节点控制权的转移，从而完成二叉树的遍历。</p>
+<p>此处给出大体方向，详细点的代码中注释，后序我选择放弃—因为难啊！</p>
+<p>1.第一个目标！就是让整颗二叉树中的节点都过一把当头节点的隐，当然，前提是它得有孩子。</p>
+<p>2.第二个目标！每个节点当头节点时，都让以它为头节点的左子树的最右边的叶子节点的right Null指针指向该头节点。</p>
+<p>3.第三个目标！按照我们的意愿控制节点的控制权的转移。</p>
+<pre><code class="bash">/**
+ * Morris 中序遍历
  *
- * @param head 头节点
+ * @param 头节点
  */
-public static void behTraversal(Node head) {
-    <span class="keyword">if</span> (head == null) {
-        <span class="built_in">return</span>;
-    } <span class="keyword">else</span> {
-        // 借助两个栈来完成
-        Stack&lt;Node&gt; temp1 = new Stack&lt;&gt;();
-        Stack&lt;Node&gt; temp2 = new Stack&lt;&gt;();
-        System.out.print(<span class="string">"behTraversal:"</span>);
-        temp1.push(head);
-        <span class="keyword">while</span> (!temp1.isEmpty()) {
-            head = temp1.pop();
-            temp2.push(head);
-            // 入栈顺序很重要
-            <span class="keyword">if</span> (head.left != null) {
-                temp1.push(head.left);
-            }
-            <span class="keyword">if</span> (head.right != null) {
-                temp1.push(head.right);
+public static void midTraversal(Node head) {
+        <span class="keyword">if</span> (head == null) {
+            <span class="built_in">return</span>;
+        } <span class="keyword">else</span> {
+            System.out.print(<span class="string">"midTraversal:"</span>);
+            Node cur1 = head;
+            Node cur2 = null;
+            <span class="keyword">while</span> (cur1 != null) {
+                cur2 = cur1.left;
+                <span class="keyword">if</span> (cur2 != null) {
+                    // 找到每棵二叉树的左子树的最右叶子节点
+                    <span class="keyword">while</span> (cur2.right != null &amp;&amp; cur2.right != cur1) {
+                        cur2 = cur2.right;
+                    }
+                    // 让该叶子节点的right Null指针指向其头节点
+                    <span class="keyword">if</span> (cur2.right == null) {
+                        // 把以cur1为头节点的左子树最右节点的right空指针指向cur1
+                        cur2.right = cur1;
+                        // 控制权转移给它左孩子，继续寻找最右               
+                        // 叶子节点的right Null指针指向头节点的操作
+                        cur1 = cur1.left;
+                        <span class="built_in">continue</span>;
+                    // 还原以前的二叉树结构
+                    } <span class="keyword">else</span> {
+                        cur2.right = null;
+                    }
+                    System.out.print(cur1.dataValue + <span class="string">" "</span>);
+                    // 根据我们建立的right指针控制节点的转移
+                    cur1 = cur1.right;
+                }
             }
         }
-        // temp2栈中的顺序已是后序
-        <span class="keyword">while</span> (!temp2.isEmpty()) {
-            System.out.print(temp2.pop() + <span class="string">" "</span>);
-        }
+        System.out.println();
     }
-    System.out.println();
-}
+</code></pre>
+<pre><code class="bash">/**
+ * Morris 先序遍历
+ *
+ * @param 头节点
+ */
+public static void preTraversal(Node head) {
+        <span class="keyword">if</span> (head == null) {
+            <span class="built_in">return</span>;
+        } <span class="keyword">else</span> {
+            System.out.print(<span class="string">"preTraversal:"</span>);
+            Node cur1 = head;
+            Node cur2 = null;
+            <span class="keyword">while</span> (cur1 != null) {
+                cur2 = cur1.left;
+                <span class="keyword">if</span> (cur2 != null) {
+                    // 找到每棵二叉树的左子树的最右叶子节点
+                    <span class="keyword">while</span> (cur2.right != null &amp;&amp; cur2.right != cur1) {
+                        cur2 = cur2.right;
+                    }
+                    // 让该叶子节点的right Null指针指向其头节点
+                    <span class="keyword">if</span> (cur2.right == null) {
+                        // 把以cur1为头节点的左子树最右节点的right空指针指向cur1
+                        cur2.right = cur1;
+                        System.out.print(cur1.dataValue + <span class="string">" "</span>);
+                        <span class="built_in">continue</span>;
+                    // 还原以前的二叉树结构
+                    } <span class="keyword">else</span> {
+                        cur2.right = null;
+                    }
+                } <span class="keyword">else</span> {
+                    // 根据我们建立的right指针控制节点的转移
+                    cur1 = cur1.right;
+                }
+            }
+        }
+        System.out.println();
+    }
 </code></pre>
 <h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
       
@@ -511,8 +549,8 @@ public static void behTraversal(Node head) {
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/韶华倾付/" rel="next" title="韶华倾付">
-                <i class="fa fa-chevron-left"></i> 韶华倾付
+              <a href="/日常总结—1/" rel="next" title="日常总结—1">
+                <i class="fa fa-chevron-left"></i> 日常总结—1
               </a>
             
           </div>
@@ -521,8 +559,8 @@ public static void behTraversal(Node head) {
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/java运行时数据区域/" rel="prev" title="java运行时数据区域">
-                java运行时数据区域 <i class="fa fa-chevron-right"></i>
+              <a href="/垃圾回收策略/" rel="prev" title="垃圾回收策略">
+                垃圾回收策略 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -679,7 +717,7 @@ public static void behTraversal(Node head) {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#一棵二叉树图："><span class="nav-number">1.1.</span> <span class="nav-text">一棵二叉树图：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#java定义二叉树数据结构："><span class="nav-number">1.2.</span> <span class="nav-text">java定义二叉树数据结构：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#先序遍历"><span class="nav-number">2.</span> <span class="nav-text">先序遍历</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#思路"><span class="nav-number">2.1.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#代码实现"><span class="nav-number">2.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#中序遍历"><span class="nav-number">3.</span> <span class="nav-text">中序遍历</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#思路-1"><span class="nav-number">3.1.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#代码实现-1"><span class="nav-number">3.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#后序遍历"><span class="nav-number">4.</span> <span class="nav-text">后序遍历</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#思路-2"><span class="nav-number">4.1.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#代码实现-2"><span class="nav-number">4.2.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">5.</span> <span class="nav-text">完结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#思路"><span class="nav-number">2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">3.</span> <span class="nav-text">完结</span></a></li></ol></div>
             
 
           </div>
@@ -841,9 +879,9 @@ public static void behTraversal(Node head) {
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://glenen.github.io/二叉树遍历——借助栈/';
-          this.page.identifier = '二叉树遍历——借助栈/';
-          this.page.title = '二叉树遍历—借助栈';
+          this.page.url = 'https://glenen.github.io/二叉树遍历—Morris遍历/';
+          this.page.identifier = '二叉树遍历—Morris遍历/';
+          this.page.title = '二叉树遍历—Morris遍历';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://Glenen.disqus.com/embed.js';
