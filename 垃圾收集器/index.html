@@ -93,19 +93,21 @@
 
 
 
-<meta name="description" content="前言该总结属于原理性总结，根据自身状况而总结，并非详细总结。转载请注明出处，仅供参考。
-注解annotationannotation原理一种元数据，即描述数据的数据。注解就是一个继承自‘java.lang.annotation.Annotation’的接口，java通过动态代理的方式为你生成了一个实现了“接口”的实例（对于当前的实体来说，例如类、方法、属性域等，这个代理对象是单例的），然后对该代理">
+<meta name="description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
+概要如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="日常总结—1">
-<meta property="og:url" content="https://glenen.github.io/日常总结—1/index.html">
+<meta property="og:title" content="垃圾收集器">
+<meta property="og:url" content="https://glenen.github.io/垃圾收集器/index.html">
 <meta property="og:site_name" content="Glenn Blog">
-<meta property="og:description" content="前言该总结属于原理性总结，根据自身状况而总结，并非详细总结。转载请注明出处，仅供参考。
-注解annotationannotation原理一种元数据，即描述数据的数据。注解就是一个继承自‘java.lang.annotation.Annotation’的接口，java通过动态代理的方式为你生成了一个实现了“接口”的实例（对于当前的实体来说，例如类、方法、属性域等，这个代理对象是单例的），然后对该代理">
-<meta property="og:updated_time" content="2017-04-04T13:24:08.000Z">
+<meta property="og:description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
+概要如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。">
+<meta property="og:image" content="https://glenen.github.io/垃圾收集器/hotspot垃圾收集器.png">
+<meta property="og:updated_time" content="2017-04-09T12:40:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="日常总结—1">
-<meta name="twitter:description" content="前言该总结属于原理性总结，根据自身状况而总结，并非详细总结。转载请注明出处，仅供参考。
-注解annotationannotation原理一种元数据，即描述数据的数据。注解就是一个继承自‘java.lang.annotation.Annotation’的接口，java通过动态代理的方式为你生成了一个实现了“接口”的实例（对于当前的实体来说，例如类、方法、属性域等，这个代理对象是单例的），然后对该代理">
+<meta name="twitter:title" content="垃圾收集器">
+<meta name="twitter:description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
+概要如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。">
+<meta name="twitter:image" content="https://glenen.github.io/垃圾收集器/hotspot垃圾收集器.png">
 
 
 
@@ -133,13 +135,13 @@
 
 
 
-  <link rel="canonical" href="https://glenen.github.io/日常总结—1/"/>
+  <link rel="canonical" href="https://glenen.github.io/垃圾收集器/"/>
 
 
 
 
 
-  <title> 日常总结—1 | Glenn Blog </title>
+  <title> 垃圾收集器 | Glenn Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -312,7 +314,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/日常总结—1/">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/垃圾收集器/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Glenn">
@@ -333,7 +335,7 @@
             
             
               
-                日常总结—1
+                垃圾收集器
               
             
           </h1>
@@ -348,8 +350,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-11T00:00:00+08:00">
-                2016-11-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-20T00:00:00+08:00">
+                2016-12-20
               </time>
             
 
@@ -371,8 +373,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/总结/" itemprop="url" rel="index">
-                    <span itemprop="name">总结</span>
+                  <a href="/categories/JVM原理/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM原理</span>
                   </a>
                 </span>
 
@@ -389,9 +391,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/日常总结—1/#comments" itemprop="discussionUrl">
+                <a href="/垃圾收集器/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="日常总结—1/" itemprop="commentCount"></span>
+                        data-disqus-identifier="垃圾收集器/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -422,28 +424,25 @@
       
 
       
-        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>该总结属于原理性总结，根据自身状况而总结，并非详细总结。转载请注明出处，仅供参考。</p>
-<h4 id="注解annotation"><a href="#注解annotation" class="headerlink" title="注解annotation"></a>注解annotation</h4><h5 id="annotation原理"><a href="#annotation原理" class="headerlink" title="annotation原理"></a>annotation原理</h5><p>一种元数据，即描述数据的数据。注解就是一个继承自‘java.lang.annotation.Annotation’的接口，java通过动态代理的方式为你生成了一个实现了“接口”的实例（对于当前的实体来说，例如类、方法、属性域等，这个代理对象是单例的），然后对该代理实例的属性赋值，这样就可以在程序运行时（如果将注解设置为运行时可见的话）通过反射获取到注解的配置信息。注解的属性设置是在编译时就确定了的，通过CLHSDB在eden区找到注解实例。类型<code>com/sun/proxy/$Proxy1</code>是JDK动态代理生成对象时的默认类型，其中<code>com.sun.proxy</code>是默认的包名，定义于<code>ReflectUtil</code>类的<code>PROXY_PACKAGE</code>字段中。代理类名<code>$PROXY1</code>包含两部分，其中前缀<code>$PROXY</code>是JDK种默认的代理类类名前缀，后的1是自增的结果。</p>
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。</p>
+<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。</p>
 <a id="more"></a>
-<h5 id="自定义annotation"><a href="#自定义annotation" class="headerlink" title="自定义annotation"></a>自定义annotation</h5><p>4个用于描述自定义注解的注解：1.@Target  2.@Retention  3.@Documented  4.@Inherited。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">@Target(ElementType.METHOD)</div><div class="line">@Retention(RetentionPolicy.SOURCE)</div><div class="line">public @interface Override&#123;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="数据库索引-分类及创建索引原则略"><a href="#数据库索引-分类及创建索引原则略" class="headerlink" title="数据库索引(分类及创建索引原则略)"></a>数据库索引(分类及创建索引原则略)</h4><h5 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h5><p>数据库管理系统中一个排序的数据结构，以协助快速查询、更新数据库表中数据。在数据之外，数据库系统还维护着满足特定查找算法的数据结构，这些数据结构以某种方式引用（指向）数据，这样就可以在这些数据结构上实现高级查找算法。</p>
-<h5 id="索引优缺点"><a href="#索引优缺点" class="headerlink" title="索引优缺点"></a>索引优缺点</h5><p>优点：1:创建唯一性索引，可以保证数据库表中每一行数据的唯一性  2:大大加快数据的检索速度（主要）  3: 加速表和表之间的连接  4:使用索引，可以在查询的过程中，使用优化隐藏器，提高系统的性能  等等。</p>
-<p>缺点：1: 创建索引和维护索引要耗费时间  2: 索引需要占物理空间，除了数据表占数据空间之外，每一个索引还要占一定的物理空间，如果要建立聚簇索引，那么需要的空间就会更大  3: 对表中的数据进行增加、删除和修改的时候，索引也要动态的维护，这样就降低了数据的维护速度。</p>
-<h5 id="索引原理"><a href="#索引原理" class="headerlink" title="索引原理"></a>索引原理</h5><p>局部性原理：当一个数据被用到时，其附近的数据也通常会马上被使用。程序运行期间所需要的数据通常比较集中 。</p>
-<p>磁盘预读：磁盘顺序读取的效率很高（不需要寻道时间，只需很少的旋转时间），因此对于具有局部性的程序来说，预读可以提高I/O效率。预读的长度一般为页（page）的整倍数。</p>
-<p>B-Tree索引：根据B-Tree的定义，可知检索一次最多需要访问h个节点。数据库系统的设计者巧妙利用了磁盘预读原理，将一个节点的大小设为等于一个页，这样每个节点只需要一次I/O就可以完全载入。为了达到这个目的，在实际实现B-Tree还需要使用如下技巧：每次新建节点时，直接申请一个页的空间，这样就保证一个节点物理上也存储在一个页里，加之计算机存储分配都是按页对齐的，就实现了一个node只需一次I/O。</p>
-<h4 id="悲观锁与乐观锁"><a href="#悲观锁与乐观锁" class="headerlink" title="悲观锁与乐观锁"></a>悲观锁与乐观锁</h4><h5 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h5><p>悲观锁：数据被外界（包括本系统当前的其他事务，以及来自外部系统的事务处理）修改持保守态度，因此，在整个数据处理过程中，将数据处于锁定状态。</p>
-<p>乐观锁：相对悲观锁而言，乐观锁机制采取了更加宽松的加锁机制。悲观锁大多数情况下依靠数据库的锁机制实现，以保证操作最大程度的独占性。但随之而来的就是数据库性能的大量开销，特别是对长事务而言，这样的开销往往无法承受。</p>
-<h5 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h5><p>悲观锁：往往依靠数据库提供的锁机制(也只有数据库层提供的锁机制才能真正保证数据访问的排他性，否则，即使在本系统中实现了加锁机制，也无法保证外部系统不会修改数据)。</p>
-<p>乐观锁：大多是基于数据版本(Version)记录机制实现。即为数据增加一个版本标识(只要是可以用来作为判断的字段都行)，在基于数据库表的版本解决方案中，一般是通过为数据库表增加一个 “version” 字段来实现。读取出数据时，将此版本号一同读出，之后更新时，对此版本号加一。此时，将提交数据的版本数据与数据库表对应记录的当前版本信息进行比对，如果提交的数据版本号大于数据库表当前版本号，则予以更新，否则认为是过期数据。本质还是通过CAS(compare and swap)机制完成，包括JDK中的原子类的各种操作都是CAS处理并发(各种封装的根本还是Unsafe类)，防止数据脏读。</p>
-<h5 id="mysql几个有用sql语句"><a href="#mysql几个有用sql语句" class="headerlink" title="mysql几个有用sql语句"></a>mysql几个有用sql语句</h5><p>Select…For Update: 该语句用来锁定特定的行（如果有where子句，就是满足where条件的那些行）。当这些行被锁定后，其他会话可以选择这些行，但不能更改或删除这些行，直到该语句的事务被commit语句或rollback语句结束为止(和SELECT … LOCK IN SHARE MODE类似)。</p>
-<p>insert ignore into…：插入数据，根据主键或者唯一索引判断记录是否存在，不存在则插入，存在则忽略，以警告形式返回。</p>
-<p>insert into…on duplicate key update…：插入时根据主键或者唯一索引判断记录是否存在，不存在则插入，存在则更新指定字段的内容，其他字段不变。</p>
-<p>replace into：根据主键或者唯一索引判断记录，不存在，则插入，没有赋值的字段，插入后该字段为空，存在则先删除记录再插入。</p>
-<p>insert into…select…where not exist：根据select的条件判断是否插入，不止可以通过主键或者唯一索引，还可通过其他条件。</p>
-<h4 id="重定向与转发"><a href="#重定向与转发" class="headerlink" title="重定向与转发"></a>重定向与转发</h4><h5 id="概念-2"><a href="#概念-2" class="headerlink" title="概念"></a>概念</h5><p>重定向：重定向是客户端行为，客户浏览器发送http请求——&gt;web服务器接受后发送302状态码响应及对应新的location给客户浏览器——&gt;客户浏览器发现是302响应，则自动再发送一个新的http请求，请求url是新的location地址——&gt;服务器根据此请求寻找资源并发送给客户。在这里location可以重定向到任意URL，既然是浏览器重新发出了请求，则就没有什么request传递的概念了。在客户浏览器路径栏显示的是其重定向的路径，客户可以观察到地址的变化的。重定向行为是浏览器做了至少两次的访问请求的。在重定向的过程中，传输的信息会被丢失。</p>
-<p>转发：转发是服务器行为。客户浏览器发送http请求——&gt;web服务器接受此请求——&gt;调用内部的一个方法在容器内部完成请求处理和转发动作——&gt;将目标资源发送给客户；在这里，转发的路径必须是同一个web容器下的url，其不能转向到其他的web路径上去，中间传递的是自己的容器内的request。在客户浏览器路径栏显示的仍然是其第一次访问的路径，也就是说客户是感觉不到服务器做了转发的。转发行为是浏览器只做了一次访问请求。传输的信息不会丢失。</p>
+<p><img src="/垃圾收集器/hotspot垃圾收集器.png" alt=""></p>
+<h4 id="Serial收集器"><a href="#Serial收集器" class="headerlink" title="Serial收集器"></a>Serial收集器</h4><p>最基本、发展历史最悠久的收集器。单线程收集器，其进行垃圾收集时，必须暂停其他工作线程，直到它收集结束。虚拟机运行在client模式下的默认新生代收集器。</p>
+<h4 id="ParNew收集器"><a href="#ParNew收集器" class="headerlink" title="ParNew收集器"></a>ParNew收集器</h4><p>Serial收集器的多线程版本。是许多运行在Server模式下的虚拟机中首选的新生代收集器。在JDK1.5中与CMS搭配使用。默认开启的收集线程数与CPU的数量相等，可以使用-XX:ParallelGCThreads参数限制垃圾收集的线程数。</p>
+<p>并行Parallel：多条垃圾收集线程并行工作，此时用户线程仍然处于等待状态。</p>
+<p>并发Concurrent：用户线程与垃圾收集线程同时执行，不一定并行，可能会交替执行，用户程序继续执行，而垃圾收集线程运行于另一个CPU上。</p>
+<h4 id="Parallel-Scavenge收集器"><a href="#Parallel-Scavenge收集器" class="headerlink" title="Parallel Scavenge收集器"></a>Parallel Scavenge收集器</h4><p>采用复制算法且并行的多线程收集器。其目标是达到一个可控制的吞吐量throughput = 运行用户代码时间／(运行用户代码时间 + 垃圾收集时间)。停顿时间越短越适合与用户交互的程序，良好的反应速度能提升用户体验，而高吞吐量可以高效的利用CPU时间，尽快完成程序的运算任务，适用于在后台计算而不需要太多交互的任务。</p>
+<p>-XX:MaxGCPauseMillis参数：控制最大垃圾收集停顿时间，大于0的毫秒数；-XX:GCTimeRatio参数：直接设置吞吐量大小，大于0且小于100的整数，相当于吞吐量的倒数。其具有自适应调节策略，打开开关-XX:UseAdaptiveSizePolicy参数即可。</p>
+<h4 id="Serial-Old收集器"><a href="#Serial-Old收集器" class="headerlink" title="Serial Old收集器"></a>Serial Old收集器</h4><p>Serial收集器老年代版本，单线程收集器，使用“标记—整理”算法，主要在于给Client模式下的虚拟机使用。</p>
+<h4 id="Parallel-Old收集器"><a href="#Parallel-Old收集器" class="headerlink" title="Parallel Old收集器"></a>Parallel Old收集器</h4><p>Parallel老年代版本，使用多线程和“标记—整理”算法。在注重吞吐量及CPU资源敏感的场合，都可以优先考虑Parallel Sca收集器加Parallel Old收集器组合。</p>
+<h4 id="CMS收集器"><a href="#CMS收集器" class="headerlink" title="CMS收集器"></a>CMS收集器</h4><p>一种以获取最短回收停顿时间为目标的收集器，采用“标记—清除算法”，主要用于互联网站或者B/S系统的服务端。</p>
+<p>初始标记：仅仅标记GC Roots能直接关联到的对象，需要“Stop The World” —&gt;  并发标记：进行GC Roots Tracing过程 —&gt; 重新标记：修正并发标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，时间稍比初始标记长，远比并发标记短 —&gt; 并发清除。</p>
+<p>缺点：1、对CPU资源非常敏感；2、无法处理浮动垃圾；3、产生大量空间碎片。</p>
+<h4 id="G1-Garbge-First-收集器"><a href="#G1-Garbge-First-收集器" class="headerlink" title="G1(Garbge-First)收集器"></a>G1(Garbge-First)收集器</h4><p>当今收集器技术发展最前沿的成果之一，面向服务端应用的垃圾收集器。特点：1、并行与并发；2、分代收集；3、空间整合；4、可预测的停顿。此时堆内存布局：java堆划分为多个大小相等的独立区域Region，虽然还保留新生代和老年代概念，但新生代和老年代不再是物理隔离的，它们都是一部分Region(不需要连续)的集合。</p>
+<h5 id="可预测的停顿时间模型"><a href="#可预测的停顿时间模型" class="headerlink" title="可预测的停顿时间模型"></a>可预测的停顿时间模型</h5><p>因为它可以有计划地避免在整个java堆中进行全区域的垃圾收集，G1跟踪各个Region里面的垃圾堆积的价值大小，在后台维护一个优先列表，每次根据允许的收集时间，优先回收价值最大的Region。</p>
+<h5 id="Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法"><a href="#Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法" class="headerlink" title="Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法"></a>Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法</h5><p>G1中每个Region都有一个与之对应的Remembered Set，虚拟机发现程序在Reference类型的数据进行写操作时，会产生一个Write Barrier暂时中断写操作，检查Reference引用的对象是否处于不同的Region之中，如果是，便通过CardTable把相关引用信息记录到被引用对象所属的Region的Remembered Set中。当进行垃圾回收时，在GC根节点的枚举范围中加入Remembered Set即可保证不对全堆扫描也不会有遗漏。</p>
+<p>步骤：初始标记—并发标记—最终标记—筛选回收。</p>
 <h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
       
     </div>
@@ -480,8 +479,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/可持久化数据结构/" rel="next" title="可持久化数据结构">
-                <i class="fa fa-chevron-left"></i> 可持久化数据结构
+              <a href="/垃圾回收策略/" rel="next" title="垃圾回收策略">
+                <i class="fa fa-chevron-left"></i> 垃圾回收策略
               </a>
             
           </div>
@@ -490,8 +489,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/二叉树遍历—Morris遍历/" rel="prev" title="二叉树遍历—Morris遍历">
-                二叉树遍历—Morris遍历 <i class="fa fa-chevron-right"></i>
+              <a href="/内存分配策略/" rel="prev" title="内存分配策略">
+                内存分配策略 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -648,7 +647,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注解annotation"><span class="nav-number">2.</span> <span class="nav-text">注解annotation</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#annotation原理"><span class="nav-number">2.1.</span> <span class="nav-text">annotation原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自定义annotation"><span class="nav-number">2.2.</span> <span class="nav-text">自定义annotation</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库索引-分类及创建索引原则略"><span class="nav-number">3.</span> <span class="nav-text">数据库索引(分类及创建索引原则略)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概念"><span class="nav-number">3.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#索引优缺点"><span class="nav-number">3.2.</span> <span class="nav-text">索引优缺点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#索引原理"><span class="nav-number">3.3.</span> <span class="nav-text">索引原理</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#悲观锁与乐观锁"><span class="nav-number">4.</span> <span class="nav-text">悲观锁与乐观锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概念-1"><span class="nav-number">4.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#实现"><span class="nav-number">4.2.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#mysql几个有用sql语句"><span class="nav-number">4.3.</span> <span class="nav-text">mysql几个有用sql语句</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重定向与转发"><span class="nav-number">5.</span> <span class="nav-text">重定向与转发</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概念-2"><span class="nav-number">5.1.</span> <span class="nav-text">概念</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">6.</span> <span class="nav-text">完结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Serial收集器"><span class="nav-number">2.</span> <span class="nav-text">Serial收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ParNew收集器"><span class="nav-number">3.</span> <span class="nav-text">ParNew收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Parallel-Scavenge收集器"><span class="nav-number">4.</span> <span class="nav-text">Parallel Scavenge收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Serial-Old收集器"><span class="nav-number">5.</span> <span class="nav-text">Serial Old收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Parallel-Old收集器"><span class="nav-number">6.</span> <span class="nav-text">Parallel Old收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CMS收集器"><span class="nav-number">7.</span> <span class="nav-text">CMS收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#G1-Garbge-First-收集器"><span class="nav-number">8.</span> <span class="nav-text">G1(Garbge-First)收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#可预测的停顿时间模型"><span class="nav-number">8.1.</span> <span class="nav-text">可预测的停顿时间模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法"><span class="nav-number">8.2.</span> <span class="nav-text">Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">9.</span> <span class="nav-text">完结</span></a></li></ol></div>
             
 
           </div>
@@ -810,9 +809,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://glenen.github.io/日常总结—1/';
-          this.page.identifier = '日常总结—1/';
-          this.page.title = '日常总结—1';
+          this.page.url = 'https://glenen.github.io/垃圾收集器/';
+          this.page.identifier = '垃圾收集器/';
+          this.page.title = '垃圾收集器';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://Glenen.disqus.com/embed.js';
