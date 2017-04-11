@@ -93,21 +93,15 @@
 
 
 
-<meta name="description" content="前言写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。
-上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。">
-<meta property="og:type" content="article">
-<meta property="og:title" content="二叉树遍历—Morris遍历">
-<meta property="og:url" content="https://glenen.github.io/二叉树遍历—Morris遍历/index.html">
+<meta name="description" content="you want more then you could get more.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Glenn Blog">
+<meta property="og:url" content="https://glenen.github.io/categories/zookeeper/index.html">
 <meta property="og:site_name" content="Glenn Blog">
-<meta property="og:description" content="前言写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。
-上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。">
-<meta property="og:image" content="https://glenen.github.io/二叉树遍历—Morris遍历/二叉树—Morris.png">
-<meta property="og:updated_time" content="2017-04-05T16:00:52.000Z">
+<meta property="og:description" content="you want more then you could get more.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="二叉树遍历—Morris遍历">
-<meta name="twitter:description" content="前言写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。
-上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。">
-<meta name="twitter:image" content="https://glenen.github.io/二叉树遍历—Morris遍历/二叉树—Morris.png">
+<meta name="twitter:title" content="Glenn Blog">
+<meta name="twitter:description" content="you want more then you could get more.">
 
 
 
@@ -135,13 +129,13 @@
 
 
 
-  <link rel="canonical" href="https://glenen.github.io/二叉树遍历—Morris遍历/"/>
+  <link rel="canonical" href="https://glenen.github.io/categories/zookeeper/"/>
 
 
 
 
 
-  <title> 二叉树遍历—Morris遍历 | Glenn Blog </title>
+  <title> 分类: zookeeper | Glenn Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -176,7 +170,7 @@
     
   
 
-  <div class="container sidebar-position-right page-post-detail ">
+  <div class="container sidebar-position-right  ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -304,280 +298,47 @@
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-expand">
-    
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/二叉树遍历—Morris遍历/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Glenn">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Glenn Blog">
-    </span>
+  <section id="posts" class="posts-collapse">
+    <div class="collection-title">
+      <h2 >
+        zookeeper
+        <small>分类</small>
+      </h2>
+    </div>
 
     
-      <header class="post-header">
+      
 
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
         
+            <a class="post-title-link" href="/zookeeper集群搭建/" itemprop="url">
+              
+                <span itemprop="name">zookeeper集群搭建</span>
+              
+            </a>
         
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                二叉树遍历—Morris遍历
-              
-            
-          </h1>
-        
+      </h1>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-20T00:00:00+08:00">
-                2016-11-20
-              </time>
-            
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2017-01-20T00:00:00+08:00"
+              content="2017-01-20" >
+          01-20
+        </time>
+      </div>
 
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/二叉树/" itemprop="url" rel="index">
-                    <span itemprop="name">二叉树</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/二叉树遍历—Morris遍历/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="二叉树遍历—Morris遍历/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-file-o"></i>
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。</p>
-<p>上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。</p>
-<a id="more"></a>
-<h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><p>先给出一棵二叉树：</p>
-<p><img src="/二叉树遍历—Morris遍历/二叉树—Morris.png" alt="通"></p>
-<p>如图所示，这树比较奇特，没啥别的，就是叶子节点多了些箭头指向自己上层的节点。平时叶子节点都是干干净净的，今天突然冒出来必然不是冒然的。今天我们就要运用这些箭头完成节点控制权的转移。</p>
-<p>如我们所知，二叉树由上层节点向下层节点转移很容易，因为它有从父节点指向孩子节点的指针，但是孩子节点向父节点转移就没那么容易了—没有直接的指向指针。我们借助栈结构遍历时候，其实做的工作就是完成节点控制权的转移。但现在我们可以利用叶子节点那些大量指向Null的空闲指针来帮助我们完成其节点控制权的转移，从而完成二叉树的遍历。</p>
-<p>此处给出大体方向，详细点的代码中注释，后序我选择放弃—因为难啊！</p>
-<p>1.第一个目标！就是让整颗二叉树中的节点都过一把当头节点的隐，当然，前提是它得有孩子。</p>
-<p>2.第二个目标！每个节点当头节点时，都让以它为头节点的左子树的最右边的叶子节点的right Null指针指向该头节点。</p>
-<p>3.第三个目标！按照我们的意愿控制节点的控制权的转移。</p>
-<h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><pre><code class="bash">/**
- * Morris 中序遍历
- *
- * @param 头节点
- */
-public static void midTraversal(Node head) {
-        <span class="keyword">if</span> (head == null) {
-            <span class="built_in">return</span>;
-        } <span class="keyword">else</span> {
-            System.out.print(<span class="string">"midTraversal:"</span>);
-            Node cur1 = head;
-            Node cur2 = null;
-            <span class="keyword">while</span> (cur1 != null) {
-                cur2 = cur1.left;
-                <span class="keyword">if</span> (cur2 != null) {
-                    // 找到每棵二叉树的左子树的最右叶子节点
-                    <span class="keyword">while</span> (cur2.right != null &amp;&amp; cur2.right != cur1) {
-                        cur2 = cur2.right;
-                    }
-                    // 让该叶子节点的right Null指针指向其头节点
-                    <span class="keyword">if</span> (cur2.right == null) {
-                        // 把以cur1为头节点的左子树最右节点的right空指针指向cur1
-                        cur2.right = cur1;
-                        // 控制权转移给它左孩子，继续寻找最右               
-                        // 叶子节点的right Null指针指向头节点的操作
-                        cur1 = cur1.left;
-                        <span class="built_in">continue</span>;
-                    // 还原以前的二叉树结构
-                    } <span class="keyword">else</span> {
-                        cur2.right = null;
-                    }
-                    System.out.print(cur1.dataValue + <span class="string">" "</span>);
-                    // 根据我们建立的right指针控制节点的转移
-                    cur1 = cur1.right;
-                }
-            }
-        }
-        System.out.println();
-    }
-</code></pre>
-<pre><code class="bash">/**
- * Morris 先序遍历
- *
- * @param 头节点
- */
-public static void preTraversal(Node head) {
-        <span class="keyword">if</span> (head == null) {
-            <span class="built_in">return</span>;
-        } <span class="keyword">else</span> {
-            System.out.print(<span class="string">"preTraversal:"</span>);
-            Node cur1 = head;
-            Node cur2 = null;
-            <span class="keyword">while</span> (cur1 != null) {
-                cur2 = cur1.left;
-                <span class="keyword">if</span> (cur2 != null) {
-                    // 找到每棵二叉树的左子树的最右叶子节点
-                    <span class="keyword">while</span> (cur2.right != null &amp;&amp; cur2.right != cur1) {
-                        cur2 = cur2.right;
-                    }
-                    // 让该叶子节点的right Null指针指向其头节点
-                    <span class="keyword">if</span> (cur2.right == null) {
-                        // 把以cur1为头节点的左子树最右节点的right空指针指向cur1
-                        cur2.right = cur1;
-                        System.out.print(cur1.dataValue + <span class="string">" "</span>);
-                        <span class="built_in">continue</span>;
-                    // 还原以前的二叉树结构
-                    } <span class="keyword">else</span> {
-                        cur2.right = null;
-                    }
-                } <span class="keyword">else</span> {
-                    // 根据我们建立的right指针控制节点的转移
-                    cur1 = cur1.right;
-                }
-            }
-        }
-        System.out.println();
-    }
-</code></pre>
-<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
-      
-    </div>
-
-    <div>
-      
-        
-
-      
-    </div>
-
-    <div>
-      
-        
-
-      
-    </div>
-
-    <div>
-      
-        
-
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-        
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/日常总结—1/" rel="next" title="日常总结—1">
-                <i class="fa fa-chevron-left"></i> 日常总结—1
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/垃圾回收策略/" rel="prev" title="垃圾回收策略">
-                垃圾回收策略 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
+    </header>
   </article>
 
 
+    
+  </section>
 
-    <div class="post-spread">
-      
-    </div>
-  </div>
+  
+
 
 
           </div>
@@ -585,17 +346,6 @@ public static void preTraversal(Node head) {
 
 
           
-  <div class="comments" id="comments">
-    
-      <div id="disqus_thread">
-        <noscript>
-          Please enable JavaScript to view the
-          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
-        </noscript>
-      </div>
-    
-  </div>
-
 
         </div>
         
@@ -615,17 +365,8 @@ public static void preTraversal(Node head) {
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel">
+      <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/uploads/avatar.png"
@@ -707,22 +448,6 @@ public static void preTraversal(Node head) {
 
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#思路"><span class="nav-number">2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码实现"><span class="nav-number">3.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">4.</span> <span class="nav-text">完结</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
@@ -855,10 +580,6 @@ public static void preTraversal(Node head) {
   
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
-
-
 
   
 
@@ -876,18 +597,6 @@ public static void preTraversal(Node head) {
       <script id="dsq-count-scr" src="https://Glenen.disqus.com/count.js" async></script>
     
 
-    
-      <script type="text/javascript">
-        var disqus_config = function () {
-          this.page.url = 'https://glenen.github.io/二叉树遍历—Morris遍历/';
-          this.page.identifier = '二叉树遍历—Morris遍历/';
-          this.page.title = '二叉树遍历—Morris遍历';
-        };
-        var d = document, s = d.createElement('script');
-        s.src = 'https://Glenen.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', '' + +new Date());
-        (d.head || d.body).appendChild(s);
-      </script>
     
 
   
@@ -1057,6 +766,26 @@ public static void preTraversal(Node head) {
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   
 
 

@@ -4,6 +4,46 @@
   
     
     <entry>
+      <title><![CDATA[zookeeper集群搭建]]></title>
+      <url>https://glenen.github.io/zookeeper%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/</url>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本文只会涉及zookeeper的单机安装和集群搭建，都是自己亲身经历搭建过程，不会涉及任何有关zookeeper原理、分布式算法及分布式锁如何实现等，因为我自己都没搞懂……前不久看了《从paxos到zookeeper》，看到paxos算法，也没仔细弄懂，就头晕转移到其他书籍了。以后如果有时间，会再回头去看看那本书，再把有关原理的东西贴上来。</p>
+<h5 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h5><p>本次搭建集群的是两台机器，自己在公司内部申请的两个docker容器，系统环境是centos6.5。centos7不建议使用，并且好像默认开启了防火墙。因为公司内部申请的，所以申请时候就预装了部署项目所必需的一些环境，详情如下图所示：</p>
+<a id="more"></a>
+<p><img src="/zookeeper集群搭建/timg-0.png" alt=""></p>
+<h4 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h4><p>ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，它包含一个简单的原语集，分布式应用程序可以基于它实现同步服务，配置维护和命名服务等。ZooKeeper 是 Apache Hadoop 的一个子项目，它主要是用来解决分布式应用中经常遇到的一些数据管理问题，如：统一命名服务、状态同步服务、集群管理、分布式应用配置项的管理等。ZooKeeper官网：<a href="http://zookeeper.apache.org/" target="_blank" rel="external">http://zookeeper.apache.org/</a></p>
+<h4 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h4><h5 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h5><p>ssh命令登陆到自己的申请的虚拟机，在根目录下新建了一个zookeeper文件夹</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[...]$ mkdir zookeeper</div><div class="line">[...]$ cd zookeeper</div><div class="line">[...]$ wget http://mirrors.hust.edu.cn/apache/zookeeper/zookeeper-3.4.9/</div><div class="line">[...]$ unzip zookeeper-3.4.9.tar.gz</div></pre></td></tr></table></figure>
+<p>wget命令下载默认是占用全部网络带宽，所以我下载的时候还是很快的，关于该命令在使用时的一些设置，可自行查阅。至此，zookeeper已经下载并安装好了，以下就是进行一些集群所需的配置。</p>
+<p>注：也可在自己本机上下载zookeeper压缩包，然后通过scp命令或者Filezilla工具传输到虚拟机，但解压后，进入../bin/目录后，会出现启动脚本是白色的，这是因为该文件没有执行权限，可通过<code>chmod *** ***.sh</code>命令修改文件权限即可。</p>
+<h5 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h5><p>1、在zookeeper目录下，新建data文件数据目录和日志目录：<code>[...]$ mkdir data 和 [...]$ mkdir logs</code></p>
+<p>2、进入conf目录，conf目录下修改文件名 zoo_sample.cfg 改为 zoo.cfg，编辑配置文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[...]$ cd zookeeper-3.4.9/conf</div><div class="line">[...]$ mv zoo_sample.cfg zoo.cfg</div><div class="line">[...]$ sudo vim zoo.cfg</div></pre></td></tr></table></figure>
+<p>打开后如下图所示(改图是我配置好后的)：</p>
+<p><img src="/zookeeper集群搭建/timg-1.png" alt=""></p>
+<p><strong><em>tickTime</em></strong> = # Zookeeper服务器心跳时间，单位毫秒!</p>
+<p><strong><em>initLimit</em></strong> = # 投票选举新leader的初始化时间!</p>
+<p><strong><em>syncLimit</em></strong> = # Leader与Follower之间的最大响应时间单位，响应超过syncLimit*tickTime，Leader认为Follwer挂掉，从服务器列表中删除Follwer!</p>
+<p><strong><em>dataDir</em></strong> = # 数据持久化路径!</p>
+<p><strong><em>dataLogDir</em></strong> = # 日志保存路径  这个要自己新建，具体目录根据自己的实际情况为准!</p>
+<p><strong><em>clientPort</em></strong> = # 连接端口！</p>
+<p><strong><em>server.num</em></strong> = <em>*</em>:2888:3888，该处配置的是集群服务器的IP列表，有多少台就配置多少，别写错！</p>
+<h5 id="新增myid文件"><a href="#新增myid文件" class="headerlink" title="新增myid文件"></a>新增myid文件</h5><p>进入我们刚才在zookeeper目录下新建的data文件夹，创建名为myid的文件：<code>[...]$ sudo vi myid</code>。切换至插入模式，匹配着zoo.cfg配置文件中的<strong><em>server.num</em></strong>中的num来填写。本服务器的IP对应的num值是多少，就把该num值写入myid文件中保存并退出即可。每台服务器都必需对应配置好。</p>
+<h5 id="启动zookeeper"><a href="#启动zookeeper" class="headerlink" title="启动zookeeper"></a>启动zookeeper</h5><p>进入bin目录，该目录下有一系列启动脚本，每台都登陆启动即可。如下图所示：</p>
+<p><img src="/zookeeper集群搭建/timg-2.png" alt=""></p>
+<p>启动zookeeper服务器：<code>sudo ./zkServer.sh start</code></p>
+<p>关闭zookeeper服务器：<code>sudo ./zkServer.sh stop</code></p>
+<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>]]></content>
+      
+        <categories>
+            
+            <category> zookeeper </category>
+            
+        </categories>
+        
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[内存分配策略]]></title>
       <url>https://glenen.github.io/%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/</url>
       <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。</p>

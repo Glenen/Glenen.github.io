@@ -93,21 +93,23 @@
 
 
 
-<meta name="description" content="前言写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。
-上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。">
+<meta name="description" content="前言写在最前：本文只会涉及zookeeper的单机安装和集群搭建，都是自己亲身经历搭建过程，不会涉及任何有关zookeeper原理、分布式算法及分布式锁如何实现等，因为我自己都没搞懂……前不久看了《从paxos到zookeeper》，看到paxos算法，也没仔细弄懂，就头晕转移到其他书籍了。以后如果有时间，会再回头去看看那本书，再把有关原理的东西贴上来。
+准备本次搭建集群的是两台机器，自己在公司内">
 <meta property="og:type" content="article">
-<meta property="og:title" content="二叉树遍历—Morris遍历">
-<meta property="og:url" content="https://glenen.github.io/二叉树遍历—Morris遍历/index.html">
+<meta property="og:title" content="zookeeper集群搭建">
+<meta property="og:url" content="https://glenen.github.io/zookeeper集群搭建/index.html">
 <meta property="og:site_name" content="Glenn Blog">
-<meta property="og:description" content="前言写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。
-上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。">
-<meta property="og:image" content="https://glenen.github.io/二叉树遍历—Morris遍历/二叉树—Morris.png">
-<meta property="og:updated_time" content="2017-04-05T16:00:52.000Z">
+<meta property="og:description" content="前言写在最前：本文只会涉及zookeeper的单机安装和集群搭建，都是自己亲身经历搭建过程，不会涉及任何有关zookeeper原理、分布式算法及分布式锁如何实现等，因为我自己都没搞懂……前不久看了《从paxos到zookeeper》，看到paxos算法，也没仔细弄懂，就头晕转移到其他书籍了。以后如果有时间，会再回头去看看那本书，再把有关原理的东西贴上来。
+准备本次搭建集群的是两台机器，自己在公司内">
+<meta property="og:image" content="https://glenen.github.io/zookeeper集群搭建/timg-0.png">
+<meta property="og:image" content="https://glenen.github.io/zookeeper集群搭建/timg-1.png">
+<meta property="og:image" content="https://glenen.github.io/zookeeper集群搭建/timg-2.png">
+<meta property="og:updated_time" content="2017-04-11T12:01:15.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="二叉树遍历—Morris遍历">
-<meta name="twitter:description" content="前言写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。
-上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。">
-<meta name="twitter:image" content="https://glenen.github.io/二叉树遍历—Morris遍历/二叉树—Morris.png">
+<meta name="twitter:title" content="zookeeper集群搭建">
+<meta name="twitter:description" content="前言写在最前：本文只会涉及zookeeper的单机安装和集群搭建，都是自己亲身经历搭建过程，不会涉及任何有关zookeeper原理、分布式算法及分布式锁如何实现等，因为我自己都没搞懂……前不久看了《从paxos到zookeeper》，看到paxos算法，也没仔细弄懂，就头晕转移到其他书籍了。以后如果有时间，会再回头去看看那本书，再把有关原理的东西贴上来。
+准备本次搭建集群的是两台机器，自己在公司内">
+<meta name="twitter:image" content="https://glenen.github.io/zookeeper集群搭建/timg-0.png">
 
 
 
@@ -135,13 +137,13 @@
 
 
 
-  <link rel="canonical" href="https://glenen.github.io/二叉树遍历—Morris遍历/"/>
+  <link rel="canonical" href="https://glenen.github.io/zookeeper集群搭建/"/>
 
 
 
 
 
-  <title> 二叉树遍历—Morris遍历 | Glenn Blog </title>
+  <title> zookeeper集群搭建 | Glenn Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -314,7 +316,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/二叉树遍历—Morris遍历/">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/zookeeper集群搭建/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Glenn">
@@ -335,7 +337,7 @@
             
             
               
-                二叉树遍历—Morris遍历
+                zookeeper集群搭建
               
             
           </h1>
@@ -350,8 +352,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-20T00:00:00+08:00">
-                2016-11-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-01-20T00:00:00+08:00">
+                2017-01-20
               </time>
             
 
@@ -373,8 +375,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/二叉树/" itemprop="url" rel="index">
-                    <span itemprop="name">二叉树</span>
+                  <a href="/categories/zookeeper/" itemprop="url" rel="index">
+                    <span itemprop="name">zookeeper</span>
                   </a>
                 </span>
 
@@ -391,9 +393,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/二叉树遍历—Morris遍历/#comments" itemprop="discussionUrl">
+                <a href="/zookeeper集群搭建/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="二叉树遍历—Morris遍历/" itemprop="commentCount"></span>
+                        data-disqus-identifier="zookeeper集群搭建/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -424,95 +426,32 @@
       
 
       
-        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。</p>
-<p>上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。</p>
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本文只会涉及zookeeper的单机安装和集群搭建，都是自己亲身经历搭建过程，不会涉及任何有关zookeeper原理、分布式算法及分布式锁如何实现等，因为我自己都没搞懂……前不久看了《从paxos到zookeeper》，看到paxos算法，也没仔细弄懂，就头晕转移到其他书籍了。以后如果有时间，会再回头去看看那本书，再把有关原理的东西贴上来。</p>
+<h5 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h5><p>本次搭建集群的是两台机器，自己在公司内部申请的两个docker容器，系统环境是centos6.5。centos7不建议使用，并且好像默认开启了防火墙。因为公司内部申请的，所以申请时候就预装了部署项目所必需的一些环境，详情如下图所示：</p>
 <a id="more"></a>
-<h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><p>先给出一棵二叉树：</p>
-<p><img src="/二叉树遍历—Morris遍历/二叉树—Morris.png" alt="通"></p>
-<p>如图所示，这树比较奇特，没啥别的，就是叶子节点多了些箭头指向自己上层的节点。平时叶子节点都是干干净净的，今天突然冒出来必然不是冒然的。今天我们就要运用这些箭头完成节点控制权的转移。</p>
-<p>如我们所知，二叉树由上层节点向下层节点转移很容易，因为它有从父节点指向孩子节点的指针，但是孩子节点向父节点转移就没那么容易了—没有直接的指向指针。我们借助栈结构遍历时候，其实做的工作就是完成节点控制权的转移。但现在我们可以利用叶子节点那些大量指向Null的空闲指针来帮助我们完成其节点控制权的转移，从而完成二叉树的遍历。</p>
-<p>此处给出大体方向，详细点的代码中注释，后序我选择放弃—因为难啊！</p>
-<p>1.第一个目标！就是让整颗二叉树中的节点都过一把当头节点的隐，当然，前提是它得有孩子。</p>
-<p>2.第二个目标！每个节点当头节点时，都让以它为头节点的左子树的最右边的叶子节点的right Null指针指向该头节点。</p>
-<p>3.第三个目标！按照我们的意愿控制节点的控制权的转移。</p>
-<h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><pre><code class="bash">/**
- * Morris 中序遍历
- *
- * @param 头节点
- */
-public static void midTraversal(Node head) {
-        <span class="keyword">if</span> (head == null) {
-            <span class="built_in">return</span>;
-        } <span class="keyword">else</span> {
-            System.out.print(<span class="string">"midTraversal:"</span>);
-            Node cur1 = head;
-            Node cur2 = null;
-            <span class="keyword">while</span> (cur1 != null) {
-                cur2 = cur1.left;
-                <span class="keyword">if</span> (cur2 != null) {
-                    // 找到每棵二叉树的左子树的最右叶子节点
-                    <span class="keyword">while</span> (cur2.right != null &amp;&amp; cur2.right != cur1) {
-                        cur2 = cur2.right;
-                    }
-                    // 让该叶子节点的right Null指针指向其头节点
-                    <span class="keyword">if</span> (cur2.right == null) {
-                        // 把以cur1为头节点的左子树最右节点的right空指针指向cur1
-                        cur2.right = cur1;
-                        // 控制权转移给它左孩子，继续寻找最右               
-                        // 叶子节点的right Null指针指向头节点的操作
-                        cur1 = cur1.left;
-                        <span class="built_in">continue</span>;
-                    // 还原以前的二叉树结构
-                    } <span class="keyword">else</span> {
-                        cur2.right = null;
-                    }
-                    System.out.print(cur1.dataValue + <span class="string">" "</span>);
-                    // 根据我们建立的right指针控制节点的转移
-                    cur1 = cur1.right;
-                }
-            }
-        }
-        System.out.println();
-    }
-</code></pre>
-<pre><code class="bash">/**
- * Morris 先序遍历
- *
- * @param 头节点
- */
-public static void preTraversal(Node head) {
-        <span class="keyword">if</span> (head == null) {
-            <span class="built_in">return</span>;
-        } <span class="keyword">else</span> {
-            System.out.print(<span class="string">"preTraversal:"</span>);
-            Node cur1 = head;
-            Node cur2 = null;
-            <span class="keyword">while</span> (cur1 != null) {
-                cur2 = cur1.left;
-                <span class="keyword">if</span> (cur2 != null) {
-                    // 找到每棵二叉树的左子树的最右叶子节点
-                    <span class="keyword">while</span> (cur2.right != null &amp;&amp; cur2.right != cur1) {
-                        cur2 = cur2.right;
-                    }
-                    // 让该叶子节点的right Null指针指向其头节点
-                    <span class="keyword">if</span> (cur2.right == null) {
-                        // 把以cur1为头节点的左子树最右节点的right空指针指向cur1
-                        cur2.right = cur1;
-                        System.out.print(cur1.dataValue + <span class="string">" "</span>);
-                        <span class="built_in">continue</span>;
-                    // 还原以前的二叉树结构
-                    } <span class="keyword">else</span> {
-                        cur2.right = null;
-                    }
-                } <span class="keyword">else</span> {
-                    // 根据我们建立的right指针控制节点的转移
-                    cur1 = cur1.right;
-                }
-            }
-        }
-        System.out.println();
-    }
-</code></pre>
+<p><img src="/zookeeper集群搭建/timg-0.png" alt=""></p>
+<h4 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h4><p>ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，它包含一个简单的原语集，分布式应用程序可以基于它实现同步服务，配置维护和命名服务等。ZooKeeper 是 Apache Hadoop 的一个子项目，它主要是用来解决分布式应用中经常遇到的一些数据管理问题，如：统一命名服务、状态同步服务、集群管理、分布式应用配置项的管理等。ZooKeeper官网：<a href="http://zookeeper.apache.org/" target="_blank" rel="external">http://zookeeper.apache.org/</a></p>
+<h4 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h4><h5 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h5><p>ssh命令登陆到自己的申请的虚拟机，在根目录下新建了一个zookeeper文件夹</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[...]$ mkdir zookeeper</div><div class="line">[...]$ cd zookeeper</div><div class="line">[...]$ wget http://mirrors.hust.edu.cn/apache/zookeeper/zookeeper-3.4.9/</div><div class="line">[...]$ unzip zookeeper-3.4.9.tar.gz</div></pre></td></tr></table></figure>
+<p>wget命令下载默认是占用全部网络带宽，所以我下载的时候还是很快的，关于该命令在使用时的一些设置，可自行查阅。至此，zookeeper已经下载并安装好了，以下就是进行一些集群所需的配置。</p>
+<p>注：也可在自己本机上下载zookeeper压缩包，然后通过scp命令或者Filezilla工具传输到虚拟机，但解压后，进入../bin/目录后，会出现启动脚本是白色的，这是因为该文件没有执行权限，可通过<code>chmod *** ***.sh</code>命令修改文件权限即可。</p>
+<h5 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h5><p>1、在zookeeper目录下，新建data文件数据目录和日志目录：<code>[...]$ mkdir data 和 [...]$ mkdir logs</code></p>
+<p>2、进入conf目录，conf目录下修改文件名 zoo_sample.cfg 改为 zoo.cfg，编辑配置文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[...]$ cd zookeeper-3.4.9/conf</div><div class="line">[...]$ mv zoo_sample.cfg zoo.cfg</div><div class="line">[...]$ sudo vim zoo.cfg</div></pre></td></tr></table></figure>
+<p>打开后如下图所示(改图是我配置好后的)：</p>
+<p><img src="/zookeeper集群搭建/timg-1.png" alt=""></p>
+<p><strong><em>tickTime</em></strong> = # Zookeeper服务器心跳时间，单位毫秒!</p>
+<p><strong><em>initLimit</em></strong> = # 投票选举新leader的初始化时间!</p>
+<p><strong><em>syncLimit</em></strong> = # Leader与Follower之间的最大响应时间单位，响应超过syncLimit*tickTime，Leader认为Follwer挂掉，从服务器列表中删除Follwer!</p>
+<p><strong><em>dataDir</em></strong> = # 数据持久化路径!</p>
+<p><strong><em>dataLogDir</em></strong> = # 日志保存路径  这个要自己新建，具体目录根据自己的实际情况为准!</p>
+<p><strong><em>clientPort</em></strong> = # 连接端口！</p>
+<p><strong><em>server.num</em></strong> = <em>*</em>:2888:3888，该处配置的是集群服务器的IP列表，有多少台就配置多少，别写错！</p>
+<h5 id="新增myid文件"><a href="#新增myid文件" class="headerlink" title="新增myid文件"></a>新增myid文件</h5><p>进入我们刚才在zookeeper目录下新建的data文件夹，创建名为myid的文件：<code>[...]$ sudo vi myid</code>。切换至插入模式，匹配着zoo.cfg配置文件中的<strong><em>server.num</em></strong>中的num来填写。本服务器的IP对应的num值是多少，就把该num值写入myid文件中保存并退出即可。每台服务器都必需对应配置好。</p>
+<h5 id="启动zookeeper"><a href="#启动zookeeper" class="headerlink" title="启动zookeeper"></a>启动zookeeper</h5><p>进入bin目录，该目录下有一系列启动脚本，每台都登陆启动即可。如下图所示：</p>
+<p><img src="/zookeeper集群搭建/timg-2.png" alt=""></p>
+<p>启动zookeeper服务器：<code>sudo ./zkServer.sh start</code></p>
+<p>关闭zookeeper服务器：<code>sudo ./zkServer.sh stop</code></p>
 <h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
       
     </div>
@@ -549,8 +488,8 @@ public static void preTraversal(Node head) {
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/日常总结—1/" rel="next" title="日常总结—1">
-                <i class="fa fa-chevron-left"></i> 日常总结—1
+              <a href="/内存分配策略/" rel="next" title="内存分配策略">
+                <i class="fa fa-chevron-left"></i> 内存分配策略
               </a>
             
           </div>
@@ -558,10 +497,6 @@ public static void preTraversal(Node head) {
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/垃圾回收策略/" rel="prev" title="垃圾回收策略">
-                垃圾回收策略 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -717,7 +652,7 @@ public static void preTraversal(Node head) {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#思路"><span class="nav-number">2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码实现"><span class="nav-number">3.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">4.</span> <span class="nav-text">完结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#准备"><span class="nav-number">1.1.</span> <span class="nav-text">准备</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#概念"><span class="nav-number">2.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#搭建"><span class="nav-number">3.</span> <span class="nav-text">搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#下载"><span class="nav-number">3.1.</span> <span class="nav-text">下载</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置"><span class="nav-number">3.2.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#新增myid文件"><span class="nav-number">3.3.</span> <span class="nav-text">新增myid文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#启动zookeeper"><span class="nav-number">3.4.</span> <span class="nav-text">启动zookeeper</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">4.</span> <span class="nav-text">完结</span></a></li></ol></div>
             
 
           </div>
@@ -879,9 +814,9 @@ public static void preTraversal(Node head) {
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://glenen.github.io/二叉树遍历—Morris遍历/';
-          this.page.identifier = '二叉树遍历—Morris遍历/';
-          this.page.title = '二叉树遍历—Morris遍历';
+          this.page.url = 'https://glenen.github.io/zookeeper集群搭建/';
+          this.page.identifier = 'zookeeper集群搭建/';
+          this.page.title = 'zookeeper集群搭建';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://Glenen.disqus.com/embed.js';
