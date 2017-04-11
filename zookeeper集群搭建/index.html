@@ -104,7 +104,7 @@
 <meta property="og:image" content="https://glenen.github.io/zookeeper集群搭建/timg-0.png">
 <meta property="og:image" content="https://glenen.github.io/zookeeper集群搭建/timg-1.png">
 <meta property="og:image" content="https://glenen.github.io/zookeeper集群搭建/timg-2.png">
-<meta property="og:updated_time" content="2017-04-11T12:01:15.000Z">
+<meta property="og:updated_time" content="2017-04-11T18:28:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="zookeeper集群搭建">
 <meta name="twitter:description" content="前言写在最前：本文只会涉及zookeeper的单机安装和集群搭建，都是自己亲身经历搭建过程，不会涉及任何有关zookeeper原理、分布式算法及分布式锁如何实现等，因为我自己都没搞懂……前不久看了《从paxos到zookeeper》，看到paxos算法，也没仔细弄懂，就头晕转移到其他书籍了。以后如果有时间，会再回头去看看那本书，再把有关原理的东西贴上来。
@@ -438,7 +438,7 @@
 <h5 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h5><p>1、在zookeeper目录下，新建data文件数据目录和日志目录：<code>[...]$ mkdir data 和 [...]$ mkdir logs</code></p>
 <p>2、进入conf目录，conf目录下修改文件名 zoo_sample.cfg 改为 zoo.cfg，编辑配置文件。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[...]$ cd zookeeper-3.4.9/conf</div><div class="line">[...]$ mv zoo_sample.cfg zoo.cfg</div><div class="line">[...]$ sudo vim zoo.cfg</div></pre></td></tr></table></figure>
-<p>打开后如下图所示(改图是我配置好后的)：</p>
+<p>打开后如下图所示(该图是我配置好后的)：</p>
 <p><img src="/zookeeper集群搭建/timg-1.png" alt=""></p>
 <p><strong><em>tickTime</em></strong> = # Zookeeper服务器心跳时间，单位毫秒!</p>
 <p><strong><em>initLimit</em></strong> = # 投票选举新leader的初始化时间!</p>
