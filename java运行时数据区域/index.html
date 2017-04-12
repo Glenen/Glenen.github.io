@@ -93,24 +93,24 @@
 
 
 
-<meta name="description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
-本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。
-java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，j">
+<meta name="description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。且java8的内存模型有修改，可自行查询相关资料。
+java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间">
 <meta property="og:type" content="article">
 <meta property="og:title" content="java运行时数据区域">
 <meta property="og:url" content="https://glenen.github.io/java运行时数据区域/index.html">
 <meta property="og:site_name" content="Glenn Blog">
-<meta property="og:description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
-本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。
-java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，j">
+<meta property="og:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。且java8的内存模型有修改，可自行查询相关资料。
+java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间">
 <meta property="og:image" content="https://glenen.github.io/java运行时数据区域/java技术体系.png">
 <meta property="og:image" content="https://glenen.github.io/java运行时数据区域/jvm运行时内存图.png">
-<meta property="og:updated_time" content="2017-04-04T10:16:47.000Z">
+<meta property="og:updated_time" content="2017-04-12T11:57:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java运行时数据区域">
-<meta name="twitter:description" content="前言写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。
-本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。
-java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，j">
+<meta name="twitter:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。且java8的内存模型有修改，可自行查询相关资料。
+java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间">
 <meta name="twitter:image" content="https://glenen.github.io/java运行时数据区域/java技术体系.png">
 
 
@@ -428,8 +428,8 @@ java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的�
       
 
       
-        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。</p>
-<p>本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。</p>
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+<p>本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。且java8的内存模型有修改，可自行查询相关资料。</p>
 <h5 id="java优点"><a href="#java优点" class="headerlink" title="java优点"></a>java优点</h5><p>摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。</p>
 <a id="more"></a>
 <h5 id="java技术体系"><a href="#java技术体系" class="headerlink" title="java技术体系"></a>java技术体系</h5><p>java虚拟机：编译器与解释器。发展历史中出现过各种虚拟机。通用平台上运行的商用虚拟机：HotSpot ，JRockit ，J9。 特定硬件平台专用虚拟机：Azul VM  和  BEA Liquid VM。总结如下图所示：</p>
@@ -485,8 +485,8 @@ java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/二叉树遍历—借助栈/" rel="next" title="二叉树遍历—借助栈">
-                <i class="fa fa-chevron-left"></i> 二叉树遍历—借助栈
+              <a href="/韶华倾付/" rel="next" title="韶华倾付">
+                <i class="fa fa-chevron-left"></i> 韶华倾付
               </a>
             
           </div>
@@ -576,7 +576,7 @@ java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的�
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -587,7 +587,7 @@ java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的�
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

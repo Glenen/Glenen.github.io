@@ -4,6 +4,116 @@
   
     
     <entry>
+      <title><![CDATA[Mysql索引及算法原理]]></title>
+      <url>https://glenen.github.io/Mysql%E7%B4%A2%E5%BC%95%E5%8F%8A%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/</url>
+      <content type="html"><![CDATA[<h4 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h4><p>本文以MySQL数据库为研究对象，讨论与数据库索引相关的一些话题。特别需要说明的是，MySQL支持诸多存储引擎，而各种存储引擎对索引的支持也各不相同，因此MySQL数据库支持多种索引类型，如BTree索引，哈希索引，全文索引等等。为了避免混乱，本文将只关注于BTree索引，因为这是平常使用MySQL时主要打交道的索引，至于哈希索引和全文索引本文暂不讨论。</p>
+<p>文章主要内容分为两个部分。</p>
+<a id="more"></a>
+<p>第一部分主要从数据结构及算法理论层面讨论MySQL数据库索引的数理基础。</p>
+<p>第二部分结合MySQL数据库中MyISAM和InnoDB数据存储引擎中索引的架构实现讨论聚集索引、非聚集索引及覆盖索引等话题。</p>
+<h4 id="数据结构及算法原理"><a href="#数据结构及算法原理" class="headerlink" title="数据结构及算法原理"></a>数据结构及算法原理</h4><h5 id="索引本质"><a href="#索引本质" class="headerlink" title="索引本质"></a>索引本质</h5><p>MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取数据的数据结构。提取句子主干，就可以得到索引的本质：索引是数据结构。</p>
+<p>我们知道，数据库查询是数据库的最主要功能之一。我们都希望查询数据的速度能尽可能的快，因此数据库系统的设计者会从查询算法的角度进行优化。最基本的查询算法当然是顺序查找（linear search），这种复杂度为O(n)的算法在数据量很大时显然是糟糕的，好在计算机科学的发展提供了很多更优秀的查找算法，例如二分查找（binary search）、二叉树查找（binary tree search）等。</p>
+<p>如果稍微分析一下会发现，每种查找算法都只能应用于特定的数据结构之上，例如二分查找要求被检索数据有序，而二叉树查找只能应用于二叉查找树上，但是数据本身的组织结构不可能完全满足各种数据结构（例如，理论上不可能同时将两列都按顺序进行组织），所以，在数据之外，数据库系统还维护着满足特定查找算法的数据结构，这些数据结构以某种方式引用（指向）数据，这样就可以在这些数据结构上实现高级查找算法。这种数据结构，就是索引。如下图所示：</p>
+<p><img src="/Mysql索引及算法原理/timg-0.png" alt=""></p>
+<p>该图展示了一种可能的索引方式。左边是数据表，一共有两列七条记录，最左边的是数据记录的物理地址（注意逻辑上相邻的记录在磁盘上也并不是一定物理相邻的）。为了加快Col2的查找，可以维护一个右边所示的二叉查找树，每个节点分别包含索引键值和一个指向对应数据记录物理地址的指针，这样就可以运用二叉查找在O(log2n)O(log2n)的复杂度内获取到相应数据。</p>
+<p>虽然这是一个货真价实的索引，但是实际的数据库系统几乎没有使用二叉查找树或其进化品种红黑树（red-black tree）实现的，原因会在下文介绍。</p>
+<h4 id="B-Tree和B-Tree"><a href="#B-Tree和B-Tree" class="headerlink" title="B-Tree和B+Tree"></a>B-Tree和B+Tree</h4><p>目前大部分数据库系统及文件系统都采用B-Tree或其变种B+Tree作为索引结构，在本文的下一节会结合存储器原理及计算机存取原理讨论为什么B-Tree和B+Tree在被如此广泛用于索引，这一节先单纯从数据结构角度描述它们。</p>
+<h5 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B-Tree"></a>B-Tree</h5><p>为了描述B-Tree，首先定义一条数据记录为一个二元组[key, data]，key为记录的键值，对于不同数据记录，key是互不相同的；data为数据记录除key外的数据。那么B-Tree是满足下列条件的数据结构：</p>
+<p>d为大于1的一个正整数，称为B-Tree的度。</p>
+<p>h为一个正整数，称为B-Tree的高度。</p>
+<p>每个非叶子节点由n-1个key和n个指针组成，其中d&lt;=n&lt;=2d。</p>
+<p>每个叶子节点最少包含一个key和两个指针，最多包含2d-1个key和2d个指针，叶节点的指针均为null 。</p>
+<p>所有叶节点具有相同的深度，等于树高h。</p>
+<p>key和指针互相间隔，节点两端是指针。</p>
+<p>一个节点中的key从左到右非递减排列。</p>
+<p>所有节点组成树结构。</p>
+<p>每个指针要么为null，要么指向另外一个节点。</p>
+<p>如果某个指针在节点node最左边且不为null，则其指向节点的所有key小于v(key1)v(key1)，其中v(key1)v(key1)为node的第一个key的值。</p>
+<p>如果某个指针在节点node最右边且不为null，则其指向节点的所有key大于v(keym)，其中v(keym)为node的最后一个key的值。</p>
+<p>如果某个指针在节点node的左右相邻key分别是keyi和keyi+1且不为null，则其指向节点的所有key小于v(keyi+1)且大于v(keyi)。下图是一个d=2的B-Tree示意图：</p>
+<p><img src="/Mysql索引及算法原理/timg-1.png" alt=""></p>
+<p>由于B-Tree的特性，在B-Tree中按key检索数据的算法非常直观：首先从根节点进行二分查找，如果找到则返回对应节点的data，否则对相应区间的指针指向的节点递归进行查找，直到找到节点或找到null指针，前者查找成功，后者查找失败。B-Tree上查找算法的伪代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">BTree_Search(node, key) &#123;</div><div class="line">if(node == null) return null;</div><div class="line">foreach(node.key)</div><div class="line">&#123;</div><div class="line">if(node.key[i] == key) return node.data[i];</div><div class="line">if(node.key[i] &gt; key) return BTree_Search(point[i]-&gt;node);</div><div class="line">&#125;</div><div class="line">return BTree_Search(point[i+1]-&gt;node);</div><div class="line">&#125;</div><div class="line">data = BTree_Search(root, my_key);</div></pre></td></tr></table></figure>
+<p>关于B-Tree有一系列有趣的性质，例如一个度为d的B-Tree，设其索引N个key，则其树高h的上限为logd((N+1)/2)，检索一个key，其查找节点个数的渐进复杂度为O(logdN)。从这点可以看出，B-Tree是一个非常有效率的索引数据结构。</p>
+<p>另外，由于插入删除新的数据记录会破坏B-Tree的性质，因此在插入删除时，需要对树进行一个分裂、合并、转移等操作以保持B-Tree性质。</p>
+<h5 id="B-Tree-1"><a href="#B-Tree-1" class="headerlink" title="B+Tree"></a>B+Tree</h5><p>B-Tree有许多变种，其中最常见的是B+Tree，例如MySQL就普遍使用B+Tree实现其索引结构。</p>
+<p>与B-Tree相比，B+Tree有以下不同点：</p>
+<p>每个节点的指针上限为2d而不是2d+1。</p>
+<p>内节点不存储data，只存储key；叶子节点不存储指针。</p>
+<p>下图是一个简单的B+Tree示意：</p>
+<p><img src="/Mysql索引及算法原理/timg-2.png" alt=""></p>
+<p>由于并不是所有节点都具有相同的域，因此B+Tree中叶节点和内节点一般大小不同。这点与B-Tree不同，虽然B-Tree中不同节点存放的key和指针可能数量不一致，但是每个节点的域和上限是一致的，所以在实现中B-Tree往往对每个节点申请同等大小的空间。</p>
+<p>一般来说，B+Tree比B-Tree更适合实现外存储索引结构，具体原因与外存储器原理及计算机存取原理有关，将在下面讨论。</p>
+<h5 id="带有顺序访问指针的B-Tree"><a href="#带有顺序访问指针的B-Tree" class="headerlink" title="带有顺序访问指针的B+Tree"></a>带有顺序访问指针的B+Tree</h5><p>一般在数据库系统或文件系统中使用的B+Tree结构都在经典B+Tree的基础上进行了优化，增加了顺序访问指针。如图所示：</p>
+<p><img src="/Mysql索引及算法原理/timg-3.png" alt=""></p>
+<p>在B+Tree的每个叶子节点增加一个指向相邻叶子节点的指针，就形成了带有顺序访问指针的B+Tree。做这个优化的目的是为了提高区间访问的性能，例如图4中如果要查询key为从18到49的所有数据记录，当找到18后，只需顺着节点和指针顺序遍历就可以一次性访问到所有数据节点，极大提到了区间查询效率。</p>
+<h4 id="为什么使用B-Tree-和-B-Tree"><a href="#为什么使用B-Tree-和-B-Tree" class="headerlink" title="为什么使用B-Tree 和 B+Tree"></a>为什么使用B-Tree 和 B+Tree</h4><p>上文说过，红黑树等数据结构也可以用来实现索引，但是文件系统及数据库系统普遍采用B-/+Tree作为索引结构，这一节将结合计算机组成原理相关知识讨论B-/+Tree作为索引的理论基础。</p>
+<p>一般来说，索引本身也很大，不可能全部存储在内存中，因此索引往往以索引文件的形式存储的磁盘上。这样的话，索引查找过程中就要产生磁盘I/O消耗，相对于内存存取，I/O存取的消耗要高几个数量级，所以评价一个数据结构作为索引的优劣最重要的指标就是在查找过程中磁盘I/O操作次数的渐进复杂度。换句话说，索引的结构组织要尽量减少查找过程中磁盘I/O的存取次数。下面先介绍内存和磁盘存取原理，然后再结合这些原理分析B-/+Tree作为索引的效率。</p>
+<h5 id="主存存取原理"><a href="#主存存取原理" class="headerlink" title="主存存取原理"></a>主存存取原理</h5><p>目前计算机使用的主存基本都是随机读写存储器（RAM），现代RAM的结构和存取原理比较复杂，这里本文抛却具体差别，抽象出一个十分简单的存取模型来说明RAM的工作原理。如图所示：</p>
+<p><img src="/Mysql索引及算法原理/timg-4.png" alt=""></p>
+<p>从抽象角度看，主存是一系列的存储单元组成的矩阵，每个存储单元存储固定大小的数据。每个存储单元有唯一的地址，现代主存的编址规则比较复杂，这里将其简化成一个二维地址：通过一个行地址和一个列地址可以唯一定位到一个存储单元。图5展示了一个4 x 4的主存模型。</p>
+<p>主存的存取过程如下：</p>
+<p>当系统需要读取主存时，则将地址信号放到地址总线上传给主存，主存读到地址信号后，解析信号并定位到指定存储单元，然后将此存储单元数据放到数据总线上，供其它部件读取。</p>
+<p>写主存的过程类似，系统将要写入单元地址和数据分别放在地址总线和数据总线上，主存读取两个总线的内容，做相应的写操作。</p>
+<p>这里可以看出，主存存取的时间仅与存取次数呈线性关系，因为不存在机械操作，两次存取的数据的“距离”不会对时间有任何影响，例如，先取A0再取A1和先取A0再取D3的时间消耗是一样的。</p>
+<h5 id="磁盘存取原理"><a href="#磁盘存取原理" class="headerlink" title="磁盘存取原理"></a>磁盘存取原理</h5><p>上文说过，索引一般以文件形式存储在磁盘上，索引检索需要磁盘I/O操作。与主存不同，磁盘I/O存在机械运动耗费，因此磁盘I/O的时间消耗是巨大的。下图展示了磁盘的整体结构：</p>
+<p><img src="/Mysql索引及算法原理/timg-5.png" alt=""></p>
+<p>一个磁盘由大小相同且同轴的圆形盘片组成，磁盘可以转动（各个磁盘必须同步转动）。在磁盘的一侧有磁头支架，磁头支架固定了一组磁头，每个磁头负责存取一个磁盘的内容。磁头不能转动，但是可以沿磁盘半径方向运动（实际是斜切向运动），每个磁头同一时刻也必须是同轴的，即从正上方向下看，所有磁头任何时候都是重叠的（不过目前已经有多磁头独立技术，可不受此限制）。下图展示了一个磁盘的结构：</p>
+<p><img src="/Mysql索引及算法原理/timg-6.png" alt=""></p>
+<p>盘片被划分成一系列同心环，圆心是盘片中心，每个同心环叫做一个磁道，所有半径相同的磁道组成一个柱面。磁道被沿半径线划分成一个个小的段，每个段叫做一个扇区，每个扇区是磁盘的最小存储单元。为了简单起见，我们下面假设磁盘只有一个盘片和一个磁头。</p>
+<p>当需要从磁盘读取数据时，系统会将数据逻辑地址传给磁盘，磁盘的控制电路按照寻址逻辑将逻辑地址翻译成物理地址，即确定要读的数据在哪个磁道，哪个扇区。为了读取这个扇区的数据，需要将磁头放到这个扇区上方，为了实现这一点，磁头需要移动对准相应磁道，这个过程叫做寻道，所耗费时间叫做寻道时间，然后磁盘旋转将目标扇区旋转到磁头下，这个过程耗费的时间叫做旋转时间。</p>
+<h5 id="局部性原理与磁盘预读"><a href="#局部性原理与磁盘预读" class="headerlink" title="局部性原理与磁盘预读"></a>局部性原理与磁盘预读</h5><p>由于存储介质的特性，磁盘本身存取就比主存慢很多，再加上机械运动耗费，磁盘的存取速度往往是主存的几百分分之一，因此为了提高效率，要尽量减少磁盘I/O。为了达到这个目的，磁盘往往不是严格按需读取，而是每次都会预读，即使只需要一个字节，磁盘也会从这个位置开始，顺序向后读取一定长度的数据放入内存。这样做的理论依据是计算机科学中著名的局部性原理：</p>
+<p>当一个数据被用到时，其附近的数据也通常会马上被使用。</p>
+<p>程序运行期间所需要的数据通常比较集中。</p>
+<p>由于磁盘顺序读取的效率很高（不需要寻道时间，只需很少的旋转时间），因此对于具有局部性的程序来说，预读可以提高I/O效率。</p>
+<p>预读的长度一般为页（page）的整倍数。页是计算机管理存储器的逻辑块，硬件及操作系统往往将主存和磁盘存储区分割为连续的大小相等的块，每个存储块称为一页（在许多操作系统中，页得大小通常为4k），主存和磁盘以页为单位交换数据。当程序要读取的数据不在主存中时，会触发一个缺页异常，此时系统会向磁盘发出读盘信号，磁盘会找到数据的起始位置并向后连续读取一页或几页载入内存中，然后异常返回，程序继续运行。</p>
+<h5 id="B-Tree索引的性能分析"><a href="#B-Tree索引的性能分析" class="headerlink" title="B-/+Tree索引的性能分析"></a>B-/+Tree索引的性能分析</h5><p>上文说过一般使用磁盘I/O次数评价索引结构的优劣。先从B-Tree分析，根据B-Tree的定义，可知检索一次最多需要访问h个节点。数据库系统的设计者巧妙利用了磁盘预读原理，将一个节点的大小设为等于一个页，这样每个节点只需要一次I/O就可以完全载入。为了达到这个目的，在实际实现B-Tree还需要使用如下技巧：</p>
+<p>每次新建节点时，直接申请一个页的空间，这样就保证一个节点物理上也存储在一个页里，加之计算机存储分配都是按页对齐的，就实现了一个node只需一次I/O。</p>
+<p>B-Tree中一次检索最多需要h-1次I/O（根节点常驻内存），渐进复杂度为O(h)=O(logdN)O(h)=O(logdN)。一般实际应用中，出度d是非常大的数字，通常超过100，因此h非常小（通常不超过3）。</p>
+<p>综上所述，用B-Tree作为索引结构效率是非常高的。</p>
+<p>而红黑树这种结构，h明显要深的多。由于逻辑上很近的节点（父子）物理上可能很远，无法利用局部性，所以红黑树的I/O渐进复杂度也为O(h)，效率明显比B-Tree差很多。</p>
+<p>上文还说过，B+Tree更适合外存索引，原因和内节点出度d有关。从上面分析可以看到，d越大索引的性能越好，而出度的上限取决于节点内key和data的大小：</p>
+<p>Dmax=floor(pagesize/(keysize + datasize + pointsize))</p>
+<p>floor表示向下取整。由于B+Tree内节点去掉了data域，因此可以拥有更大的出度，拥有更好的性能。</p>
+<p>这一章从理论角度讨论了与索引相关的数据结构与算法问题，下一章将讨论B+Tree是如何具体实现为MySQL中索引，同时将结合MyISAM和InnDB存储引擎介绍非聚集索引和聚集索引两种不同的索引实现形式。</p>
+<h4 id="MySQL索引实现"><a href="#MySQL索引实现" class="headerlink" title="MySQL索引实现"></a>MySQL索引实现</h4><p>在MySQL中，索引属于存储引擎级别的概念，不同存储引擎对索引的实现方式是不同的，本文主要讨论MyISAM和InnoDB两个存储引擎的索引实现方式。</p>
+<h5 id="MyISAM索引实现"><a href="#MyISAM索引实现" class="headerlink" title="MyISAM索引实现"></a>MyISAM索引实现</h5><p>MyISAM引擎使用B+Tree作为索引结构，叶节点的data域存放的是数据记录的地址。下图是MyISAM索引的原理图：</p>
+<p><img src="/Mysql索引及算法原理/timg-7.png" alt=""></p>
+<p>这里设表一共有三列，假设我们以Col1为主键，则图8是一个MyISAM表的主索引（Primary key）示意。可以看出MyISAM的索引文件仅仅保存数据记录的地址。在MyISAM中，主索引和辅助索引（Secondary key）在结构上没有任何区别，只是主索引要求key是唯一的，而辅助索引的key可以重复。如果我们在Col2上建立一个辅助索引，则此索引的结构如下图所示：</p>
+<p><img src="/Mysql索引及算法原理/timg-8.png" alt=""></p>
+<p>同样也是一颗B+Tree，data域保存数据记录的地址。因此，MyISAM中索引检索的算法为首先按照B+Tree搜索算法搜索索引，如果指定的Key存在，则取出其data域的值，然后以data域的值为地址，读取相应数据记录。</p>
+<p>MyISAM的索引方式也叫做“非聚集”的，之所以这么称呼是为了与InnoDB的聚集索引区分。</p>
+<h5 id="InnoDB索引实现"><a href="#InnoDB索引实现" class="headerlink" title="InnoDB索引实现"></a>InnoDB索引实现</h5><p>虽然InnoDB也使用B+Tree作为索引结构，但具体实现方式却与MyISAM截然不同。</p>
+<p>第一个重大区别是InnoDB的数据文件本身就是索引文件。从上文知道，MyISAM索引文件和数据文件是分离的，索引文件仅保存数据记录的地址。而在InnoDB中，表数据文件本身就是按B+Tree组织的一个索引结构，这棵树的叶节点data域保存了完整的数据记录。这个索引的key是数据表的主键，因此InnoDB表数据文件本身就是主索引。</p>
+<p><img src="/Mysql索引及算法原理/timg-9.png" alt=""></p>
+<p>上图是InnoDB主索引（同时也是数据文件）的示意图，可以看到叶节点包含了完整的数据记录。这种索引叫做聚集索引。因为InnoDB的数据文件本身要按主键聚集，所以InnoDB要求表必须有主键（MyISAM可以没有），如果没有显式指定，则MySQL系统会自动选择一个可以唯一标识数据记录的列作为主键，如果不存在这种列，则MySQL自动为InnoDB表生成一个隐含字段作为主键，这个字段长度为6个字节，类型为长整形。</p>
+<p>第二个与MyISAM索引的不同是InnoDB的辅助索引data域存储相应记录主键的值而不是地址。换句话说，InnoDB的所有辅助索引都引用主键作为data域。例如，下图为定义在Col3上的一个辅助索引：</p>
+<p><img src="/Mysql索引及算法原理/timg-10.png" alt=""></p>
+<p>这里以英文字符的ASCII码作为比较准则。聚集索引这种实现方式使得按主键的搜索十分高效，但是辅助索引搜索需要检索两遍索引：首先检索辅助索引获得主键，然后用主键到主索引中检索获得记录。</p>
+<p>了解不同存储引擎的索引实现方式对于正确使用和优化索引都非常有帮助，例如知道了InnoDB的索引实现后，就很容易明白为什么不建议使用过长的字段作为主键，因为所有辅助索引都引用主索引，过长的主索引会令辅助索引变得过大。再例如，用非单调的字段作为主键在InnoDB中不是个好主意，因为InnoDB数据文件本身是一颗B+Tree，非单调的主键会造成在插入新记录时数据文件为了维持B+Tree的特性而频繁的分裂调整，十分低效，而使用自增字段作为主键则是一个很好的选择。</p>
+<h5 id="InnoDB的主键选择与插入优化"><a href="#InnoDB的主键选择与插入优化" class="headerlink" title="InnoDB的主键选择与插入优化"></a>InnoDB的主键选择与插入优化</h5><p>在使用InnoDB存储引擎时，如果没有特别的需要，请永远使用一个与业务无关的自增字段作为主键。</p>
+<p>经常看到有帖子或博客讨论主键选择问题，有人建议使用业务无关的自增主键，有人觉得没有必要，完全可以使用如学号或身份证号这种唯一字段作为主键。不论支持哪种论点，大多数论据都是业务层面的。如果从数据库索引优化角度看，使用InnoDB引擎而不使用自增主键绝对是一个糟糕的主意。</p>
+<p>上文讨论过InnoDB的索引实现，InnoDB使用聚集索引，数据记录本身被存于主索引（一颗B+Tree）的叶子节点上。这就要求同一个叶子节点内（大小为一个内存页或磁盘页）的各条数据记录按主键顺序存放，因此每当有一条新的记录插入时，MySQL会根据其主键将其插入适当的节点和位置，如果页面达到装载因子（InnoDB默认为15/16），则开辟一个新的页（节点）。</p>
+<p>如果表使用自增主键，那么每次插入新的记录，记录就会顺序添加到当前索引节点的后续位置，当一页写满，就会自动开辟一个新的页。如下图所示：</p>
+<p><img src="/Mysql索引及算法原理/timg-11.png" alt=""></p>
+<p>这样就会形成一个紧凑的索引结构，近似顺序填满。由于每次插入时也不需要移动已有数据，因此效率很高，也不会增加很多开销在维护索引上。</p>
+<p>如果使用非自增主键（如果身份证号或学号等），由于每次插入主键的值近似于随机，因此每次新纪录都要被插到现有索引页得中间某个位置：</p>
+<p><img src="/Mysql索引及算法原理/timg-12.png" alt=""></p>
+<p>此时MySQL不得不为了将新记录插到合适位置而移动数据，甚至目标页面可能已经被回写到磁盘上而从缓存中清掉，此时又要从磁盘上读回来，这增加了很多开销，同时频繁的移动、分页操作造成了大量的碎片，得到了不够紧凑的索引结构，后续不得不通过OPTIMIZE TABLE来重建表并优化填充页面。</p>
+<p>因此，只要可以，请尽量在InnoDB上采用自增字段做主键。</p>
+<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4><p>注：本文摘取自<a href="http://blog.codinglabs.org/articles/theory-of-mysql-index.html" target="_blank" rel="external">http://blog.codinglabs.org/articles/theory-of-mysql-index.html</a> 如需阅读更详细内容请移步原博。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> 数据结构 </category>
+            
+        </categories>
+        
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[zookeeper集群搭建]]></title>
       <url>https://glenen.github.io/zookeeper%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/</url>
       <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本文只会涉及zookeeper的单机安装和集群搭建，都是自己亲身经历搭建过程，不会涉及任何有关zookeeper原理、分布式算法及分布式锁如何实现等，因为我自己都没搞懂……前不久看了《从paxos到zookeeper》，看到paxos算法，也没仔细弄懂，就头晕转移到其他书籍了。以后如果有时间，会再回头去看看那本书，再把有关原理的东西贴上来。</p>
@@ -46,7 +156,7 @@
     <entry>
       <title><![CDATA[内存分配策略]]></title>
       <url>https://glenen.github.io/%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>对象主要在堆上分配，但也有可能经过JIT编译后被拆散为标量类型并间接地栈上分配，对象主要分配在新生代的Eden区上，如果启动了本地线程分配缓冲，将按线程优先在TLAB上分配。少数情况下也可能会直接分配在老年代中，分配细节取决于当前使用的是哪一种垃圾收集器组合，还有虚拟机中与内存相关的参数设置。</p>
 <a id="more"></a>
 <h4 id="对象优先在Eden区分配"><a href="#对象优先在Eden区分配" class="headerlink" title="对象优先在Eden区分配"></a>对象优先在Eden区分配</h4><p>大多数情况下，对象在Eden区分配，当Eden没有足够空间进行分配时，虚拟机将发起一次Minor GC。Minor GC：指发生在新生代的垃圾回收动作，因为java对象大多都具有朝生夕死的特性，所以Minor GC非常频繁，一般回收速度也比较快。</p>
@@ -72,7 +182,7 @@
     <entry>
       <title><![CDATA[垃圾收集器]]></title>
       <url>https://glenen.github.io/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。</p>
 <a id="more"></a>
 <p><img src="/垃圾收集器/hotspot垃圾收集器.png" alt=""></p>
@@ -143,13 +253,13 @@
     </entry>
     
     <entry>
-      <title><![CDATA[二叉树遍历—Morris遍历]]></title>
-      <url>https://glenen.github.io/%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86%E2%80%94Morris%E9%81%8D%E5%8E%86/</url>
+      <title><![CDATA[二叉树的Morris遍历]]></title>
+      <url>https://glenen.github.io/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84Morris%E9%81%8D%E5%8E%86/</url>
       <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。</p>
-<p>上篇博文运用了借助栈数据结构的方式实现了二叉树的先、中、后序遍历，但也提及了此方法并不是最佳的遍历方式，因为它的空间复杂度还可以从O(h)继续优化，不言而喻，比该空间复杂度更优的基本就是O(1)了。嗯，是的，那就是俗称Morris的遍历。</p>
+<p>二叉树的递归遍历、借助栈数据结构遍历较简单，不做赘述，此处给出二叉树的最优遍历方法：Morris遍历，时间复杂度O(n)，空间复杂度O(1)。</p>
 <a id="more"></a>
 <h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><p>先给出一棵二叉树：</p>
-<p><img src="/二叉树遍历—Morris遍历/二叉树—Morris.png" alt="通"></p>
+<p><img src="/二叉树的Morris遍历/二叉树—Morris.png" alt="通"></p>
 <p>如图所示，这树比较奇特，没啥别的，就是叶子节点多了些箭头指向自己上层的节点。平时叶子节点都是干干净净的，今天突然冒出来必然不是冒然的。今天我们就要运用这些箭头完成节点控制权的转移。</p>
 <p>如我们所知，二叉树由上层节点向下层节点转移很容易，因为它有从父节点指向孩子节点的指针，但是孩子节点向父节点转移就没那么容易了—没有直接的指向指针。我们借助栈结构遍历时候，其实做的工作就是完成节点控制权的转移。但现在我们可以利用叶子节点那些大量指向Null的空闲指针来帮助我们完成其节点控制权的转移，从而完成二叉树的遍历。</p>
 <p>此处给出大体方向，详细点的代码中注释，后序我选择放弃—因为难啊！</p>
@@ -238,43 +348,7 @@ public static void preTraversal(Node head) {
       
         <categories>
             
-            <category> 二叉树 </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[日常总结]]></title>
-      <url>https://glenen.github.io/%E6%97%A5%E5%B8%B8%E6%80%BB%E7%BB%93/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>该总结属于原理性总结，根据自身状况而总结，并非详细总结。转载请注明出处，仅供参考。</p>
-<h4 id="注解annotation"><a href="#注解annotation" class="headerlink" title="注解annotation"></a>注解annotation</h4><h5 id="annotation原理"><a href="#annotation原理" class="headerlink" title="annotation原理"></a>annotation原理</h5><p>一种元数据，即描述数据的数据。注解就是一个继承自‘java.lang.annotation.Annotation’的接口，java通过动态代理的方式为你生成了一个实现了“接口”的实例（对于当前的实体来说，例如类、方法、属性域等，这个代理对象是单例的），然后对该代理实例的属性赋值，这样就可以在程序运行时（如果将注解设置为运行时可见的话）通过反射获取到注解的配置信息。注解的属性设置是在编译时就确定了的，通过CLHSDB在eden区找到注解实例。类型<code>com/sun/proxy/$Proxy1</code>是JDK动态代理生成对象时的默认类型，其中<code>com.sun.proxy</code>是默认的包名，定义于<code>ReflectUtil</code>类的<code>PROXY_PACKAGE</code>字段中。代理类名<code>$PROXY1</code>包含两部分，其中前缀<code>$PROXY</code>是JDK种默认的代理类类名前缀，后的1是自增的结果。</p>
-<a id="more"></a>
-<h5 id="自定义annotation"><a href="#自定义annotation" class="headerlink" title="自定义annotation"></a>自定义annotation</h5><p>4个用于描述自定义注解的注解：1.@Target  2.@Retention  3.@Documented  4.@Inherited。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">@Target(ElementType.METHOD)</div><div class="line">@Retention(RetentionPolicy.SOURCE)</div><div class="line">public @interface Override&#123;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="数据库索引-分类及创建索引原则略"><a href="#数据库索引-分类及创建索引原则略" class="headerlink" title="数据库索引(分类及创建索引原则略)"></a>数据库索引(分类及创建索引原则略)</h4><h5 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h5><p>数据库管理系统中一个排序的数据结构，以协助快速查询、更新数据库表中数据。在数据之外，数据库系统还维护着满足特定查找算法的数据结构，这些数据结构以某种方式引用（指向）数据，这样就可以在这些数据结构上实现高级查找算法。</p>
-<h5 id="索引优缺点"><a href="#索引优缺点" class="headerlink" title="索引优缺点"></a>索引优缺点</h5><p>优点：1:创建唯一性索引，可以保证数据库表中每一行数据的唯一性  2:大大加快数据的检索速度（主要）  3: 加速表和表之间的连接  4:使用索引，可以在查询的过程中，使用优化隐藏器，提高系统的性能  等等。</p>
-<p>缺点：1: 创建索引和维护索引要耗费时间  2: 索引需要占物理空间，除了数据表占数据空间之外，每一个索引还要占一定的物理空间，如果要建立聚簇索引，那么需要的空间就会更大  3: 对表中的数据进行增加、删除和修改的时候，索引也要动态的维护，这样就降低了数据的维护速度。</p>
-<h5 id="索引原理"><a href="#索引原理" class="headerlink" title="索引原理"></a>索引原理</h5><p>局部性原理：当一个数据被用到时，其附近的数据也通常会马上被使用。程序运行期间所需要的数据通常比较集中 。</p>
-<p>磁盘预读：磁盘顺序读取的效率很高（不需要寻道时间，只需很少的旋转时间），因此对于具有局部性的程序来说，预读可以提高I/O效率。预读的长度一般为页（page）的整倍数。</p>
-<p>B-Tree索引：根据B-Tree的定义，可知检索一次最多需要访问h个节点。数据库系统的设计者巧妙利用了磁盘预读原理，将一个节点的大小设为等于一个页，这样每个节点只需要一次I/O就可以完全载入。为了达到这个目的，在实际实现B-Tree还需要使用如下技巧：每次新建节点时，直接申请一个页的空间，这样就保证一个节点物理上也存储在一个页里，加之计算机存储分配都是按页对齐的，就实现了一个node只需一次I/O。</p>
-<h4 id="悲观锁与乐观锁"><a href="#悲观锁与乐观锁" class="headerlink" title="悲观锁与乐观锁"></a>悲观锁与乐观锁</h4><h5 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h5><p>悲观锁：数据被外界（包括本系统当前的其他事务，以及来自外部系统的事务处理）修改持保守态度，因此，在整个数据处理过程中，将数据处于锁定状态。</p>
-<p>乐观锁：相对悲观锁而言，乐观锁机制采取了更加宽松的加锁机制。悲观锁大多数情况下依靠数据库的锁机制实现，以保证操作最大程度的独占性。但随之而来的就是数据库性能的大量开销，特别是对长事务而言，这样的开销往往无法承受。</p>
-<h5 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h5><p>悲观锁：往往依靠数据库提供的锁机制(也只有数据库层提供的锁机制才能真正保证数据访问的排他性，否则，即使在本系统中实现了加锁机制，也无法保证外部系统不会修改数据)。</p>
-<p>乐观锁：大多是基于数据版本(Version)记录机制实现。即为数据增加一个版本标识(只要是可以用来作为判断的字段都行)，在基于数据库表的版本解决方案中，一般是通过为数据库表增加一个 “version” 字段来实现。读取出数据时，将此版本号一同读出，之后更新时，对此版本号加一。此时，将提交数据的版本数据与数据库表对应记录的当前版本信息进行比对，如果提交的数据版本号大于数据库表当前版本号，则予以更新，否则认为是过期数据。本质还是通过CAS(compare and swap)机制完成，包括JDK中的原子类的各种操作都是CAS处理并发(各种封装的根本还是Unsafe类)，防止数据脏读。</p>
-<h5 id="mysql几个有用sql语句"><a href="#mysql几个有用sql语句" class="headerlink" title="mysql几个有用sql语句"></a>mysql几个有用sql语句</h5><p><strong><em>Select…For Update</em></strong>: 该语句用来锁定特定的行（如果有where子句，就是满足where条件的那些行）。当这些行被锁定后，其他会话可以选择这些行，但不能更改或删除这些行，直到该语句的事务被commit语句或rollback语句结束为止(和SELECT … LOCK IN SHARE MODE类似)。</p>
-<p><strong><em>insert ignore into…</em></strong>：插入数据，根据主键或者唯一索引判断记录是否存在，不存在则插入，存在则忽略，以警告形式返回。</p>
-<p><strong><em>insert into…on duplicate key update…</em></strong>：插入时根据主键或者唯一索引判断记录是否存在，不存在则插入，存在则更新指定字段的内容，其他字段不变。</p>
-<p><strong><em>replace into</em></strong>：根据主键或者唯一索引判断记录，不存在，则插入，没有赋值的字段，插入后该字段为空，存在则先删除记录再插入。</p>
-<p><strong><em>insert into…select…where not exist</em></strong>：根据select的条件判断是否插入，不止可以通过主键或者唯一索引，还可通过其他条件。</p>
-<h4 id="重定向与转发"><a href="#重定向与转发" class="headerlink" title="重定向与转发"></a>重定向与转发</h4><h5 id="概念-2"><a href="#概念-2" class="headerlink" title="概念"></a>概念</h5><p>重定向：重定向是客户端行为，客户浏览器发送http请求——&gt;web服务器接受后发送302状态码响应及对应新的location给客户浏览器——&gt;客户浏览器发现是302响应，则自动再发送一个新的http请求，请求url是新的location地址——&gt;服务器根据此请求寻找资源并发送给客户。在这里location可以重定向到任意URL，既然是浏览器重新发出了请求，则就没有什么request传递的概念了。在客户浏览器路径栏显示的是其重定向的路径，客户可以观察到地址的变化的。重定向行为是浏览器做了至少两次的访问请求的。在重定向的过程中，传输的信息会被丢失。</p>
-<p>转发：转发是服务器行为。客户浏览器发送http请求——&gt;web服务器接受此请求——&gt;调用内部的一个方法在容器内部完成请求处理和转发动作——&gt;将目标资源发送给客户；在这里，转发的路径必须是同一个web容器下的url，其不能转向到其他的web路径上去，中间传递的是自己的容器内的request。在客户浏览器路径栏显示的仍然是其第一次访问的路径，也就是说客户是感觉不到服务器做了转发的。转发行为是浏览器只做了一次访问请求。传输的信息不会丢失。</p>
-<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>]]></content>
-      
-        <categories>
-            
-            <category> 总结 </category>
+            <category> 数据结构 </category>
             
         </categories>
         
@@ -376,7 +450,7 @@ public static void preTraversal(Node head) {
     <entry>
       <title><![CDATA[HotSpot虚拟机对象]]></title>
       <url>https://glenen.github.io/HotSpot%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%AF%B9%E8%B1%A1/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分的主要内容是了解虚拟机中的数据以及它们是如何创建、如何布局、如何访问的。</p>
 <h4 id="hotspot虚拟机对象"><a href="#hotspot虚拟机对象" class="headerlink" title="hotspot虚拟机对象"></a>hotspot虚拟机对象</h4><h5 id="对象的创建步骤"><a href="#对象的创建步骤" class="headerlink" title="对象的创建步骤"></a>对象的创建步骤</h5><p>虚拟机遇到一条new指令 -&gt; 检查这个指令的参数是否能在常量池中定位到一个类的符号引用 -&gt; 检查这个符号引用代表的类是否已被加载、解析和初始化过 -&gt; 检查都通过后，为新生对象分配内存 -&gt; 内存分配完成，将内存空间都初始化为零值，不包括对象头 ：该操作保证对象的字段在java代码中可以不赋初始值就直接使用，程序能访问到这些字段的数据类型所对应的零值 -&gt; 对对象进行必要设置，如对象是哪个类实例、如何找到类的元数据信息、对象的哈希码、对象的GC分代年龄等信息 -&gt; 执行<init>方法将对象进行意愿初始化(字节码中是否跟随invokespecial指令决定)。</init></p>
 <a id="more"></a>
@@ -413,8 +487,8 @@ public static void preTraversal(Node head) {
     <entry>
       <title><![CDATA[java运行时数据区域]]></title>
       <url>https://glenen.github.io/java%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。</p>
-<p>本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+<p>本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。且java8的内存模型有修改，可自行查询相关资料。</p>
 <h5 id="java优点"><a href="#java优点" class="headerlink" title="java优点"></a>java优点</h5><p>摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。</p>
 <a id="more"></a>
 <h5 id="java技术体系"><a href="#java技术体系" class="headerlink" title="java技术体系"></a>java技术体系</h5><p>java虚拟机：编译器与解释器。发展历史中出现过各种虚拟机。通用平台上运行的商用虚拟机：HotSpot ，JRockit ，J9。 特定硬件平台专用虚拟机：Azul VM  和  BEA Liquid VM。总结如下图所示：</p>
@@ -439,68 +513,6 @@ public static void preTraversal(Node head) {
         <categories>
             
             <category> JVM原理 </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[二叉树遍历—借助栈]]></title>
-      <url>https://glenen.github.io/%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86%E2%80%94%E5%80%9F%E5%8A%A9%E6%A0%88/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。</p>
-<p>二叉树的遍历种类可谓多：深度优先遍历DFS——借助栈，打破砂锅问到底，控制好节点的访问权即可。广度优先遍历BFS——借助队列，浅尝则止。层序遍历——借助队列，父节点出队之时即它孩子入队之日。</p>
-<p>今天所记录的是二叉树的先、中、后序遍历，遍历的方法也是很多：递归、借助栈、递归加迭代、Morris遍历(最佳方式，后续会补上博文)。前三种方式中，时间复杂度均为O(n)，空间复杂度O(logn)。递归方式也最简单，本质是借助函数栈。在此研究的是借助栈实现三种遍历，不难但却给我们传递了一种借助数据结构解决问题的思想，还是非常值得体会的。</p>
-<a id="more"></a>
-<h5 id="一棵二叉树图："><a href="#一棵二叉树图：" class="headerlink" title="一棵二叉树图："></a>一棵二叉树图：</h5><p><img src="/二叉树遍历—借助栈/二叉树.png" alt="二叉树"></p>
-<h5 id="java定义二叉树数据结构："><a href="#java定义二叉树数据结构：" class="headerlink" title="java定义二叉树数据结构："></a>java定义二叉树数据结构：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 定义二叉树</div><div class="line"> */</div><div class="line">@Data</div><div class="line">private class Node &#123;</div><div class="line">    /**</div><div class="line">     * 节点值</div><div class="line">     */</div><div class="line">    private int dataValue;</div><div class="line">    /**</div><div class="line">     * 左孩子节点</div><div class="line">     */</div><div class="line">    private Node left;</div><div class="line">    /**</div><div class="line">     * 右孩子节点</div><div class="line">     */</div><div class="line">    private Node right;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>注：因为本人IDE测试都写在一个类中，所有采用了内部类定义结构。</p>
-<h4 id="先序遍历"><a href="#先序遍历" class="headerlink" title="先序遍历"></a>先序遍历</h4><p>头节点 —&gt; 左孩子节点 —&gt; 右孩子节点。</p>
-<h5 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h5><p>头节点最先压入栈 —&gt; 弹出并打印其节点值 —&gt; 顺序检查其右、左孩子节点是否为null —&gt; 不为null的入栈 —&gt; 继续第二步骤及其后续 —&gt; 栈为空后退出循环。</p>
-<h5 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 二叉树先序遍历：借助栈</div><div class="line"> *</div><div class="line"> * @param head 头节点</div><div class="line"> */</div><div class="line">public static void preTraversal(Node head) &#123;</div><div class="line">    <span class="keyword">if</span> (head == null) &#123;</div><div class="line">        <span class="built_in">return</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        System.out.print(<span class="string">"preTraversal:"</span>);</div><div class="line">        Stack&lt;Node&gt; temp = new Stack&lt;&gt;();</div><div class="line">        // 头节点压入栈</div><div class="line">        temp.push(head);</div><div class="line">        <span class="keyword">while</span> (!temp.isEmpty()) &#123;</div><div class="line">            head = temp.pop();</div><div class="line">            System.out.print(head.dataValue + <span class="string">" "</span>);</div><div class="line">            // 右孩子先入栈</div><div class="line">            <span class="keyword">if</span> (head.right != null) &#123;</div><div class="line">                temp.push(head.right);</div><div class="line">            &#125;</div><div class="line">            // 左孩子后入栈</div><div class="line">            <span class="keyword">if</span> (head.left != null) &#123;</div><div class="line">                temp.push(head.left);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    System.out.println();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="中序遍历"><a href="#中序遍历" class="headerlink" title="中序遍历"></a>中序遍历</h4><p>左孩子节点 —&gt; 头节点 —&gt; 右孩子节点。</p>
-<h5 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h5><p>头节点压入栈 —&gt; 递归将其左孩子及左孩子一条斜线上的节点压入栈：左孩子及左孩子的左孩子… —&gt; 最左的左孩子为null时：弹出栈顶节点 —&gt; 打印其节点值，并把它右孩子节点入栈 —&gt; 继续第二步骤及后续 —&gt; 栈为空时退出循环。</p>
-<h5 id="代码实现-1"><a href="#代码实现-1" class="headerlink" title="代码实现"></a>代码实现</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 二叉树中序遍历：借助栈</div><div class="line"> *</div><div class="line"> * @param head 头节点</div><div class="line"> */</div><div class="line">public static void midTraversal(Node head) &#123;</div><div class="line">    <span class="keyword">if</span> (head == null) &#123;</div><div class="line">        <span class="built_in">return</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        System.out.print(<span class="string">"midTraversal:"</span>);</div><div class="line">        Stack&lt;Node&gt; temp = new Stack&lt;&gt;();</div><div class="line">        temp.push(head);</div><div class="line">        <span class="keyword">while</span> (!temp.isEmpty() || head != null) &#123;</div><div class="line">            // 连续把二叉树最左一条斜线上的节点压入栈</div><div class="line">            <span class="keyword">if</span> (head.left != null) &#123;</div><div class="line">                temp.push(head.left);</div><div class="line">                head = head.left;</div><div class="line">            // 弹出栈顶节点，让其右孩子继续上述过程</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                head = temp.pop();</div><div class="line">                System.out.print(head.dataValue + <span class="string">" "</span>);</div><div class="line">                head = head.right;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    System.out.println();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="后序遍历"><a href="#后序遍历" class="headerlink" title="后序遍历"></a>后序遍历</h4><p>左孩子节点 —&gt; 右孩子节点 —&gt; 头节点。</p>
-<h5 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h5><p>此处借助两个栈实现，也更好理解，当然也可以借助一个栈结构实现。<br>头节点入栈1 —&gt; 栈1弹出节点并压入栈2 —&gt;  顺序检测弹出节点的左、右孩子是否为null —&gt; 不为null则顺序压入栈1 —&gt; 继续步骤2及其后续 —&gt; 栈1为空则退出循环 —&gt; 此时栈2中的节点顺序已是后序遍历顺序，循环弹出打印其节点即可。</p>
-<h5 id="代码实现-2"><a href="#代码实现-2" class="headerlink" title="代码实现"></a>代码实现</h5><pre><code class="bash">/**
- * 二叉树后序遍历：借助栈
- *
- * @param head 头节点
- */
-public static void behTraversal(Node head) {
-    <span class="keyword">if</span> (head == null) {
-        <span class="built_in">return</span>;
-    } <span class="keyword">else</span> {
-        // 借助两个栈来完成
-        Stack&lt;Node&gt; temp1 = new Stack&lt;&gt;();
-        Stack&lt;Node&gt; temp2 = new Stack&lt;&gt;();
-        System.out.print(<span class="string">"behTraversal:"</span>);
-        temp1.push(head);
-        <span class="keyword">while</span> (!temp1.isEmpty()) {
-            head = temp1.pop();
-            temp2.push(head);
-            // 入栈顺序很重要
-            <span class="keyword">if</span> (head.left != null) {
-                temp1.push(head.left);
-            }
-            <span class="keyword">if</span> (head.right != null) {
-                temp1.push(head.right);
-            }
-        }
-        // temp2栈中的顺序已是后序
-        <span class="keyword">while</span> (!temp2.isEmpty()) {
-            System.out.print(temp2.pop() + <span class="string">" "</span>);
-        }
-    }
-    System.out.println();
-}
-</code></pre>
-<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>]]></content>
-      
-        <categories>
-            
-            <category> 二叉树 </category>
             
         </categories>
         
