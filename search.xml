@@ -215,7 +215,7 @@
     <entry>
       <title><![CDATA[垃圾回收策略]]></title>
       <url>https://glenen.github.io/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AD%96%E7%95%A5/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所有内容均为本人阅读《深入理解java虚拟机：jvm高级特性与最佳实践》书时所记，所用图也是亲笔所画。转载请注明出处，仅供参考。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。</p>
 <h4 id="判断对象是否存活算法"><a href="#判断对象是否存活算法" class="headerlink" title="判断对象是否存活算法"></a>判断对象是否存活算法</h4><h5 id="引用计数算法"><a href="#引用计数算法" class="headerlink" title="引用计数算法"></a>引用计数算法</h5><p>给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何时刻计数器为0的对象就是不可能再被使用的。实现简单，判定效率高，很多应用案例。但java虚拟机并未使用该算法(很难解决对象之间相互循环引用的问题)。如下代码所示：</p>
 <a id="more"></a>
@@ -536,7 +536,7 @@ public static void preTraversal(Node head) {
       
         <categories>
             
-            <category> 心灵情感 </category>
+            <category> 心灵 </category>
             
         </categories>
         
