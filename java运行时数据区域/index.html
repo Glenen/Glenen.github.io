@@ -94,23 +94,24 @@
 
 
 <meta name="description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
-本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。且java8的内存模型有修改，可自行查询相关资料。
-java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间">
+本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。
+java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="java运行时数据区域">
 <meta property="og:url" content="https://glenen.github.io/java运行时数据区域/index.html">
 <meta property="og:site_name" content="Glenn Blog">
 <meta property="og:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
-本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。且java8的内存模型有修改，可自行查询相关资料。
-java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间">
+本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。
+java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。">
 <meta property="og:image" content="https://glenen.github.io/java运行时数据区域/java技术体系.png">
 <meta property="og:image" content="https://glenen.github.io/java运行时数据区域/jvm运行时内存图.png">
-<meta property="og:updated_time" content="2017-04-12T11:57:53.000Z">
+<meta property="og:image" content="https://glenen.github.io/java运行时数据区域/JDK1.8 jvm运行时内存图.png">
+<meta property="og:updated_time" content="2017-04-13T12:43:49.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java运行时数据区域">
 <meta name="twitter:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
-本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。且java8的内存模型有修改，可自行查询相关资料。
-java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间">
+本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。
+java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。">
 <meta name="twitter:image" content="https://glenen.github.io/java运行时数据区域/java技术体系.png">
 
 
@@ -429,7 +430,7 @@ java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的�
 
       
         <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
-<p>本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。且java8的内存模型有修改，可自行查询相关资料。</p>
+<p>本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。</p>
 <h5 id="java优点"><a href="#java优点" class="headerlink" title="java优点"></a>java优点</h5><p>摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。</p>
 <a id="more"></a>
 <h5 id="java技术体系"><a href="#java技术体系" class="headerlink" title="java技术体系"></a>java技术体系</h5><p>java虚拟机：编译器与解释器。发展历史中出现过各种虚拟机。通用平台上运行的商用虚拟机：HotSpot ，JRockit ，J9。 特定硬件平台专用虚拟机：Azul VM  和  BEA Liquid VM。总结如下图所示：</p>
@@ -447,6 +448,12 @@ java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的�
 <h5 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h5><p>与虚拟机栈发挥到作用非常相似，但其为虚拟机使用到的Native方法服务。甚至有的虚拟机（HotSpot）将它们合二为一，也会抛出StackOverFlowError 和 OutOFMemoryError异常。</p>
 <h5 id="java堆"><a href="#java堆" class="headerlink" title="java堆"></a>java堆</h5><p>内存管理最大的一块，被所有线程共享，在虚拟机启动时创建。其唯一目的就是存放对象实例及数组。java堆可以处于物理上不连续的内存空间中，只要逻辑上连续即可。如果在堆中没有内存来完成实例分配且无法再扩展时，抛出OutOFMemoryError异常。</p>
 <h5 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h5><p>与java堆一样，各线程共享，用于存储已被虚拟机加载的类信息、常量、静态变量、即时编译器编译后的代码数据等。此区域的内存回收目标主要是针对常量池的回收和对类型的卸载，内存回收难但却必要。当其无法满足内存分配需求时，抛出OutOFMemoryError异常。</p>
+<p>注：方法区是java虚拟机的规范，JDK1.7及以前版本，永久代是方法区的一个实现，但是JDK1.8后，hotspot移除了永久代，取而代之的是元空间，符号引用(Symbols)转移到了native heap；字面量(interned strings)转移到了java heap；类的静态变量(class statics)转移到了java heap。元空间的本质和永久代类似，不过元空间与永久代之间最大的区别在于：元空间并不在虚拟机中，而是使用本地内存。因此，默认情况下，元空间的大小仅受本地内存限制，但可以通过以下参数来指定元空间的大小：</p>
+<p>-XX:MetaspaceSize，初始空间大小，达到该值就会触发垃圾收集进行类型卸载，同时GC会对该值进行调整：如果释放了大量的空间，就适当降低该值；如果释放了很少的空间，那么在不超过MaxMetaspaceSize时，适当提高该值。-XX:MaxMetaspaceSize，最大空间，默认是没有限制的。</p>
+<p>-XX:MinMetaspaceFreeRatio，在GC之后，最小的Metaspace剩余空间容量的百分比，减少为分配空间所导致的垃圾收集</p>
+<p>-XX:MaxMetaspaceFreeRatio，在GC之后，最大的Metaspace剩余空间容量的百分比，减少为释放空间所导致的垃圾收集</p>
+<p>JDK1.8后的java内存模型大概如下图所示：</p>
+<p><img src="/java运行时数据区域/JDK1.8 jvm运行时内存图.png" alt=""></p>
 <h5 id="运行时常量区"><a href="#运行时常量区" class="headerlink" title="运行时常量区"></a>运行时常量区</h5><p>方法区的一部分，Class文件常量池用于存放编译期生成的各种字面量和符号引用。运行时常量池相对于Class文件常量池具有动态性，且每一部分的格式都没有严格规定。动态特性利用的比较多的是String  类的intern()方法。常量池无法再申请到内存时抛出OutOFMemoryError异常。</p>
 <h5 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h5><p>不属于虚拟机运行时数据区的一部分，也并非虚拟机规范中定义的内存区域。但该部分内存被频繁使用，且也可能导致OutOFMemoryError异常。NIO(New Input/output)类，引入了一种基于通道与缓冲区的I/O方式，它可以使用Native函数库直接分配堆外内存，然后通过一个存储在java堆中的DirectByteBuffer对象作为这块内存的引用进行操作，该种方式在一些场景中显著提高性能，因为避免了在java堆和Native堆中来回复制数据。</p>
 <h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
