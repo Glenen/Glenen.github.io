@@ -4,6 +4,40 @@
   
     
     <entry>
+      <title><![CDATA[java与线程]]></title>
+      <url>https://glenen.github.io/java%E4%B8%8E%E7%BA%BF%E7%A8%8B/</url>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。</p>
+<a id="more"></a>
+<h4 id="java与线程"><a href="#java与线程" class="headerlink" title="java与线程"></a>java与线程</h4><h5 id="内核线程实现"><a href="#内核线程实现" class="headerlink" title="内核线程实现"></a>内核线程实现</h5><p>使用内核线程(Kernel-Level Thread klt)实现—程序一般不直接使用内核线程，而是去使用内核线程的一种高级接口：轻量级进程(Light Weight Process  LWP)。轻量级进程和内核线程之间是1:1的关系。如下图所示：</p>
+<p><img src="/java与线程/轻量级进程.png" alt=""></p>
+<h5 id="用户线程实现"><a href="#用户线程实现" class="headerlink" title="用户线程实现"></a>用户线程实现</h5><p>狭义-完全建立在用户空间的线程库上，系统内核不能感知线程存在的实现。所有线程操作都需要用户程序自己处理。进程和用户线程之间是1:N的关系，如下图所示：</p>
+<p><img src="/java与线程/用户线程.png" alt=""></p>
+<h5 id="用户线程加轻量级进程混合实现"><a href="#用户线程加轻量级进程混合实现" class="headerlink" title="用户线程加轻量级进程混合实现"></a>用户线程加轻量级进程混合实现</h5><p>使用了用户线程加轻量级进程的混合实现，且用户线程和轻量级进程之间是N:M的关系，如下图所示：</p>
+<p><img src="/java与线程/混合线程.png" alt=""></p>
+<h4 id="java线程调度及状态"><a href="#java线程调度及状态" class="headerlink" title="java线程调度及状态"></a>java线程调度及状态</h4><h5 id="java线程调度"><a href="#java线程调度" class="headerlink" title="java线程调度"></a>java线程调度</h5><p>系统调度指系统为线程分配处理器使用权的过程。</p>
+<p>协同式线程调度：线程的执行时间由线程本身控制，线程把自己工作做完后主动通知系统切换到另一个线程，简单而容易阻塞死。</p>
+<p>抢占式线程调度：每个线程由系统分配时间，线程的切换不由线程本身决定，时间系统可控，不会阻塞，java  使用的调度方式。</p>
+<h5 id="java线程状态"><a href="#java线程状态" class="headerlink" title="java线程状态"></a>java线程状态</h5><p>线程状态：新建：创建后尚未启动；</p>
+<p>运行：可能正执行，或等待CPU分配时间；</p>
+<p>无限期等待：不会被CPU分配执行时间，需等待被其他线程显式唤醒；</p>
+<p>限期等待：不会被CPU分配执行时间，在一段时间后由系统自动唤醒；</p>
+<p>阻塞：等待着获取到一个拍他锁，该事件将由另一个线程放弃这个锁时发生；</p>
+<p>结束：已终止线程状态，线程已执行结束。</p>
+<p>java线程之间的状态转换大致可如下图所示：</p>
+<p><img src="/java与线程/线程状态转换关系.png" alt=""></p>
+<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>]]></content>
+      
+        <categories>
+            
+            <category> JVM原理 </category>
+            
+        </categories>
+        
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Mysql索引及算法原理]]></title>
       <url>https://glenen.github.io/Mysql%E7%B4%A2%E5%BC%95%E5%8F%8A%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/</url>
       <content type="html"><![CDATA[<h4 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h4><p>本文以MySQL数据库为研究对象，讨论与数据库索引相关的一些话题。特别需要说明的是，MySQL支持诸多存储引擎，而各种存储引擎对索引的支持也各不相同，因此MySQL数据库支持多种索引类型，如BTree索引，哈希索引，全文索引等等。为了避免混乱，本文将只关注于BTree索引，因为这是平常使用MySQL时主要打交道的索引，至于哈希索引和全文索引本文暂不讨论。</p>

@@ -93,15 +93,24 @@
 
 
 
-<meta name="description" content="you want more then you could get more.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Glenn Blog">
-<meta property="og:url" content="https://glenen.github.io/archives/2016/11/index.html">
+<meta name="description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java与线程">
+<meta property="og:url" content="https://glenen.github.io/java与线程/index.html">
 <meta property="og:site_name" content="Glenn Blog">
-<meta property="og:description" content="you want more then you could get more.">
+<meta property="og:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。">
+<meta property="og:image" content="https://glenen.github.io/java与线程/轻量级进程.png">
+<meta property="og:image" content="https://glenen.github.io/java与线程/用户线程.png">
+<meta property="og:image" content="https://glenen.github.io/java与线程/混合线程.png">
+<meta property="og:image" content="https://glenen.github.io/java与线程/线程状态转换关系.png">
+<meta property="og:updated_time" content="2017-04-14T13:31:05.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Glenn Blog">
-<meta name="twitter:description" content="you want more then you could get more.">
+<meta name="twitter:title" content="java与线程">
+<meta name="twitter:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。">
+<meta name="twitter:image" content="https://glenen.github.io/java与线程/轻量级进程.png">
 
 
 
@@ -129,13 +138,13 @@
 
 
 
-  <link rel="canonical" href="https://glenen.github.io/archives/2016/11/"/>
+  <link rel="canonical" href="https://glenen.github.io/java与线程/"/>
 
 
 
 
 
-  <title> 归档 | Glenn Blog </title>
+  <title> java与线程 | Glenn Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -170,7 +179,7 @@
     
   
 
-  <div class="container sidebar-position-right  page-archive  ">
+  <div class="container sidebar-position-right page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -298,103 +307,207 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-    <span class="archive-page-counter">
-      
-      
-      
-        
-      
-      嗯..! 目前共计 11 篇日志。 继续努力。
-    </span>
-
+  <div id="posts" class="posts-expand">
     
-
-      
-      
-      
-
-      
-        
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2016">2016</h2>
-        </div>
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/二叉树的Morris遍历/" itemprop="url">
-              
-                <span itemprop="name">二叉树的Morris遍历</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-11-20T00:00:00+08:00"
-              content="2016-11-20" >
-          11-20
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/可持久化数据结构/" itemprop="url">
-              
-                <span itemprop="name">可持久化数据结构</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-11-01T00:00:00+08:00"
-              content="2016-11-01" >
-          11-01
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-  </section>
 
   
 
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/java与线程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Glenn">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Glenn Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                java与线程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-20T00:00:00+08:00">
+                2017-02-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM原理/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM原理</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/java与线程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="java与线程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。</p>
+<a id="more"></a>
+<h4 id="java与线程"><a href="#java与线程" class="headerlink" title="java与线程"></a>java与线程</h4><h5 id="内核线程实现"><a href="#内核线程实现" class="headerlink" title="内核线程实现"></a>内核线程实现</h5><p>使用内核线程(Kernel-Level Thread klt)实现—程序一般不直接使用内核线程，而是去使用内核线程的一种高级接口：轻量级进程(Light Weight Process  LWP)。轻量级进程和内核线程之间是1:1的关系。如下图所示：</p>
+<p><img src="/java与线程/轻量级进程.png" alt=""></p>
+<h5 id="用户线程实现"><a href="#用户线程实现" class="headerlink" title="用户线程实现"></a>用户线程实现</h5><p>狭义-完全建立在用户空间的线程库上，系统内核不能感知线程存在的实现。所有线程操作都需要用户程序自己处理。进程和用户线程之间是1:N的关系，如下图所示：</p>
+<p><img src="/java与线程/用户线程.png" alt=""></p>
+<h5 id="用户线程加轻量级进程混合实现"><a href="#用户线程加轻量级进程混合实现" class="headerlink" title="用户线程加轻量级进程混合实现"></a>用户线程加轻量级进程混合实现</h5><p>使用了用户线程加轻量级进程的混合实现，且用户线程和轻量级进程之间是N:M的关系，如下图所示：</p>
+<p><img src="/java与线程/混合线程.png" alt=""></p>
+<h4 id="java线程调度及状态"><a href="#java线程调度及状态" class="headerlink" title="java线程调度及状态"></a>java线程调度及状态</h4><h5 id="java线程调度"><a href="#java线程调度" class="headerlink" title="java线程调度"></a>java线程调度</h5><p>系统调度指系统为线程分配处理器使用权的过程。</p>
+<p>协同式线程调度：线程的执行时间由线程本身控制，线程把自己工作做完后主动通知系统切换到另一个线程，简单而容易阻塞死。</p>
+<p>抢占式线程调度：每个线程由系统分配时间，线程的切换不由线程本身决定，时间系统可控，不会阻塞，java  使用的调度方式。</p>
+<h5 id="java线程状态"><a href="#java线程状态" class="headerlink" title="java线程状态"></a>java线程状态</h5><p>线程状态：新建：创建后尚未启动；</p>
+<p>运行：可能正执行，或等待CPU分配时间；</p>
+<p>无限期等待：不会被CPU分配执行时间，需等待被其他线程显式唤醒；</p>
+<p>限期等待：不会被CPU分配执行时间，在一段时间后由系统自动唤醒；</p>
+<p>阻塞：等待着获取到一个拍他锁，该事件将由另一个线程放弃这个锁时发生；</p>
+<p>结束：已终止线程状态，线程已执行结束。</p>
+<p>java线程之间的状态转换大致可如下图所示：</p>
+<p><img src="/java与线程/线程状态转换关系.png" alt=""></p>
+<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Mysql索引及算法原理/" rel="next" title="Mysql索引及算法原理">
+                <i class="fa fa-chevron-left"></i> Mysql索引及算法原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -402,6 +515,17 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -421,8 +545,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/uploads/avatar.png"
@@ -504,6 +637,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java与线程"><span class="nav-number">2.</span> <span class="nav-text">java与线程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#内核线程实现"><span class="nav-number">2.1.</span> <span class="nav-text">内核线程实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用户线程实现"><span class="nav-number">2.2.</span> <span class="nav-text">用户线程实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用户线程加轻量级进程混合实现"><span class="nav-number">2.3.</span> <span class="nav-text">用户线程加轻量级进程混合实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java线程调度及状态"><span class="nav-number">3.</span> <span class="nav-text">java线程调度及状态</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#java线程调度"><span class="nav-number">3.1.</span> <span class="nav-text">java线程调度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#java线程状态"><span class="nav-number">3.2.</span> <span class="nav-text">java线程状态</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">4.</span> <span class="nav-text">完结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -631,11 +780,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
 
 
   
@@ -654,6 +801,18 @@
       <script id="dsq-count-scr" src="https://Glenen.disqus.com/count.js" async></script>
     
 
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://glenen.github.io/java与线程/';
+          this.page.identifier = 'java与线程/';
+          this.page.title = 'java与线程';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://Glenen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
     
 
   
@@ -823,26 +982,6 @@
   
 
   
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      });
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      });
-    </script>
-    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   
 
 
