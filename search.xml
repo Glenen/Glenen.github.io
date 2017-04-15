@@ -342,7 +342,8 @@
 <p>1.第一个目标！就是让整颗二叉树中的节点都过一把当头节点的隐，当然，前提是它得有孩子。</p>
 <p>2.第二个目标！每个节点当头节点时，都让以它为头节点的左子树的最右边的叶子节点的right Null指针指向该头节点。</p>
 <p>3.第三个目标！按照我们的意愿控制节点的控制权的转移。</p>
-<h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><pre><code class="bash">/**
+<h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 定义二叉树</div><div class="line"> */</div><div class="line">@Data</div><div class="line">public class Node &#123;</div><div class="line">   /**</div><div class="line">    * 节点值</div><div class="line">    */</div><div class="line">    private int dataValue;</div><div class="line">   /**</div><div class="line">    * 左孩子节点</div><div class="line">    */</div><div class="line">    private Node left;</div><div class="line">   /**</div><div class="line">    * 右孩子节点</div><div class="line">    */</div><div class="line">    private Node right;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="bash">/**
  * Morris 中序遍历
  *
  * @param 头节点
