@@ -93,21 +93,24 @@
 
 
 
-<meta name="description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
-概要如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。">
+<meta name="description" content="简介本文所整理的一致性Hash算法，其原型和背景都离不开现代大型网站设计服务端的一个重要特性：伸缩性。
+所谓网站的伸缩性，就是指在不需要改变网站的软硬件设计的前提下，仅仅通过改变部署的集群中的服务器数量就可以缩小或扩大网站的服务处理能力。一般而言，网站的伸缩性设计可分两类：1、根据功能进行物理分离实现伸缩；2、单一功能通过集群实现伸缩。前者是不同的服务器部署不同的服务，提供不同功能，后者是集群中的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="垃圾收集器">
-<meta property="og:url" content="https://glenen.github.io/垃圾收集器/index.html">
+<meta property="og:title" content="一致性Hash算法">
+<meta property="og:url" content="https://glenen.github.io/一致性Hash算法/index.html">
 <meta property="og:site_name" content="Glenn Blog">
-<meta property="og:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
-概要如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。">
-<meta property="og:image" content="https://glenen.github.io/垃圾收集器/hotspot垃圾收集器.png">
-<meta property="og:updated_time" content="2017-04-12T11:58:21.000Z">
+<meta property="og:description" content="简介本文所整理的一致性Hash算法，其原型和背景都离不开现代大型网站设计服务端的一个重要特性：伸缩性。
+所谓网站的伸缩性，就是指在不需要改变网站的软硬件设计的前提下，仅仅通过改变部署的集群中的服务器数量就可以缩小或扩大网站的服务处理能力。一般而言，网站的伸缩性设计可分两类：1、根据功能进行物理分离实现伸缩；2、单一功能通过集群实现伸缩。前者是不同的服务器部署不同的服务，提供不同功能，后者是集群中的">
+<meta property="og:image" content="https://glenen.github.io/一致性Hash算法/物理分离实现服务器伸缩.png">
+<meta property="og:image" content="https://glenen.github.io/一致性Hash算法/一致性Hash算法.png">
+<meta property="og:image" content="https://glenen.github.io/一致性Hash算法/一致性Hash算法2.png">
+<meta property="og:image" content="https://glenen.github.io/一致性Hash算法/虚拟节点的一致性Hash环.png">
+<meta property="og:updated_time" content="2017-04-15T12:17:44.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="垃圾收集器">
-<meta name="twitter:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
-概要如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。">
-<meta name="twitter:image" content="https://glenen.github.io/垃圾收集器/hotspot垃圾收集器.png">
+<meta name="twitter:title" content="一致性Hash算法">
+<meta name="twitter:description" content="简介本文所整理的一致性Hash算法，其原型和背景都离不开现代大型网站设计服务端的一个重要特性：伸缩性。
+所谓网站的伸缩性，就是指在不需要改变网站的软硬件设计的前提下，仅仅通过改变部署的集群中的服务器数量就可以缩小或扩大网站的服务处理能力。一般而言，网站的伸缩性设计可分两类：1、根据功能进行物理分离实现伸缩；2、单一功能通过集群实现伸缩。前者是不同的服务器部署不同的服务，提供不同功能，后者是集群中的">
+<meta name="twitter:image" content="https://glenen.github.io/一致性Hash算法/物理分离实现服务器伸缩.png">
 
 
 
@@ -135,13 +138,13 @@
 
 
 
-  <link rel="canonical" href="https://glenen.github.io/垃圾收集器/"/>
+  <link rel="canonical" href="https://glenen.github.io/一致性Hash算法/"/>
 
 
 
 
 
-  <title> 垃圾收集器 | Glenn Blog </title>
+  <title> 一致性Hash算法 | Glenn Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -314,7 +317,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/垃圾收集器/">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/一致性Hash算法/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Glenn">
@@ -335,7 +338,7 @@
             
             
               
-                垃圾收集器
+                一致性Hash算法
               
             
           </h1>
@@ -350,8 +353,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-20T00:00:00+08:00">
-                2016-12-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-02T00:00:00+08:00">
+                2017-03-02
               </time>
             
 
@@ -373,8 +376,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JVM原理/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM原理</span>
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
                   </a>
                 </span>
 
@@ -391,9 +394,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/垃圾收集器/#comments" itemprop="discussionUrl">
+                <a href="/一致性Hash算法/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="垃圾收集器/" itemprop="commentCount"></span>
+                        data-disqus-identifier="一致性Hash算法/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -424,25 +427,34 @@
       
 
       
-        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
-<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。</p>
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>本文所整理的一致性Hash算法，其原型和背景都离不开现代大型网站设计服务端的一个重要特性：伸缩性。</p>
+<p>所谓网站的伸缩性，就是指在不需要改变网站的软硬件设计的前提下，仅仅通过改变部署的集群中的服务器数量就可以缩小或扩大网站的服务处理能力。一般而言，网站的伸缩性设计可分两类：1、根据功能进行物理分离实现伸缩；2、单一功能通过集群实现伸缩。前者是不同的服务器部署不同的服务，提供不同功能，后者是集群中的多台服务器部署相同的服务，提供相同的功能。通过对这两个方面的研究和处理，我们就可对网站整体实现富有弹性的伸缩性设计。</p>
 <a id="more"></a>
-<p><img src="/垃圾收集器/hotspot垃圾收集器.png" alt=""></p>
-<h4 id="Serial收集器"><a href="#Serial收集器" class="headerlink" title="Serial收集器"></a>Serial收集器</h4><p>最基本、发展历史最悠久的收集器。单线程收集器，其进行垃圾收集时，必须暂停其他工作线程，直到它收集结束。虚拟机运行在client模式下的默认新生代收集器。</p>
-<h4 id="ParNew收集器"><a href="#ParNew收集器" class="headerlink" title="ParNew收集器"></a>ParNew收集器</h4><p>Serial收集器的多线程版本。是许多运行在Server模式下的虚拟机中首选的新生代收集器。在JDK1.5中与CMS搭配使用。默认开启的收集线程数与CPU的数量相等，可以使用-XX:ParallelGCThreads参数限制垃圾收集的线程数。</p>
-<p>并行Parallel：多条垃圾收集线程并行工作，此时用户线程仍然处于等待状态。</p>
-<p>并发Concurrent：用户线程与垃圾收集线程同时执行，不一定并行，可能会交替执行，用户程序继续执行，而垃圾收集线程运行于另一个CPU上。</p>
-<h4 id="Parallel-Scavenge收集器"><a href="#Parallel-Scavenge收集器" class="headerlink" title="Parallel Scavenge收集器"></a>Parallel Scavenge收集器</h4><p>采用复制算法且并行的多线程收集器。其目标是达到一个可控制的吞吐量throughput = 运行用户代码时间／(运行用户代码时间 + 垃圾收集时间)。停顿时间越短越适合与用户交互的程序，良好的反应速度能提升用户体验，而高吞吐量可以高效的利用CPU时间，尽快完成程序的运算任务，适用于在后台计算而不需要太多交互的任务。</p>
-<p>-XX:MaxGCPauseMillis参数：控制最大垃圾收集停顿时间，大于0的毫秒数；-XX:GCTimeRatio参数：直接设置吞吐量大小，大于0且小于100的整数，相当于吞吐量的倒数。其具有自适应调节策略，打开开关-XX:UseAdaptiveSizePolicy参数即可。</p>
-<h4 id="Serial-Old收集器"><a href="#Serial-Old收集器" class="headerlink" title="Serial Old收集器"></a>Serial Old收集器</h4><p>Serial收集器老年代版本，单线程收集器，使用“标记—整理”算法，主要在于给Client模式下的虚拟机使用。</p>
-<h4 id="Parallel-Old收集器"><a href="#Parallel-Old收集器" class="headerlink" title="Parallel Old收集器"></a>Parallel Old收集器</h4><p>Parallel老年代版本，使用多线程和“标记—整理”算法。在注重吞吐量及CPU资源敏感的场合，都可以优先考虑Parallel Sca收集器加Parallel Old收集器组合。</p>
-<h4 id="CMS收集器"><a href="#CMS收集器" class="headerlink" title="CMS收集器"></a>CMS收集器</h4><p>一种以获取最短回收停顿时间为目标的收集器，采用“标记—清除算法”，主要用于互联网站或者B/S系统的服务端。</p>
-<p>初始标记：仅仅标记GC Roots能直接关联到的对象，需要“Stop The World” —&gt;  并发标记：进行GC Roots Tracing过程 —&gt; 重新标记：修正并发标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，时间稍比初始标记长，远比并发标记短 —&gt; 并发清除。</p>
-<p>缺点：1、对CPU资源非常敏感；2、无法处理浮动垃圾；3、产生大量空间碎片。</p>
-<h4 id="G1-Garbge-First-收集器"><a href="#G1-Garbge-First-收集器" class="headerlink" title="G1(Garbge-First)收集器"></a>G1(Garbge-First)收集器</h4><p>当今收集器技术发展最前沿的成果之一，面向服务端应用的垃圾收集器。特点：1、并行与并发；2、分代收集；3、空间整合；4、可预测的停顿。此时堆内存布局：java堆划分为多个大小相等的独立区域Region，虽然还保留新生代和老年代概念，但新生代和老年代不再是物理隔离的，它们都是一部分Region(不需要连续)的集合。</p>
-<h5 id="可预测的停顿时间模型"><a href="#可预测的停顿时间模型" class="headerlink" title="可预测的停顿时间模型"></a>可预测的停顿时间模型</h5><p>因为它可以有计划地避免在整个java堆中进行全区域的垃圾收集，G1跟踪各个Region里面的垃圾堆积的价值大小，在后台维护一个优先列表，每次根据允许的收集时间，优先回收价值最大的Region。</p>
-<h5 id="Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法"><a href="#Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法" class="headerlink" title="Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法"></a>Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法</h5><p>G1中每个Region都有一个与之对应的Remembered Set，虚拟机发现程序在Reference类型的数据进行写操作时，会产生一个Write Barrier暂时中断写操作，检查Reference引用的对象是否处于不同的Region之中，如果是，便通过CardTable把相关引用信息记录到被引用对象所属的Region的Remembered Set中。当进行垃圾回收时，在GC根节点的枚举范围中加入Remembered Set即可保证不对全堆扫描也不会有遗漏。</p>
-<p>步骤：初始标记—并发标记—最终标记—筛选回收。</p>
+<p>其实不管哪种伸缩类型，其都是一个网站在从建立到后面越来越庞大的过程中催生出的产物，如下图所示：</p>
+<p><img src="/一致性Hash算法/物理分离实现服务器伸缩.png" alt=""></p>
+<p>就揭示了网站在发展过程，我们为了应对服务器本身的处理能力瓶颈所采取的手段：将各种可单独分离的功能模块一步一步分离出来单独部署。但是随着网站的访问流量越来越大，单独部署功能模块的服务器有可能会出现负载过大而宕机的情况，其实也是必然会发生的，这时我们可能会采取的措施换一台处理能力更强的服务器，或者多添加一台服务器协同原服务器处理。我们都会选择后者处理方法，因为前者不能从根本解决问题：世界上不存在一台拥有无限处理能力的计算机。</p>
+<p>集群的伸缩性设计，也可分为多种：1、应用服务器集群的伸缩设计；2、分布式缓存集群的伸缩设计；3、数据存储服务器的伸缩设计。每种伸缩设计采用的方式也不同，都需要根据其特点制定相应的可伸缩设计。本文所讲解的一致性Hash算法就是为了解决分布式缓存集群的伸缩设计。可能会有漏点，仅供参考。</p>
+<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><h5 id="一般路由算法隐患"><a href="#一般路由算法隐患" class="headerlink" title="一般路由算法隐患"></a>一般路由算法隐患</h5><p>何为路由：简单理解就是我们通过缓存数据的Key，通过某种路由算法，计算得到存储数据服务器列表的下标，从而完成缓存数据Key到存储数据服务器的映射(自己理解，如有错误请谅解)。</p>
+<p>其实就路由算法而言，以前大学时代数据结构课程就提及过较多：其通过路由算法得到的值越随机，越具有不可预测性，其就越适合作为Hash算法。一般简单的路由算法可以使用余数Hash：缓存数据Key除以服务器数量取余，该余数就是存放缓存数据的服务器编号。实际上，如果不考虑缓存服务器集群的伸缩性，余数Hash可以满足绝大多数的缓存路由需求。但是当缓存服务器集群需要扩容的时候，其弊端就会完全暴露出来。</p>
+<p>如下列子：</p>
+<p>现在我们需要将3台缓存服务器扩容至4台，扩容的服务器列表已改变，但是我们的路由算法仍然使用余数Hash，我们原来已存在的缓存数据<key, data="">，其key的Hash值为490806430，除以4余数为2，对应的服务器编号为2，我们去该服务器读取缓存数据，其结果也可想而知：必然失败。因为在集群为3台时，该缓存数据存储的服务器编号为1。</key,></p>
+<p>很容易可看出，集群服务器数从3增至4时，大约会有75%(3/4)被缓存了的数据不能正确命中。且随着集群服务器规模的不断扩大，其不命中率会成线性上升：(N/(N + 1))。</p>
+<p>当缓存数据绝大部份不能正确命中时候，就会从数据库获取数据，此时数据访问的压力就会落到数据库上，这导致超过数据库的负载能力，严重时可能会导致数据库宕机。这显然不是我们所能接受的：我们使用缓存的初衷是降低数据库的负载压力。</p>
+<p>一种办法可以在网站访问量最少的时候扩容缓存服务器集群(哈哈，没错就是半夜)，然后通过模拟请求的方法逐渐预热缓存，使缓存服务器中的数据重新分配。但我们可以有更好的办法：那就是改进路由算法，使新加入的服务器不影响大部分缓存数据的命中。其就是今天的重点：一致性Hash算法。</p>
+<h5 id="一致性Hash算法"><a href="#一致性Hash算法" class="headerlink" title="一致性Hash算法"></a>一致性Hash算法</h5><p>一致性Hash算法通过一个叫做一致性Hash环的数据结构实现Key到缓存服务器的映射。如下图所示：</p>
+<p><img src="/一致性Hash算法/一致性Hash算法.png" alt=""></p>
+<p>其具体算法过程：先构造一个长度为2^32的一致性Hash环，然后根据缓存服务器的放置在这个Hash环上。当需要根据缓存数据的Key值计算得到其Hash值，然后在Hash环上顺时针查找距离这个Key的Hash值最近的缓存服务器节点，其缓存数据就存在该服务器上，从而完成Key到服务器的Hash映射查找。</p>
+<h4 id="添加服务器"><a href="#添加服务器" class="headerlink" title="添加服务器"></a>添加服务器</h4><h5 id="添加服务器处理"><a href="#添加服务器处理" class="headerlink" title="添加服务器处理"></a>添加服务器处理</h5><p>当缓存服务器集群需要扩容时候，只需要新加入的节点(Node4)的Hash值放入一致性Hash环中。因为Key是顺时针查找距离其最近的节点，所以新加入的服务器只会影响整个环中的一小段。如下图所示：key3 和 key5受影响。</p>
+<p><img src="/一致性Hash算法/一致性Hash算法2.png" alt=""></p>
+<p>图中key3 和 key5从原来的Node1重新计算到了Node4，但是原来的大部分缓存数据还是能正确命中。假设还是将集群服务器从3扩容至4台，原有缓存数据的命中概率大约有75%，远远高于余数Hash的25%，且随着集群规模的增大，原有缓存数据的命中率还会继续增加。虽然还是会有小部分数据不能正确命中，但因为这个比例足够小，所以当从数据库读取这些数据的时候也不会对数据库造成难以承受的负载压力。</p>
+<h5 id="Hash环实现"><a href="#Hash环实现" class="headerlink" title="Hash环实现"></a>Hash环实现</h5><p>在我们的实际应用中，这个长度为2^32的一致性Hash环通常使用二叉查找树实现，Hash查找的实际过程是在二叉树中查找不小于查找数的最小值：服务器编号。当然这个二叉树最右边的叶子节点(最大值) 和 最左边的叶子节点(最小值)相连接，就构成了环。</p>
+<h4 id="解决负载不均衡"><a href="#解决负载不均衡" class="headerlink" title="解决负载不均衡"></a>解决负载不均衡</h4><h5 id="一致性Hash算法隐患"><a href="#一致性Hash算法隐患" class="headerlink" title="一致性Hash算法隐患"></a>一致性Hash算法隐患</h5><p>如上增加服务器节点图所示：新加入的Node4只影响了原来的节点Node1，也就是说原来需要访问Node1的缓存数据现在被转移到了Node4(大约50%)。原来命中到Node2 和 Node3的缓存数据不受影响，此时就意味着Node2 和 Node3的缓存数据和访问压力是Node1 和 Node4的两倍。如果这4台机器的性能是一样的，那此种结果显然也不是我们所需要的。</p>
+<h5 id="增加虚拟层"><a href="#增加虚拟层" class="headerlink" title="增加虚拟层"></a>增加虚拟层</h5><p>为了解决一致性Hash算法所带来的负载不均衡问题，我们通过使用虚拟层的手段：将每台缓存服务器虚拟为一组虚拟的缓存服务器，将虚拟服务器的Hash值放到Hash环上，Key先在环上找到虚拟服务器节点，再得到物理服务器信息。</p>
+<p>其实添加虚拟层的方式在计算机领域中被广泛采用：1、计算机网络七层协议；2、计算机操作系统可看作计算机硬件的虚拟层；3、java虚拟机可看作操作系统的虚拟层等等。</p>
+<p>这样新加入物理服务器节点时，将会把一组虚拟机节点加入环中。如果虚拟节点的数目足够多，这组虚拟节点将会影响同样多数目的已经在环上的虚拟节点，由于这些已存在的虚拟节点又对应不同的物理服务器。最终结果：新加入一台缓存服务器，将会较为均匀地影响原来集群中已经存在的所有服务器，换而言之就是分摊原有缓存服务器集群中所有服务器的一小部分负载。把新加入节点所造成的影响分摊给所有原有的服务器。如下图所示：</p>
+<p><img src="/一致性Hash算法/虚拟节点的一致性Hash环.png" alt=""></p>
+<p>图中新加入的Node4节点对应虚拟节点 n30  n31  n32，加入到一致性Hash环上后，影响 n01 、n12 、n22 三个虚拟节点，而这3个虚拟节点分别对应物理节点 Node1 、 Node2 、 Node3 。最终集群中加入一个节点，同时影响到了集群中已存在的三个物理节点。理想情况下，每个节点中不能被命中的数据为其缓存数据量的1/4 (N/(N + X)，N为原有物理节点数，X为新加入物理节点数)。即集群中已经被缓存数据有75%可被继续命中，和未使用虚拟节点的一致性Hash算法结果相同。</p>
+<p>显然每个物理节点对应的虚拟节点越多，各个物理节点之间的负载越均衡，新加入的服务器对集群中已存在的服务器的影响越保持一致(也是一致性Hash这个名字的由来)。实践中，一台物理服务器对应多少个虚拟节点合适，太多会影响性能，太少会影响负载均衡。一般来说，根据大师们的经验值：150。 当然这个值还应该根据具体情况具体对待。</p>
 <h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
       
     </div>
@@ -479,8 +491,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/垃圾回收策略/" rel="next" title="垃圾回收策略">
-                <i class="fa fa-chevron-left"></i> 垃圾回收策略
+              <a href="/java与线程/" rel="next" title="java与线程">
+                <i class="fa fa-chevron-left"></i> java与线程
               </a>
             
           </div>
@@ -488,10 +500,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/内存分配策略/" rel="prev" title="内存分配策略">
-                内存分配策略 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -647,7 +655,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Serial收集器"><span class="nav-number">2.</span> <span class="nav-text">Serial收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ParNew收集器"><span class="nav-number">3.</span> <span class="nav-text">ParNew收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Parallel-Scavenge收集器"><span class="nav-number">4.</span> <span class="nav-text">Parallel Scavenge收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Serial-Old收集器"><span class="nav-number">5.</span> <span class="nav-text">Serial Old收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Parallel-Old收集器"><span class="nav-number">6.</span> <span class="nav-text">Parallel Old收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CMS收集器"><span class="nav-number">7.</span> <span class="nav-text">CMS收集器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#G1-Garbge-First-收集器"><span class="nav-number">8.</span> <span class="nav-text">G1(Garbge-First)收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#可预测的停顿时间模型"><span class="nav-number">8.1.</span> <span class="nav-text">可预测的停顿时间模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法"><span class="nav-number">8.2.</span> <span class="nav-text">Region之间对象引用及其他收集器中新生代与老年代的对象引用解决办法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">9.</span> <span class="nav-text">完结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#原理"><span class="nav-number">2.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#一般路由算法隐患"><span class="nav-number">2.1.</span> <span class="nav-text">一般路由算法隐患</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#一致性Hash算法"><span class="nav-number">2.2.</span> <span class="nav-text">一致性Hash算法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#添加服务器"><span class="nav-number">3.</span> <span class="nav-text">添加服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#添加服务器处理"><span class="nav-number">3.1.</span> <span class="nav-text">添加服务器处理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Hash环实现"><span class="nav-number">3.2.</span> <span class="nav-text">Hash环实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决负载不均衡"><span class="nav-number">4.</span> <span class="nav-text">解决负载不均衡</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#一致性Hash算法隐患"><span class="nav-number">4.1.</span> <span class="nav-text">一致性Hash算法隐患</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#增加虚拟层"><span class="nav-number">4.2.</span> <span class="nav-text">增加虚拟层</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">5.</span> <span class="nav-text">完结</span></a></li></ol></div>
             
 
           </div>
@@ -804,9 +812,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://glenen.github.io/垃圾收集器/';
-          this.page.identifier = '垃圾收集器/';
-          this.page.title = '垃圾收集器';
+          this.page.url = 'https://glenen.github.io/一致性Hash算法/';
+          this.page.identifier = '一致性Hash算法/';
+          this.page.title = '一致性Hash算法';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://Glenen.disqus.com/embed.js';
