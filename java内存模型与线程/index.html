@@ -102,7 +102,7 @@
 <meta property="og:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
 概要此部分主要讲解java内存模型和java线程的大致关系，还特别对volatile关键字进行了详细的分析，以及java程序在执行过程中一些默认的先行发生原则来保障java程序执行的有序性。">
 <meta property="og:image" content="https://glenen.github.io/java内存模型与线程/线程-主内存-工作内存的交互关系.png">
-<meta property="og:updated_time" content="2017-04-16T12:55:01.000Z">
+<meta property="og:updated_time" content="2017-04-16T13:06:44.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java内存模型与线程">
 <meta name="twitter:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
@@ -437,9 +437,9 @@
 <h4 id="volatile关键字"><a href="#volatile关键字" class="headerlink" title="volatile关键字"></a>volatile关键字</h4><h5 id="volatile的两个重要特性"><a href="#volatile的两个重要特性" class="headerlink" title="volatile的两个重要特性"></a>volatile的两个重要特性</h5><p>1、保证此变量对所有线程的可见性，即一个线程修改了这个变量的值，新值对于其他线程来说是可以立即得知的。</p>
 <p>2、禁止指令重排序优化，普通的变量仅仅会保证在该方法等执行过程中所有依赖赋值结果的地方都能获取到正确的结果，而不能保证变量赋值的操作顺序与程序代码中的执行顺序一致。重排序优化是机器级的优化操作，提前执行指对应的汇编代码被提前执行。</p>
 <h5 id="禁止指令重排序"><a href="#禁止指令重排序" class="headerlink" title="禁止指令重排序"></a>禁止指令重排序</h5><p><strong><em>指令重排序</em></strong>：硬件架构而言，指CPU采用了允许将多条指令不按程序规定的顺序分开发送给各相应电路单元处理，但并不是说指令任意重排，CPU需要能正确处理指令依赖情况以保障程序能得出正确的执行结果。</p>
-<p>所以在本CPU中，重排序依然看起来是有序的，一个“lock addl…..”将修改同步到内存时，意味着所有之前的操作都已执行完成，这样便形成了指令重排序无法越过内存屏障的效果。</p>
-<p><strong><em>volatile如何禁止指令重排序优化</em></strong>：通过双检测获取单例模式例子的汇编代码可知，变量赋值后多执行了一个“lock addl…..”操作，该操作相当于一个内存屏障，即重排序时不能把后面的指令重排序到内存屏障之前的位置，只有一个CPU时，并不需要内存屏障，但如果有两个或者更多CPU访问统一内存，且其中有一个在观测另一个，就需要内存屏障来保证一致性。</p>
-<p>“lock addl…..”是一个空操作，关键是lock前缀，它的作用是使的本CPU的Cache写入了内存，该写入操作也会引起别的CPU或者别的内核无效化其Cache，这种操作相当于对Cache中的变量做了一次前面介绍java内存模型中所说的store和write操作。因此通过该空操作，可让前面volatile变量的修改对其他CPU立即可见。</p>
+<p>所以在本CPU中，重排序依然看起来是有序的，一个<code>lock addl…..</code>将修改同步到内存时，意味着所有之前的操作都已执行完成，这样便形成了指令重排序无法越过内存屏障的效果。</p>
+<p><strong><em>volatile如何禁止指令重排序优化</em></strong>：通过双检测获取单例模式例子的汇编代码可知，变量赋值后多执行了一个<code>lock addl…..</code>操作，该操作相当于一个内存屏障，即重排序时不能把后面的指令重排序到内存屏障之前的位置，只有一个CPU时，并不需要内存屏障，但如果有两个或者更多CPU访问统一内存，且其中有一个在观测另一个，就需要内存屏障来保证一致性。</p>
+<p><code>lock addl.....</code>是一个空操作，关键是lock前缀，它的作用是使的本CPU的Cache写入了内存，该写入操作也会引起别的CPU或者别的内核无效化其Cache，这种操作相当于对Cache中的变量做了一次前面介绍java内存模型中所说的store和write操作。因此通过该空操作，可让前面volatile变量的修改对其他CPU立即可见。</p>
 <p>volatile自己与自己比较，确定一个原则：volatile变量读操作的性能消耗与普通变量变量几乎没有什么差别，但是写操作则可能会慢一些，因为在本地代码中插入许多内存屏障指令来保证处理器不发生乱序执行，但大多数情况下volatile的总开销仍然要比锁低。</p>
 <h4 id="long和double变量特殊规则"><a href="#long和double变量特殊规则" class="headerlink" title="long和double变量特殊规则"></a>long和double变量特殊规则</h4><p>java内存模型要求lock、unlock、read、load、assign、use、store、write这8个操作都具有原子性，但是对于64位的数据类型long和double，在模型中特别定义了一条相对宽松的规定：允许虚拟机将没有被volatile修饰的64位数据的读写操作划分为两次32位的操作来进行，即允许虚拟机实现可以不保证64位数据类型的read、load、store、和write这4个操作具有原子性。</p>
 <p>但在实际操作中，目前各种平台下的商用java虚拟机几乎都选择把64位数据的读写操作作为原子操作来对待，因此编写代码时不需要将其专门声明为volatile。</p>
