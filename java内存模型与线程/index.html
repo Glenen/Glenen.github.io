@@ -94,23 +94,20 @@
 
 
 <meta name="description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
-概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。">
+概要此部分主要讲解java内存模型和java线程的大致关系，还特别对volatile关键字进行了详细的分析，以及java程序在执行过程中一些默认的先行发生原则来保障java程序执行的有序性。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java与线程">
-<meta property="og:url" content="https://glenen.github.io/java与线程/index.html">
+<meta property="og:title" content="java内存模型与线程">
+<meta property="og:url" content="https://glenen.github.io/java内存模型与线程/index.html">
 <meta property="og:site_name" content="Glenn Blog">
 <meta property="og:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
-概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。">
-<meta property="og:image" content="https://glenen.github.io/java与线程/轻量级进程.png">
-<meta property="og:image" content="https://glenen.github.io/java与线程/用户线程.png">
-<meta property="og:image" content="https://glenen.github.io/java与线程/混合线程.png">
-<meta property="og:image" content="https://glenen.github.io/java与线程/线程状态转换关系.png">
-<meta property="og:updated_time" content="2017-04-14T13:31:05.000Z">
+概要此部分主要讲解java内存模型和java线程的大致关系，还特别对volatile关键字进行了详细的分析，以及java程序在执行过程中一些默认的先行发生原则来保障java程序执行的有序性。">
+<meta property="og:image" content="https://glenen.github.io/java内存模型与线程/线程-主内存-工作内存的交互关系.png">
+<meta property="og:updated_time" content="2017-04-16T12:55:01.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="java与线程">
+<meta name="twitter:title" content="java内存模型与线程">
 <meta name="twitter:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
-概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。">
-<meta name="twitter:image" content="https://glenen.github.io/java与线程/轻量级进程.png">
+概要此部分主要讲解java内存模型和java线程的大致关系，还特别对volatile关键字进行了详细的分析，以及java程序在执行过程中一些默认的先行发生原则来保障java程序执行的有序性。">
+<meta name="twitter:image" content="https://glenen.github.io/java内存模型与线程/线程-主内存-工作内存的交互关系.png">
 
 
 
@@ -138,13 +135,13 @@
 
 
 
-  <link rel="canonical" href="https://glenen.github.io/java与线程/"/>
+  <link rel="canonical" href="https://glenen.github.io/java内存模型与线程/"/>
 
 
 
 
 
-  <title> java与线程 | Glenn Blog </title>
+  <title> java内存模型与线程 | Glenn Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -317,7 +314,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/java与线程/">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/java内存模型与线程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Glenn">
@@ -338,7 +335,7 @@
             
             
               
-                java与线程
+                java内存模型与线程
               
             
           </h1>
@@ -353,8 +350,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-20T00:00:00+08:00">
-                2017-02-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-07T00:00:00+08:00">
+                2017-03-07
               </time>
             
 
@@ -394,9 +391,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/java与线程/#comments" itemprop="discussionUrl">
+                <a href="/java内存模型与线程/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="java与线程/" itemprop="commentCount"></span>
+                        data-disqus-identifier="java内存模型与线程/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -428,25 +425,36 @@
 
       
         <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
-<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。</p>
+<h4 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h4><p>此部分主要讲解java内存模型和java线程的大致关系，还特别对volatile关键字进行了详细的分析，以及java程序在执行过程中一些默认的先行发生原则来保障java程序执行的有序性。</p>
 <a id="more"></a>
-<h4 id="java与线程"><a href="#java与线程" class="headerlink" title="java与线程"></a>java与线程</h4><h5 id="内核线程实现"><a href="#内核线程实现" class="headerlink" title="内核线程实现"></a>内核线程实现</h5><p>使用内核线程(Kernel-Level Thread klt)实现—程序一般不直接使用内核线程，而是去使用内核线程的一种高级接口：轻量级进程(Light Weight Process  LWP)。轻量级进程和内核线程之间是1:1的关系。如下图所示：</p>
-<p><img src="/java与线程/轻量级进程.png" alt=""></p>
-<h5 id="用户线程实现"><a href="#用户线程实现" class="headerlink" title="用户线程实现"></a>用户线程实现</h5><p>狭义-完全建立在用户空间的线程库上，系统内核不能感知线程存在的实现。所有线程操作都需要用户程序自己处理。进程和用户线程之间是1:N的关系，如下图所示：</p>
-<p><img src="/java与线程/用户线程.png" alt=""></p>
-<h5 id="用户线程加轻量级进程混合实现"><a href="#用户线程加轻量级进程混合实现" class="headerlink" title="用户线程加轻量级进程混合实现"></a>用户线程加轻量级进程混合实现</h5><p>使用了用户线程加轻量级进程的混合实现，且用户线程和轻量级进程之间是N:M的关系，如下图所示：</p>
-<p><img src="/java与线程/混合线程.png" alt=""></p>
-<h4 id="java线程调度及状态"><a href="#java线程调度及状态" class="headerlink" title="java线程调度及状态"></a>java线程调度及状态</h4><h5 id="java线程调度"><a href="#java线程调度" class="headerlink" title="java线程调度"></a>java线程调度</h5><p>系统调度指系统为线程分配处理器使用权的过程。</p>
-<p>协同式线程调度：线程的执行时间由线程本身控制，线程把自己工作做完后主动通知系统切换到另一个线程，简单而容易阻塞死。</p>
-<p>抢占式线程调度：每个线程由系统分配时间，线程的切换不由线程本身决定，时间系统可控，不会阻塞，java  使用的调度方式。</p>
-<h5 id="java线程状态"><a href="#java线程状态" class="headerlink" title="java线程状态"></a>java线程状态</h5><p>线程状态：新建：创建后尚未启动；</p>
-<p>运行：可能正执行，或等待CPU分配时间；</p>
-<p>无限期等待：不会被CPU分配执行时间，需等待被其他线程显式唤醒；</p>
-<p>限期等待：不会被CPU分配执行时间，在一段时间后由系统自动唤醒；</p>
-<p>阻塞：等待着获取到一个拍他锁，该事件将由另一个线程放弃这个锁时发生；</p>
-<p>结束：已终止线程状态，线程已执行结束。</p>
-<p>java线程之间的状态转换大致可如下图所示：</p>
-<p><img src="/java与线程/线程状态转换关系.png" alt=""></p>
+<h4 id="java内存模型"><a href="#java内存模型" class="headerlink" title="java内存模型"></a>java内存模型</h4><p>JMM，屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各个平台下都能达到一致的内存访问效果。</p>
+<p>目标：定义程序中各个变量(与java编程中所说不同，包括实例字段、静态字段和构成数组对象的元素，不包括局部变量和方法参数，因为其为线程私有)的访问规则，即在虚拟机中将变量存储到内存和从内存取出变量这样的底层细节。</p>
+<p>java内存模型规定所有的变量都存储在主内存中，每个线程还有自己的工作内存，其中保存了被该线程使用到变量的主内存副本拷贝，线程对变量的所有操作都必须在工作内存中进行，而不能直接读写主内存中的变量。线程间变量值的传递均需要通过主内存来完成。如下图所示：</p>
+<p><img src="/java内存模型与线程/线程-主内存-工作内存的交互关系.png" alt=""></p>
+<p>但此外还需注意：1、如果局部变量是一个reference类型，它的引用在java堆中可被各个线程共享。但reference本身在java栈中的局部变量表中，且是线程私有的。</p>
+<p>2、对拷贝副本：假设线程中访问一个10MB的对象，并不会把整个对象都拷贝一份，这个对象的引用、对象中某个线程访问到的字段是有可能存在拷贝的，相当于只拷贝自己没有的。但不会有虚拟机实现成把整个对象都拷贝一次。</p>
+<p>3、volatile变量依然有工作内存的拷贝，但由于它特殊的操作顺序规定，所以如同直接在主内存中读写访问一般，所以上面的描述对volatile并不例外。</p>
+<h4 id="volatile关键字"><a href="#volatile关键字" class="headerlink" title="volatile关键字"></a>volatile关键字</h4><h5 id="volatile的两个重要特性"><a href="#volatile的两个重要特性" class="headerlink" title="volatile的两个重要特性"></a>volatile的两个重要特性</h5><p>1、保证此变量对所有线程的可见性，即一个线程修改了这个变量的值，新值对于其他线程来说是可以立即得知的。</p>
+<p>2、禁止指令重排序优化，普通的变量仅仅会保证在该方法等执行过程中所有依赖赋值结果的地方都能获取到正确的结果，而不能保证变量赋值的操作顺序与程序代码中的执行顺序一致。重排序优化是机器级的优化操作，提前执行指对应的汇编代码被提前执行。</p>
+<h5 id="禁止指令重排序"><a href="#禁止指令重排序" class="headerlink" title="禁止指令重排序"></a>禁止指令重排序</h5><p><strong><em>指令重排序</em></strong>：硬件架构而言，指CPU采用了允许将多条指令不按程序规定的顺序分开发送给各相应电路单元处理，但并不是说指令任意重排，CPU需要能正确处理指令依赖情况以保障程序能得出正确的执行结果。</p>
+<p>所以在本CPU中，重排序依然看起来是有序的，一个“lock addl…..”将修改同步到内存时，意味着所有之前的操作都已执行完成，这样便形成了指令重排序无法越过内存屏障的效果。</p>
+<p><strong><em>volatile如何禁止指令重排序优化</em></strong>：通过双检测获取单例模式例子的汇编代码可知，变量赋值后多执行了一个“lock addl…..”操作，该操作相当于一个内存屏障，即重排序时不能把后面的指令重排序到内存屏障之前的位置，只有一个CPU时，并不需要内存屏障，但如果有两个或者更多CPU访问统一内存，且其中有一个在观测另一个，就需要内存屏障来保证一致性。</p>
+<p>“lock addl…..”是一个空操作，关键是lock前缀，它的作用是使的本CPU的Cache写入了内存，该写入操作也会引起别的CPU或者别的内核无效化其Cache，这种操作相当于对Cache中的变量做了一次前面介绍java内存模型中所说的store和write操作。因此通过该空操作，可让前面volatile变量的修改对其他CPU立即可见。</p>
+<p>volatile自己与自己比较，确定一个原则：volatile变量读操作的性能消耗与普通变量变量几乎没有什么差别，但是写操作则可能会慢一些，因为在本地代码中插入许多内存屏障指令来保证处理器不发生乱序执行，但大多数情况下volatile的总开销仍然要比锁低。</p>
+<h4 id="long和double变量特殊规则"><a href="#long和double变量特殊规则" class="headerlink" title="long和double变量特殊规则"></a>long和double变量特殊规则</h4><p>java内存模型要求lock、unlock、read、load、assign、use、store、write这8个操作都具有原子性，但是对于64位的数据类型long和double，在模型中特别定义了一条相对宽松的规定：允许虚拟机将没有被volatile修饰的64位数据的读写操作划分为两次32位的操作来进行，即允许虚拟机实现可以不保证64位数据类型的read、load、store、和write这4个操作具有原子性。</p>
+<p>但在实际操作中，目前各种平台下的商用java虚拟机几乎都选择把64位数据的读写操作作为原子操作来对待，因此编写代码时不需要将其专门声明为volatile。</p>
+<p><strong><em>注意</em></strong>：synchronized块之间的操作也具有原子性。volatile、synchronized、final也具有可见性。</p>
+<p>有序性总结：如果在本线程内观察，所有操作都是有序的；如果在一个线程中观察另一个线程，所有操作都是无序的。volatile、synchronized两个关键字保证线程之间操作的有序性。</p>
+<h4 id="先行发生原则"><a href="#先行发生原则" class="headerlink" title="先行发生原则"></a>先行发生原则</h4><p>只是根据一些关键字，java并不能保证程序在执行过程中的有序性，程序执行的有序性还需要一些java虚拟机规范的一些原则来协同。</p>
+<p>java内存模型中定义的两项操作之间的偏序关系，如果说操作A先行发生与操作B，其实就是说在发生操作B之前，操作A产生的影响能被操作B观察到，“影响”包括修改了内存中共享变量的值、发送了消息、调用了方法等。</p>
+<p>java内存模型中有一些天然的先行发生关系：<br>程序次序规则：一个线程内，按照程序代码顺序。</p>
+<p>管程锁定规则：一个unlock操作先发生于后面对同一个锁的lock操作。</p>
+<p>volatile变量规则：写操作先行发生于后面对这个变量的读操作。</p>
+<p>线程启动规则：start方法先行发生于此线程的每一个动作。</p>
+<p>线程终止规则：线程中的所有操作都先行发生于对此线程的终止检测、线程中断规则。</p>
+<p>对象终结规则：一个对象初始化完成先行发生于它的finalize方法。</p>
+<p>传递性：如果A操作先行发生于操作B，操作B先行发生于操作C，则操作A先行发生于操作C。</p>
+<p>结论：一个操作时间上的先发生不代表这个操作会是先行发生，如果一个操作先行发生，也不能代表这个操作必定是时间上先发生。例子是指令重排序。</p>
 <h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
       
     </div>
@@ -483,8 +491,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/Mysql索引及算法原理/" rel="next" title="Mysql索引及算法原理">
-                <i class="fa fa-chevron-left"></i> Mysql索引及算法原理
+              <a href="/一致性Hash算法/" rel="next" title="一致性Hash算法">
+                <i class="fa fa-chevron-left"></i> 一致性Hash算法
               </a>
             
           </div>
@@ -493,8 +501,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/一致性Hash算法/" rel="prev" title="一致性Hash算法">
-                一致性Hash算法 <i class="fa fa-chevron-right"></i>
+              <a href="/反射机制原理/" rel="prev" title="反射机制原理">
+                反射机制原理 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -651,7 +659,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java与线程"><span class="nav-number">2.</span> <span class="nav-text">java与线程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#内核线程实现"><span class="nav-number">2.1.</span> <span class="nav-text">内核线程实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用户线程实现"><span class="nav-number">2.2.</span> <span class="nav-text">用户线程实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用户线程加轻量级进程混合实现"><span class="nav-number">2.3.</span> <span class="nav-text">用户线程加轻量级进程混合实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java线程调度及状态"><span class="nav-number">3.</span> <span class="nav-text">java线程调度及状态</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#java线程调度"><span class="nav-number">3.1.</span> <span class="nav-text">java线程调度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#java线程状态"><span class="nav-number">3.2.</span> <span class="nav-text">java线程状态</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">4.</span> <span class="nav-text">完结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#概要"><span class="nav-number">2.</span> <span class="nav-text">概要</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java内存模型"><span class="nav-number">3.</span> <span class="nav-text">java内存模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#volatile关键字"><span class="nav-number">4.</span> <span class="nav-text">volatile关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#volatile的两个重要特性"><span class="nav-number">4.1.</span> <span class="nav-text">volatile的两个重要特性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#禁止指令重排序"><span class="nav-number">4.2.</span> <span class="nav-text">禁止指令重排序</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#long和double变量特殊规则"><span class="nav-number">5.</span> <span class="nav-text">long和double变量特殊规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#先行发生原则"><span class="nav-number">6.</span> <span class="nav-text">先行发生原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">7.</span> <span class="nav-text">完结</span></a></li></ol></div>
             
 
           </div>
@@ -808,9 +816,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://glenen.github.io/java与线程/';
-          this.page.identifier = 'java与线程/';
-          this.page.title = 'java与线程';
+          this.page.url = 'https://glenen.github.io/java内存模型与线程/';
+          this.page.identifier = 'java内存模型与线程/';
+          this.page.title = 'java内存模型与线程';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://Glenen.disqus.com/embed.js';

@@ -1,0 +1,1015 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Menlo:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言本文会主要分为两个部分来详解：
+1:反射的一些常用API，如何应用这些API获取我们在运行时所需的数据信息，即反射应用部分。
+2:结合Class文件格式和其文件中的内容，及其类的加载过程，阐述反射机制的原理，即反射原理部分。
+本文由本人结合所学总结，由于本人也才疏学浅，因此有可能会有些地方存在纰漏或者错误，敬请谅解，仅供参考。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="反射机制原理">
+<meta property="og:url" content="https://glenen.github.io/反射机制原理/index.html">
+<meta property="og:site_name" content="Glenn Blog">
+<meta property="og:description" content="前言本文会主要分为两个部分来详解：
+1:反射的一些常用API，如何应用这些API获取我们在运行时所需的数据信息，即反射应用部分。
+2:结合Class文件格式和其文件中的内容，及其类的加载过程，阐述反射机制的原理，即反射原理部分。
+本文由本人结合所学总结，由于本人也才疏学浅，因此有可能会有些地方存在纰漏或者错误，敬请谅解，仅供参考。">
+<meta property="og:image" content="https://glenen.github.io/反射机制原理/">
+<meta property="og:updated_time" content="2017-04-16T12:57:30.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="反射机制原理">
+<meta name="twitter:description" content="前言本文会主要分为两个部分来详解：
+1:反射的一些常用API，如何应用这些API获取我们在运行时所需的数据信息，即反射应用部分。
+2:结合Class文件格式和其文件中的内容，及其类的加载过程，阐述反射机制的原理，即反射原理部分。
+本文由本人结合所学总结，由于本人也才疏学浅，因此有可能会有些地方存在纰漏或者错误，敬请谅解，仅供参考。">
+<meta name="twitter:image" content="https://glenen.github.io/反射机制原理/">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://glenen.github.io/反射机制原理/"/>
+
+
+
+
+
+  <title> 反射机制原理 | Glenn Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ab401c60b8e38f295484a7ab6b8b0614";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Glenn Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/反射机制原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Glenn">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Glenn Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                反射机制原理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-13T00:00:00+08:00">
+                2017-03-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JDK/" itemprop="url" rel="index">
+                    <span itemprop="name">JDK</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/反射机制原理/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="反射机制原理/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>本文会主要分为两个部分来详解：</p>
+<p>1:反射的一些常用API，如何应用这些API获取我们在运行时所需的数据信息，即反射应用部分。</p>
+<p>2:结合Class文件格式和其文件中的内容，及其类的加载过程，阐述反射机制的原理，即反射原理部分。</p>
+<p>本文由本人结合所学总结，由于本人也才疏学浅，因此有可能会有些地方存在纰漏或者错误，敬请谅解，仅供参考。</p>
+<a id="more"></a>
+<h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>Java 反射机制是可以让我们在运行时获取类的方法、属性、父类、接口等 Class 内部信息的机制。通过反射还可以让我们在运行期实例化对象，调用方法，通过调用 get/set 方法获取变量的值，即使方法或属性是私有的的也可以通过反射的形式调用，这种“看透 Class”的能力被称为内省，这种能力在框架开发中尤为重要。就现在所有的java领域的框架，注解、动态代理、反射是其最根本。注解基于动态代理，动态代理底层还是通过反射机制“生长”其代理类的“血肉”。</p>
+<h4 id="反射应用"><a href="#反射应用" class="headerlink" title="反射应用"></a>反射应用</h4><p>注：以下示例代码，均不完整。如有需要请移步JDK源码。</p>
+<h5 id="Class对象"><a href="#Class对象" class="headerlink" title="Class对象"></a>Class对象</h5><p>Class对象是我们应用反射机制的入口，只要一个类被类加载器加载到虚拟机中的时候，在堆内存中都会相应的生成该类对应的Class对象。然后通过该对象，我们就可以获取我们运行时所需的数据。那么如何获取该对象？以下三种方式。</p>
+<p>1:如果在编译期就能知道一个类的名字</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Class&lt;?&gt; instance = InstanceMain.class;</div></pre></td></tr></table></figure>
+<p>2:已经得到该类的某个对象</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">InstanceMain instanceMain = new InstanceMain(<span class="string">"Glenn"</span>);</div><div class="line">Class&lt;?&gt; instance = instanceMain.getClass();</div></pre></td></tr></table></figure>
+<p>3：编译期获取不到目标类型，但知道其类全限定名，即类的完整路径</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">Class&lt;?&gt; instance = Class.forName(<span class="string">"com.woodpecker.InstanceMain"</span>);</div><div class="line"></div><div class="line">/**</div><div class="line"> * 编译路径下(classpath)找到对应的类，将会抛出ClassNotFoundException</div><div class="line"> *  </div><div class="line"> * @param className 类全限定名 </div><div class="line"> * @<span class="built_in">return</span> 带有指定名的该类对象</div><div class="line"> */ </div><div class="line"> public static Class&lt;?&gt; <span class="keyword">for</span>Name (String className);</div><div class="line"> </div><div class="line">/**</div><div class="line"> * 编译路径下(classpath)找到对应的类，将会抛出ClassNotFoundException</div><div class="line"> *  </div><div class="line"> * @param className 类全限定名</div><div class="line"> * @param shouldInitialize 是否初始化该Class对象</div><div class="line"> * @param classLoader 指定加载该类的ClassLoader</div><div class="line"> * @<span class="built_in">return</span> 带有指定名的该类对象</div><div class="line"> */ </div><div class="line">public static Class&lt;?&gt; <span class="keyword">for</span>Name (String className, boolean shouldInitialize, ClassLoader classLoader);</div></pre></td></tr></table></figure>
+<h5 id="构造目标类型对象"><a href="#构造目标类型对象" class="headerlink" title="构造目标类型对象"></a>构造目标类型对象</h5><p>获取到该类的Class对象后，我们可以通过该对象获取对应类所有的内部信息，我们都将一步步讲解。首先我们来通过该Class对象构造目标类型对象。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">// 获取构造器Constructor对象</div><div class="line">Constructor&lt;?&gt; constructor = instance.getConstructor(String.class);</div><div class="line"></div><div class="line">constructor.setAccessible(<span class="literal">true</span>);</div><div class="line"></div><div class="line">// 构造目标类型对象：new关键字构造对象本质</div><div class="line">Object glenn = constructor.newInstance(<span class="string">"Glenn"</span>);</div><div class="line"></div><div class="line">/**</div><div class="line"> * 获取一个公有的构造函数</div><div class="line"> *  </div><div class="line"> * @param parameterTypes 构造器参数对应类型</div><div class="line"> * @<span class="built_in">return</span> 对应构造器对象</div><div class="line"> */ </div><div class="line">public Constructor&lt;T&gt; getConstructor (Class...&lt;?&gt; parameterTypes);</div><div class="line"></div><div class="line">// 获取目标类所有的公有构造函数</div><div class="line">public Constructor[]&lt;?&gt; getConstructors ();</div></pre></td></tr></table></figure>
+<p>注：当通过反射获取到 Constructor、Method、Field 后，在反射调用之前将此对象的 accessible 标志设置为 true，以此来提升反射速度。值为 true 则指示反射的对象在使用时应该取消 Java 语言访问检查。值为 false 则指示反射的对象应该实施 Java 语言访问检查。</p>
+<h5 id="获取类中方法"><a href="#获取类中方法" class="headerlink" title="获取类中方法"></a>获取类中方法</h5><p>通过Class对象，我们可以获取目标类型内部中所有的方法，包括当前类中的所有方法，及当前类和父类中定义的公有方法。具体API细节可查阅JDK源码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">// 获取当前类中所有方法</div><div class="line">Method[] methods = instance.getDeclaredMethods();</div><div class="line"></div><div class="line">// 获取当前类和父类中定义的公有方法</div><div class="line">Method[] methods = instance.getMethods();</div><div class="line"></div><div class="line">// 获取当前类中指定方法</div><div class="line">Method showMethod = instance.getDeclaredMethod(<span class="string">"show"</span>, String.class);</div><div class="line"></div><div class="line">// 通过 getMethod 只能获取公有方法，如果获取私有方法则会抛出异常</div><div class="line">Method hideMethod = instance.getMethod(<span class="string">"hide"</span>, String.class);</div><div class="line"></div><div class="line">// 获取方法的参数类型列表</div><div class="line">Class&lt;?&gt;[] argClasses = showMethod.getParameterTypes() ;</div><div class="line"></div><div class="line">// 获取指定方法的权限修饰符</div><div class="line">boolean <span class="built_in">type</span> = Modifier.isPrivate(showMethod.getModifiers());</div><div class="line"></div><div class="line">// 执行指定方法</div><div class="line">showMethod.invoke(instanceMain, <span class="string">"Glenn"</span>);</div></pre></td></tr></table></figure>
+<h5 id="获取类中属性"><a href="#获取类中属性" class="headerlink" title="获取类中属性"></a>获取类中属性</h5><p>通过Class对象，我们可以获取目标类型内部中所有的属性，包括当前类中的所有属性，及当前类和父类中定义的公有属性。具体API细节可查阅JDK源码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">/ 获取当前类中所有属性</div><div class="line">Field[] fields = instance.getDeclaredFields();</div><div class="line"></div><div class="line">// 获取当前类和父类中定义的公有属性</div><div class="line">Field[] fields = instance.getFields();</div><div class="line"></div><div class="line">// 获取当前类某个指定属性</div><div class="line">Field idField = instance.getDeclaredField(<span class="string">"id"</span>);</div><div class="line"></div><div class="line">// 获取当前类和父类的某个公有属性</div><div class="line">Field nameField = instance.getField(<span class="string">"name"</span>);</div><div class="line"></div><div class="line">// 获取属性值</div><div class="line">int id = idField.getInt(instanceMain);</div><div class="line"></div><div class="line">// 设置属性值</div><div class="line">idField.set(instanceMain, 10);</div></pre></td></tr></table></figure>
+<h5 id="获取父类及接口"><a href="#获取父类及接口" class="headerlink" title="获取父类及接口"></a>获取父类及接口</h5><p>通过Class对象，我们可以获取目标类型的父类，及当前类所有所实现的接口。具体API细节可查阅JDK源码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">// 获取当前类父类</div><div class="line">Class&lt;?&gt; superClass = instance.getSuperclass();</div><div class="line"></div><div class="line">// 再获取父类的上一层父类，直到最后的 Object 类，Object 的父类为 null</div><div class="line"><span class="keyword">while</span> (superClass != null) &#123;</div><div class="line">    superClass = superClass.getSuperclass();</div><div class="line">&#125;</div><div class="line"></div><div class="line">// 获取当前类实现的接口列表</div><div class="line">Class&lt;?&gt;[] interfaceses = instance.getInterfaces();</div></pre></td></tr></table></figure>
+<h5 id="获取注解信息"><a href="#获取注解信息" class="headerlink" title="获取注解信息"></a>获取注解信息</h5><p>通过Class对象，我们可以获取目标类型的使用注解，获取到<br>Constructor、Method、Field 后，我们可以获取其对应的使用注解。具体API细节可查阅JDK源码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">// 获取指定类型注解</div><div class="line">Builder builderAnno = instance.getAnnotation(Builder.class);</div><div class="line"></div><div class="line">// 获取属性上的指定注解(方法等也类似)</div><div class="line">Getter getter = idField.getAnnotation(Getter.class);</div><div class="line"></div><div class="line">// 获取当前类上所有注解</div><div class="line">Annotation[] annos = instance.getAnnotations();</div></pre></td></tr></table></figure>
+<h4 id="反射原理"><a href="#反射原理" class="headerlink" title="反射原理"></a>反射原理</h4><p>我们可能会好奇，为什么我们通过以上JDK提供的API就能在运行时获取到我们想要的数据信息。其实这都和class类文件及class类文件加载到虚拟机中过程有关。接下来我们就从class类文件 和 类文件的加载过程分析。</p>
+<p>注：以下只是大致的讲解，如需了解更详细内容，请关注JVM原理分类中的博文(以后有时间就会贴上去)。</p>
+<h5 id="class类文件"><a href="#class类文件" class="headerlink" title="class类文件"></a>class类文件</h5><p>任何一个class文件都对应着唯一一个类或者接口的定义信息，但反之类或者接口并不一定都得定义在文件里，比如类或接口也可以直接通过类加载器直接生成。</p>
+<p>class文件是一组以8位字节为基础单位的二进制流，各个数据项目严格按照顺序紧凑的排列在class文件中，中间没有添加任何分隔符，这使的整个class文件中存储的内容几乎全部是程序运行的必要数据，没有空隙存在。如遇到需占用8位字节以上的数据项时，则会按照高位在前的方式分割成若干个8位字节进行存储。采用无符号数和表两种数据类型的伪结构来存储数据。其所有细节都被严格限定，不允许改变。大致如下图所示：</p>
+<p><img src="/反射机制原理/" alt=""></p>
+<p>如图所示，就是一个class文件大致格式，此处我们不关注详细信息。只关注 类索引、父类索引、接口索引集合 和 字段表集合 方法表集合。因为我们今天的主题是讲解与反射相关的内容。</p>
+<p>class文件中由 类索引、父类索引、接口索引集合 来确定这个类等继承关系。类索引用于确定这个类的全限定名，父类索引用于确定这个类的父类的全限定名。除Object外，所有java类的父类索引都不为0。接口索引集合用来描述这个类实现了哪些接口，这些被实现的接口将按implements语句后的接口顺序从左到右排列在接口索引集合中。</p>
+<p>字段表集合用于描述接口或者类中声明的变量。包括类级变量及实例变量，不包括方法内部声明的局部变量。字段的修饰符都是布尔值，要么有要么没有，很适合用标识位来表示，而字段叫什么名字、数据类型都是无法固定的，只能引用常量池中的常量来描述。方法表集合与class文件对字段的描述方式几乎采用了完全一致的方式。</p>
+<p>class文件中不会保存各个方法、字段的最终内存布局信息，因此这些字段、方法的符号引用不经过运行期转换的话无法得到真正的内存入口地址，也就无法被虚拟机使用。</p>
+<p>当虚拟机运行时，需要从常量池获得对应的符号引用，再在类创建时或运行时解析、翻译到具体的内存地址之中。所以就是为什么我们只能在运行期获取到当前各种类型的数据信息了。</p>
+<h5 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h5><p>何为类加载：虚拟机把描述类的数据从class文件加载到内存，并对数据进行校验、转换解析和初始化，最终形成可被虚拟机直接使用的java类型。</p>
+<p>类的加载过程分为加载、验证、准备、解析、初始化、使用、卸载阶段，此处我们只关注加载和初始化阶段，因为它们和我们的反射最息息相关。</p>
+<p>加载阶段有个很重要重点必须提出：在加载阶段虚拟机必须完成的事包括在内存中生成一个代表这个类的java.lang.Class对象，作为方法区这个类的各种数据的访问入口。所以我们对当前类的各种操作都是基于该Class对象，比如用new关键字创建一个对象等等。每一个被加载到虚拟机中的类，都对应了一个Class对象。</p>
+<p>初始化：真正开始执行类中定义的java程序代码，是执行类构造器<clinit>()方法的过程。</clinit></p>
+<p>在虚拟机规范中，规定了有且只有五种情况下立即进行类初始化，其中就包括使用java.lang.reflect包的方法对类进行反射调用的时候 和 当初始化一个类的时候，如果发现其父类还没有进行过初始化，则需要先触发其父类的初始化。</p>
+<p>因此就是当我们应用反射的时候，该类和其父类必然已经初始化完毕可以供我们使用，通过每个类对应的Class对象访问入口，结合前面讲解的class文件结构，在运行时获取当前类的所有属性、方法等等就是很容易的事情了。获取其父类的属性方法当然也可行了。因为父类的Class对象访问入口必然已先与当前类存在。虚拟机如何实现这些访问细节就不得而知了。</p>
+<h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/java内存模型与线程/" rel="next" title="java内存模型与线程">
+                <i class="fa fa-chevron-left"></i> java内存模型与线程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="Glenn" />
+          <p class="site-author-name" itemprop="name">Glenn</p>
+           
+              <p class="site-description motion-element" itemprop="description">you want more then you could get more.</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Glenen" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="" target="_blank" title="Facebook">
+                  
+                    <i class="fa fa-fw fa-facebook"></i>
+                  
+                  Facebook
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反射应用"><span class="nav-number">3.</span> <span class="nav-text">反射应用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Class对象"><span class="nav-number">3.1.</span> <span class="nav-text">Class对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#构造目标类型对象"><span class="nav-number">3.2.</span> <span class="nav-text">构造目标类型对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#获取类中方法"><span class="nav-number">3.3.</span> <span class="nav-text">获取类中方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#获取类中属性"><span class="nav-number">3.4.</span> <span class="nav-text">获取类中属性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#获取父类及接口"><span class="nav-number">3.5.</span> <span class="nav-text">获取父类及接口</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#获取注解信息"><span class="nav-number">3.6.</span> <span class="nav-text">获取注解信息</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反射原理"><span class="nav-number">4.</span> <span class="nav-text">反射原理</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#class类文件"><span class="nav-number">4.1.</span> <span class="nav-text">class类文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#类加载过程"><span class="nav-number">4.2.</span> <span class="nav-text">类加载过程</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">5.</span> <span class="nav-text">完结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Glenn</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://Glenen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://glenen.github.io/反射机制原理/';
+          this.page.identifier = '反射机制原理/';
+          this.page.title = '反射机制原理';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://Glenen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+</body>
+</html>
