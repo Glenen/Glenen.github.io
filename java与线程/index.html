@@ -93,22 +93,22 @@
 
 
 
-<meta name="description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+<meta name="description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
 概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="java与线程">
 <meta property="og:url" content="https://glenen.github.io/java与线程/index.html">
 <meta property="og:site_name" content="Glenn Blog">
-<meta property="og:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+<meta property="og:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
 概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。">
 <meta property="og:image" content="https://glenen.github.io/java与线程/轻量级进程.png">
 <meta property="og:image" content="https://glenen.github.io/java与线程/用户线程.png">
 <meta property="og:image" content="https://glenen.github.io/java与线程/混合线程.png">
 <meta property="og:image" content="https://glenen.github.io/java与线程/线程状态转换关系.png">
-<meta property="og:updated_time" content="2017-04-14T13:31:05.000Z">
+<meta property="og:updated_time" content="2017-04-18T12:10:55.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java与线程">
-<meta name="twitter:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+<meta name="twitter:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
 概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。">
 <meta name="twitter:image" content="https://glenen.github.io/java与线程/轻量级进程.png">
 
@@ -427,7 +427,7 @@
       
 
       
-        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。</p>
 <a id="more"></a>
 <h4 id="java与线程"><a href="#java与线程" class="headerlink" title="java与线程"></a>java与线程</h4><h5 id="内核线程实现"><a href="#内核线程实现" class="headerlink" title="内核线程实现"></a>内核线程实现</h5><p>使用内核线程(Kernel-Level Thread klt)实现—程序一般不直接使用内核线程，而是去使用内核线程的一种高级接口：轻量级进程(Light Weight Process  LWP)。轻量级进程和内核线程之间是1:1的关系。如下图所示：</p>

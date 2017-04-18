@@ -61,7 +61,7 @@
     <entry>
       <title><![CDATA[java内存模型与线程]]></title>
       <url>https://glenen.github.io/java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <h4 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h4><p>此部分主要讲解java内存模型和java线程的大致关系，还特别对volatile关键字进行了详细的分析，以及java程序在执行过程中一些默认的先行发生原则来保障java程序执行的有序性。</p>
 <a id="more"></a>
 <h4 id="java内存模型"><a href="#java内存模型" class="headerlink" title="java内存模型"></a>java内存模型</h4><p>JMM，屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各个平台下都能达到一致的内存访问效果。</p>
@@ -148,7 +148,7 @@
     <entry>
       <title><![CDATA[java与线程]]></title>
       <url>https://glenen.github.io/java%E4%B8%8E%E7%BA%BF%E7%A8%8B/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。</p>
 <a id="more"></a>
 <h4 id="java与线程"><a href="#java与线程" class="headerlink" title="java与线程"></a>java与线程</h4><h5 id="内核线程实现"><a href="#内核线程实现" class="headerlink" title="内核线程实现"></a>内核线程实现</h5><p>使用内核线程(Kernel-Level Thread klt)实现—程序一般不直接使用内核线程，而是去使用内核线程的一种高级接口：轻量级进程(Light Weight Process  LWP)。轻量级进程和内核线程之间是1:1的关系。如下图所示：</p>
@@ -332,7 +332,7 @@
     <entry>
       <title><![CDATA[内存分配策略]]></title>
       <url>https://glenen.github.io/%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>对象主要在堆上分配，但也有可能经过JIT编译后被拆散为标量类型并间接地栈上分配，对象主要分配在新生代的Eden区上，如果启动了本地线程分配缓冲，将按线程优先在TLAB上分配。少数情况下也可能会直接分配在老年代中，分配细节取决于当前使用的是哪一种垃圾收集器组合，还有虚拟机中与内存相关的参数设置。</p>
 <a id="more"></a>
 <h4 id="对象优先在Eden区分配"><a href="#对象优先在Eden区分配" class="headerlink" title="对象优先在Eden区分配"></a>对象优先在Eden区分配</h4><p>大多数情况下，对象在Eden区分配，当Eden没有足够空间进行分配时，虚拟机将发起一次Minor GC。Minor GC：指发生在新生代的垃圾回收动作，因为java对象大多都具有朝生夕死的特性，所以Minor GC非常频繁，一般回收速度也比较快。</p>
@@ -358,7 +358,7 @@
     <entry>
       <title><![CDATA[垃圾收集器]]></title>
       <url>https://glenen.github.io/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>如下图所示：展示了7种作用于不同分代的收集器，如果两个收集器之间有连线，则它们可以搭配使用。收集器所处的区域，则代表它属于新生代还是老年代收集器。</p>
 <a id="more"></a>
 <p><img src="/垃圾收集器/hotspot垃圾收集器.png" alt=""></p>
@@ -391,7 +391,7 @@
     <entry>
       <title><![CDATA[垃圾回收策略]]></title>
       <url>https://glenen.github.io/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AD%96%E7%95%A5/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。</p>
 <h4 id="判断对象是否存活算法"><a href="#判断对象是否存活算法" class="headerlink" title="判断对象是否存活算法"></a>判断对象是否存活算法</h4><h5 id="引用计数算法"><a href="#引用计数算法" class="headerlink" title="引用计数算法"></a>引用计数算法</h5><p>给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何时刻计数器为0的对象就是不可能再被使用的。实现简单，判定效率高，很多应用案例。但java虚拟机并未使用该算法(很难解决对象之间相互循环引用的问题)。如下代码所示：</p>
 <a id="more"></a>
@@ -431,7 +431,7 @@
     <entry>
       <title><![CDATA[二叉树的Morris遍历]]></title>
       <url>https://glenen.github.io/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84Morris%E9%81%8D%E5%8E%86/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>本博文所设计内容均为本人亲自所著，为工作闲暇之余及大学时代所积累，涉及思路不会描述太仔细，仅供参考，如有错误，敬请谅解。</p>
 <p>二叉树的递归遍历、借助栈数据结构遍历较简单，不做赘述，此处给出二叉树的最优遍历方法：Morris遍历，时间复杂度O(n)，空间复杂度O(1)。</p>
 <a id="more"></a>
 <h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><p>先给出一棵二叉树：</p>
@@ -551,7 +551,7 @@
     <entry>
       <title><![CDATA[HotSpot虚拟机对象]]></title>
       <url>https://glenen.github.io/HotSpot%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%AF%B9%E8%B1%A1/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分的主要内容是了解虚拟机中的数据以及它们是如何创建、如何布局、如何访问的。</p>
 <h4 id="hotspot虚拟机对象"><a href="#hotspot虚拟机对象" class="headerlink" title="hotspot虚拟机对象"></a>hotspot虚拟机对象</h4><h5 id="对象的创建步骤"><a href="#对象的创建步骤" class="headerlink" title="对象的创建步骤"></a>对象的创建步骤</h5><p>虚拟机遇到一条new指令 -&gt; 检查这个指令的参数是否能在常量池中定位到一个类的符号引用 -&gt; 检查这个符号引用代表的类是否已被加载、解析和初始化过 -&gt; 检查都通过后，为新生对象分配内存 -&gt; 内存分配完成，将内存空间都初始化为零值，不包括对象头 ：该操作保证对象的字段在java代码中可以不赋初始值就直接使用，程序能访问到这些字段的数据类型所对应的零值 -&gt; 对对象进行必要设置，如对象是哪个类实例、如何找到类的元数据信息、对象的哈希码、对象的GC分代年龄等信息 -&gt; 执行<init>方法将对象进行意愿初始化(字节码中是否跟随invokespecial指令决定)。</init></p>
 <a id="more"></a>
@@ -588,7 +588,7 @@
     <entry>
       <title><![CDATA[java运行时数据区域]]></title>
       <url>https://glenen.github.io/java%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F/</url>
-      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+      <content type="html"><![CDATA[<h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <p>本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。</p>
 <h5 id="java优点"><a href="#java优点" class="headerlink" title="java优点"></a>java优点</h5><p>摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。</p>
 <a id="more"></a>

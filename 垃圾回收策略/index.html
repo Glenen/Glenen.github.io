@@ -93,26 +93,26 @@
 
 
 
-<meta name="description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+<meta name="description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
 概要此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。
-判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何时刻计数器为0的对象就是不可能再被使用的。实现简单，判定效率高，很多应用案">
+判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方">
 <meta property="og:type" content="article">
 <meta property="og:title" content="垃圾回收策略">
 <meta property="og:url" content="https://glenen.github.io/垃圾回收策略/index.html">
 <meta property="og:site_name" content="Glenn Blog">
-<meta property="og:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+<meta property="og:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
 概要此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。
-判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何时刻计数器为0的对象就是不可能再被使用的。实现简单，判定效率高，很多应用案">
+判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方">
 <meta property="og:image" content="https://glenen.github.io/垃圾回收策略/可达性分析算法.png">
 <meta property="og:image" content="https://glenen.github.io/垃圾回收策略/标记—清理算法.png">
 <meta property="og:image" content="https://glenen.github.io/垃圾回收策略/复制算法.png">
 <meta property="og:image" content="https://glenen.github.io/垃圾回收策略/标记—整理算法.png">
-<meta property="og:updated_time" content="2017-04-12T12:18:42.000Z">
+<meta property="og:updated_time" content="2017-04-18T12:11:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="垃圾回收策略">
-<meta name="twitter:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+<meta name="twitter:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
 概要此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。
-判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何时刻计数器为0的对象就是不可能再被使用的。实现简单，判定效率高，很多应用案">
+判断对象是否存活算法引用计数算法给对象中添加一个引用计数器，每当有一个地方">
 <meta name="twitter:image" content="https://glenen.github.io/垃圾回收策略/可达性分析算法.png">
 
 
@@ -430,7 +430,7 @@
       
 
       
-        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分的主要内容是了解虚拟机如何判定对象的存活状态，采用什么样的垃圾回收算法和hotspot虚拟机垃圾回收的机制。</p>
 <h4 id="判断对象是否存活算法"><a href="#判断对象是否存活算法" class="headerlink" title="判断对象是否存活算法"></a>判断对象是否存活算法</h4><h5 id="引用计数算法"><a href="#引用计数算法" class="headerlink" title="引用计数算法"></a>引用计数算法</h5><p>给对象中添加一个引用计数器，每当有一个地方引用它时，计数器值加1，当引用失效时，计数器值减1，任何时刻计数器为0的对象就是不可能再被使用的。实现简单，判定效率高，很多应用案例。但java虚拟机并未使用该算法(很难解决对象之间相互循环引用的问题)。如下代码所示：</p>
 <a id="more"></a>

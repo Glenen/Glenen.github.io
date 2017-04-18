@@ -93,25 +93,25 @@
 
 
 
-<meta name="description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+<meta name="description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
 本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。
-java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。">
+java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避">
 <meta property="og:type" content="article">
 <meta property="og:title" content="java运行时数据区域">
 <meta property="og:url" content="https://glenen.github.io/java运行时数据区域/index.html">
 <meta property="og:site_name" content="Glenn Blog">
-<meta property="og:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+<meta property="og:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
 本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。
-java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。">
+java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避">
 <meta property="og:image" content="https://glenen.github.io/java运行时数据区域/java技术体系.png">
 <meta property="og:image" content="https://glenen.github.io/java运行时数据区域/jvm运行时内存图.png">
 <meta property="og:image" content="https://glenen.github.io/java运行时数据区域/JDK1.8 jvm运行时内存图.png">
-<meta property="og:updated_time" content="2017-04-13T12:43:49.000Z">
+<meta property="og:updated_time" content="2017-04-18T12:11:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java运行时数据区域">
-<meta name="twitter:description" content="前言写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。
+<meta name="twitter:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
 本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。
-java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。">
+java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避">
 <meta name="twitter:image" content="https://glenen.github.io/java运行时数据区域/java技术体系.png">
 
 
@@ -429,7 +429,7 @@ java优点摆脱硬件平台束缚，一次编写到处运行；相对安全的�
       
 
       
-        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>写在最前：总结可能会有瑕疵……仅供参考……看看就行……转载请注明出处。</p>
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
 <p>本书作者前面用了很多篇幅描述java虚拟机及JDK的发展历史，此部分并没有做笔记，如需了解，请移步阅读原著即可。</p>
 <h5 id="java优点"><a href="#java优点" class="headerlink" title="java优点"></a>java优点</h5><p>摆脱硬件平台束缚，一次编写到处运行；相对安全的内存管理与访问机制，避免内存泄漏与指针越界；热点代码检测和运行时编译及优化，java应用能随着运行时间的增加而获得更高的性能；拥有一套完善的API。</p>
 <a id="more"></a>
