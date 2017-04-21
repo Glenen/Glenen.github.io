@@ -94,24 +94,23 @@
 
 
 <meta name="description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
-概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。还特别对volatile关键字进行了详细的分析，以及j">
+概要此部分讲述了什么是线程安全，线程安全的4个级别，如何实现线程的安全：使用互斥同步和非阻塞同步。以及java虚拟机为了提高程序的运行效率，进行的各种锁优化。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java线程与内存模型">
-<meta property="og:url" content="https://glenen.github.io/java线程与内存模型/index.html">
+<meta property="og:title" content="线程安全与锁优化">
+<meta property="og:url" content="https://glenen.github.io/线程安全与锁优化/index.html">
 <meta property="og:site_name" content="Glenn Blog">
 <meta property="og:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
-概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。还特别对volatile关键字进行了详细的分析，以及j">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/轻量级进程.png">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/用户线程.png">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/混合线程.png">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/线程状态转换关系.png">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/线程-主内存-工作内存的交互关系.png">
-<meta property="og:updated_time" content="2017-04-18T12:52:12.000Z">
+概要此部分讲述了什么是线程安全，线程安全的4个级别，如何实现线程的安全：使用互斥同步和非阻塞同步。以及java虚拟机为了提高程序的运行效率，进行的各种锁优化。">
+<meta property="og:image" content="https://glenen.github.io/线程安全与锁优化/MarkWord.png">
+<meta property="og:image" content="https://glenen.github.io/线程安全与锁优化/CAS前.png">
+<meta property="og:image" content="https://glenen.github.io/线程安全与锁优化/CAS后.png">
+<meta property="og:image" content="https://glenen.github.io/线程安全与锁优化/偏向锁.png">
+<meta property="og:updated_time" content="2017-04-21T12:41:38.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="java线程与内存模型">
+<meta name="twitter:title" content="线程安全与锁优化">
 <meta name="twitter:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
-概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。还特别对volatile关键字进行了详细的分析，以及j">
-<meta name="twitter:image" content="https://glenen.github.io/java线程与内存模型/轻量级进程.png">
+概要此部分讲述了什么是线程安全，线程安全的4个级别，如何实现线程的安全：使用互斥同步和非阻塞同步。以及java虚拟机为了提高程序的运行效率，进行的各种锁优化。">
+<meta name="twitter:image" content="https://glenen.github.io/线程安全与锁优化/MarkWord.png">
 
 
 
@@ -139,13 +138,13 @@
 
 
 
-  <link rel="canonical" href="https://glenen.github.io/java线程与内存模型/"/>
+  <link rel="canonical" href="https://glenen.github.io/线程安全与锁优化/"/>
 
 
 
 
 
-  <title> java线程与内存模型 | Glenn Blog </title>
+  <title> 线程安全与锁优化 | Glenn Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -318,7 +317,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/java线程与内存模型/">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/线程安全与锁优化/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Glenn">
@@ -339,7 +338,7 @@
             
             
               
-                java线程与内存模型
+                线程安全与锁优化
               
             
           </h1>
@@ -354,8 +353,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-20T00:00:00+08:00">
-                2017-02-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-29T00:00:00+08:00">
+                2017-03-29
               </time>
             
 
@@ -395,9 +394,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/java线程与内存模型/#comments" itemprop="discussionUrl">
+                <a href="/线程安全与锁优化/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="java线程与内存模型/" itemprop="commentCount"></span>
+                        data-disqus-identifier="线程安全与锁优化/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -429,53 +428,61 @@
 
       
         <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
-<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。还特别对volatile关键字进行了详细的分析，以及java程序在执行过程中一些默认的先行发生原则来保障java程序执行的有序性。</p>
+<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分讲述了什么是线程安全，线程安全的4个级别，如何实现线程的安全：使用互斥同步和非阻塞同步。以及java虚拟机为了提高程序的运行效率，进行的各种锁优化。</p>
 <a id="more"></a>
-<h4 id="java与线程"><a href="#java与线程" class="headerlink" title="java与线程"></a>java与线程</h4><h5 id="内核线程实现"><a href="#内核线程实现" class="headerlink" title="内核线程实现"></a>内核线程实现</h5><p>使用内核线程(Kernel-Level Thread klt)实现—程序一般不直接使用内核线程，而是去使用内核线程的一种高级接口：轻量级进程(Light Weight Process  LWP)。轻量级进程和内核线程之间是1:1的关系。如下图所示：</p>
-<p><img src="/java线程与内存模型/轻量级进程.png" alt=""></p>
-<h5 id="用户线程实现"><a href="#用户线程实现" class="headerlink" title="用户线程实现"></a>用户线程实现</h5><p>狭义-完全建立在用户空间的线程库上，系统内核不能感知线程存在的实现。所有线程操作都需要用户程序自己处理。进程和用户线程之间是1:N的关系，如下图所示：</p>
-<p><img src="/java线程与内存模型/用户线程.png" alt=""></p>
-<h5 id="用户线程加轻量级进程混合实现"><a href="#用户线程加轻量级进程混合实现" class="headerlink" title="用户线程加轻量级进程混合实现"></a>用户线程加轻量级进程混合实现</h5><p>使用了用户线程加轻量级进程的混合实现，且用户线程和轻量级进程之间是N:M的关系，如下图所示：</p>
-<p><img src="/java线程与内存模型/混合线程.png" alt=""></p>
-<h4 id="java线程调度及状态"><a href="#java线程调度及状态" class="headerlink" title="java线程调度及状态"></a>java线程调度及状态</h4><h5 id="java线程调度"><a href="#java线程调度" class="headerlink" title="java线程调度"></a>java线程调度</h5><p>系统调度指系统为线程分配处理器使用权的过程。</p>
-<p>协同式线程调度：线程的执行时间由线程本身控制，线程把自己工作做完后主动通知系统切换到另一个线程，简单而容易阻塞死。</p>
-<p>抢占式线程调度：每个线程由系统分配时间，线程的切换不由线程本身决定，时间系统可控，不会阻塞，java  使用的调度方式。</p>
-<h5 id="java线程状态"><a href="#java线程状态" class="headerlink" title="java线程状态"></a>java线程状态</h5><p>线程状态：新建：创建后尚未启动；</p>
-<p>运行：可能正执行，或等待CPU分配时间；</p>
-<p>无限期等待：不会被CPU分配执行时间，需等待被其他线程显式唤醒；</p>
-<p>限期等待：不会被CPU分配执行时间，在一段时间后由系统自动唤醒；</p>
-<p>阻塞：等待着获取到一个拍他锁，该事件将由另一个线程放弃这个锁时发生；</p>
-<p>结束：已终止线程状态，线程已执行结束。</p>
-<p>java线程之间的状态转换大致可如下图所示：</p>
-<p><img src="/java线程与内存模型/线程状态转换关系.png" alt=""></p>
-<h4 id="java内存模型"><a href="#java内存模型" class="headerlink" title="java内存模型"></a>java内存模型</h4><p>JMM，屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各个平台下都能达到一致的内存访问效果。</p>
-<p>目标：定义程序中各个变量(与java编程中所说不同，包括实例字段、静态字段和构成数组对象的元素，不包括局部变量和方法参数，因为其为线程私有)的访问规则，即在虚拟机中将变量存储到内存和从内存取出变量这样的底层细节。</p>
-<p>java内存模型规定所有的变量都存储在主内存中，每个线程还有自己的工作内存，其中保存了被该线程使用到变量的主内存副本拷贝，线程对变量的所有操作都必须在工作内存中进行，而不能直接读写主内存中的变量。线程间变量值的传递均需要通过主内存来完成。如下图所示：</p>
-<p><img src="/java线程与内存模型/线程-主内存-工作内存的交互关系.png" alt=""></p>
-<p>但此外还需注意：1、如果局部变量是一个reference类型，它的引用在java堆中可被各个线程共享。但reference本身在java栈中的局部变量表中，且是线程私有的。</p>
-<p>2、对拷贝副本：假设线程中访问一个10MB的对象，并不会把整个对象都拷贝一份，这个对象的引用、对象中某个线程访问到的字段是有可能存在拷贝的，相当于只拷贝自己没有的。但不会有虚拟机实现成把整个对象都拷贝一次。</p>
-<p>3、volatile变量依然有工作内存的拷贝，但由于它特殊的操作顺序规定，所以如同直接在主内存中读写访问一般，所以上面的描述对volatile并不例外。</p>
-<h4 id="volatile关键字"><a href="#volatile关键字" class="headerlink" title="volatile关键字"></a>volatile关键字</h4><h5 id="volatile的两个重要特性"><a href="#volatile的两个重要特性" class="headerlink" title="volatile的两个重要特性"></a>volatile的两个重要特性</h5><p>1、保证此变量对所有线程的可见性，即一个线程修改了这个变量的值，新值对于其他线程来说是可以立即得知的。</p>
-<p>2、禁止指令重排序优化，普通的变量仅仅会保证在该方法等执行过程中所有依赖赋值结果的地方都能获取到正确的结果，而不能保证变量赋值的操作顺序与程序代码中的执行顺序一致。重排序优化是机器级的优化操作，提前执行指对应的汇编代码被提前执行。</p>
-<h5 id="禁止指令重排序"><a href="#禁止指令重排序" class="headerlink" title="禁止指令重排序"></a>禁止指令重排序</h5><p><strong><em>指令重排序</em></strong>：硬件架构而言，指CPU采用了允许将多条指令不按程序规定的顺序分开发送给各相应电路单元处理，但并不是说指令任意重排，CPU需要能正确处理指令依赖情况以保障程序能得出正确的执行结果。</p>
-<p>所以在本CPU中，重排序依然看起来是有序的，一个<code>lock addl…..</code>将修改同步到内存时，意味着所有之前的操作都已执行完成，这样便形成了指令重排序无法越过内存屏障的效果。</p>
-<p><strong><em>volatile如何禁止指令重排序优化</em></strong>：通过双检测获取单例模式例子的汇编代码可知，变量赋值后多执行了一个<code>lock addl…..</code>操作，该操作相当于一个内存屏障，即重排序时不能把后面的指令重排序到内存屏障之前的位置，只有一个CPU时，并不需要内存屏障，但如果有两个或者更多CPU访问统一内存，且其中有一个在观测另一个，就需要内存屏障来保证一致性。</p>
-<p><code>lock addl.....</code>是一个空操作，关键是lock前缀，它的作用是使的本CPU的Cache写入了内存，该写入操作也会引起别的CPU或者别的内核无效化其Cache，这种操作相当于对Cache中的变量做了一次前面介绍java内存模型中所说的store和write操作。因此通过该空操作，可让前面volatile变量的修改对其他CPU立即可见。</p>
-<p>volatile自己与自己比较，确定一个原则：volatile变量读操作的性能消耗与普通变量变量几乎没有什么差别，但是写操作则可能会慢一些，因为在本地代码中插入许多内存屏障指令来保证处理器不发生乱序执行，但大多数情况下volatile的总开销仍然要比锁低。</p>
-<h4 id="long和double变量特殊规则"><a href="#long和double变量特殊规则" class="headerlink" title="long和double变量特殊规则"></a>long和double变量特殊规则</h4><p>java内存模型要求lock、unlock、read、load、assign、use、store、write这8个操作都具有原子性，但是对于64位的数据类型long和double，在模型中特别定义了一条相对宽松的规定：允许虚拟机将没有被volatile修饰的64位数据的读写操作划分为两次32位的操作来进行，即允许虚拟机实现可以不保证64位数据类型的read、load、store、和write这4个操作具有原子性。</p>
-<p>但在实际操作中，目前各种平台下的商用java虚拟机几乎都选择把64位数据的读写操作作为原子操作来对待，因此编写代码时不需要将其专门声明为volatile。</p>
-<p><strong><em>注意</em></strong>：synchronized块之间的操作也具有原子性。volatile、synchronized、final也具有可见性。</p>
-<p>有序性总结：如果在本线程内观察，所有操作都是有序的；如果在一个线程中观察另一个线程，所有操作都是无序的。volatile、synchronized两个关键字保证线程之间操作的有序性。</p>
-<h4 id="先行发生原则"><a href="#先行发生原则" class="headerlink" title="先行发生原则"></a>先行发生原则</h4><p>只是根据一些关键字，java并不能保证程序在执行过程中的有序性，程序执行的有序性还需要一些java虚拟机规范的一些原则来协同。</p>
-<p>java内存模型中定义的两项操作之间的偏序关系，如果说操作A先行发生与操作B，其实就是说在发生操作B之前，操作A产生的影响能被操作B观察到，“影响”包括修改了内存中共享变量的值、发送了消息、调用了方法等。</p>
-<p>java内存模型中有一些天然的先行发生关系：<br>程序次序规则：一个线程内，按照程序代码顺序。</p>
-<p>管程锁定规则：一个unlock操作先发生于后面对同一个锁的lock操作。</p>
-<p>volatile变量规则：写操作先行发生于后面对这个变量的读操作。</p>
-<p>线程启动规则：start方法先行发生于此线程的每一个动作。</p>
-<p>线程终止规则：线程中的所有操作都先行发生于对此线程的终止检。</p>
-<p>对象终结规则：一个对象初始化完成先行发生于它的finalize方法。</p>
-<p>传递性：如果A操作先行发生于操作B，操作B先行发生于操作C，则操作A先行发生于操作C。</p>
-<p>结论：一个操作时间上的先发生不代表这个操作会是先行发生，如果一个操作先行发生，也不能代表这个操作必定是时间上先发生。例子是指令重排序。</p>
+<h4 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h4><h5 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h5><p>当多个线程访问一个对象时，如果不用考虑这些线程在运行时环境下的调度与交替执行，也不需要进行额外的同步，或者在调用方进行任何其他的协调操作，调用这个对象的行为都可以获得正确的结果，那么这个对象是线程安全的。</p>
+<h5 id="java中操作共享数据分类"><a href="#java中操作共享数据分类" class="headerlink" title="java中操作共享数据分类"></a>java中操作共享数据分类</h5><p>不可变：可不变immutable的对象一定是线程安全的；java中，基本数据类型使用final修饰则是不可变的，如果共享一个对象，则需要保证对象的行为不会对其状态产生任何影响：把对象中带有状态的变量都声明为final。</p>
+<p>不可变要求类型：String类、Number部分子类、Long和Double值类包装类、BigInteger和BigDecimal大数据类型。</p>
+<h5 id="线程安全级别"><a href="#线程安全级别" class="headerlink" title="线程安全级别"></a>线程安全级别</h5><p>绝对线程安全：即完全满足线程安全定义。如Vector是个线程安全的容器，每个方法都用synchronized修饰，但是并不意味着调用它的时候永远都不在需要同步手段。</p>
+<p>相对线程安全：即我们通常意义上所讲的线程安全，大体线程安全，但对于一些特定顺序的连续调用，就可能需要在调用端使用额外的同步手段来保证调用准确性。如Vector、HashTable等。</p>
+<p>线程兼容：对象本身并不是线程安全，但可以通过在调用端正确的使用同步手段来保证对象在并发情况下安全的使用。如ArrayList、HashMap等。</p>
+<p>线程对立：无论调用端是否采用了同步措施，都无法在多线程环境中并发地使用代码。</p>
+<h4 id="线程安全实现"><a href="#线程安全实现" class="headerlink" title="线程安全实现"></a>线程安全实现</h4><h5 id="互斥同步"><a href="#互斥同步" class="headerlink" title="互斥同步"></a>互斥同步</h5><p>同步指多个线程并发访问共享数据时，保证共享数据在同一时刻只被一个线程使用。互斥是实现同步的一种手段，临界区、互斥量、信号量都是主要的互斥现实方式。互斥是因，同步是果；互斥是方法，同步是目的。</p>
+<h5 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h5><p>该关键字经过编译后，会在同步块的前后分别形成monitorenter和monitorexit两个字节码指令，这两个字节码都需要一个reference类型的参数来指明要锁定和解锁的对象。如果java程序中synchronized明确指定了对象参数，那就是这个对象的reference；如果没有明确指定，那就根据synchronized修饰的实例方法还是类方法，去取对应的对象实例或Class对象来作为锁对象。</p>
+<p>在执行monitorenter指令时，首先要尝试获取对象的锁，如果这个对象没有被锁定，或当前线程已经拥有了那个对象的锁，把锁的计数器加1，相应的在执行monitorexit时会将锁计数器减1，当计数器为0时，锁就被释放。如果获取对象锁失败，那么当前线程就要阻塞等待，直到对象锁被另一个线程释放为止。</p>
+<p><strong>注意</strong></p>
+<p>1、synchronized同步块对同一条线程来说是可重入的，不会出现自己把自己锁死的问题；</p>
+<p>2、同步块在已进入的线程执行完之前，会阻塞后面其他线程的进入。java的线程是映射到操作系统的原生线程之上的，如果要阻塞或者唤醒一个线程，都需要操作系统来帮忙完成，这就需要从用户态转换到核心态上，因此状态转换需要耗费很多的处理器时间，对于代码简单的同步块，状态转换消耗的时间有可能比用户代码执行的时间还要长。</p>
+<h5 id="reentrantLock"><a href="#reentrantLock" class="headerlink" title="reentrantLock"></a>reentrantLock</h5><p>与synchronized相似，都具备一样的线程重入特性。</p>
+<p><strong>区别</strong></p>
+<p>1、表现为互斥层面的互斥锁，lock()和unlock()方法配合try／catch语句块来完成；</p>
+<p>2、表现为原生语法层面的互斥锁。</p>
+<p><strong>高级特性</strong></p>
+<p>1、等待可中断：当持有锁的线程长期不释放锁的时候，正在等待的线程可以选择放弃等待，改为处理其他事情，该特性对处理执行时间非常长的同步块很有帮助；</p>
+<p>2、实现公平锁：多个线程在等待同一个锁时，必须按照申请的时间顺序来依次获得锁；而非公平锁则不保证这一点，在锁被释放时，任何一个等待的线程都有机会获得锁。synchronized是非公平的，reentrantLock默认情况下也是非公平的，但可以通过带布尔值的构造函数要求使用公平锁。</p>
+<p>3、锁绑定多个条件：一个reentrantLock对象可以同时绑定多个Condition对象。</p>
+<p><strong>对比：</strong>需要使用reentrantLock高级特性的，reentrantLock是个很好选择。基于性能考虑，synchronized能实现需求的情况下，优先考虑使用synchronized来进行同步。</p>
+<h5 id="非阻塞同步"><a href="#非阻塞同步" class="headerlink" title="非阻塞同步"></a>非阻塞同步</h5><p>互斥同步最主要问题就是进行线程阻塞和唤醒所带来的性能问题，该同步也称为阻塞同步，属于一种悲观的并发策略。</p>
+<p>随着硬件指令集的发展，基于冲突检测的乐观并发策略：就是先进行操作，如果没有其他线程争用共享数据，那操作就成功了，如果共享数据有争用，产生了冲突，那就再采取其他的补偿措施（最常用不断重试直到成功），这种乐观的并发策略的许多实现都不需要把线程挂起，因此该同步操作称为非阻塞同步。</p>
+<p>使用乐观并发策略我们需要操作和冲突检测这两个步骤具备原子性，需要且只能依靠硬件来完成，硬件保证一个从语义上看起来需要多次操作的行为只通过一条处理器指令就能完成。CAS就是一条处理器指令，CAS过程是一个原子操作。</p>
+<p>CAS的ABA问题：如果一个V初次读取的时候是A值，并且在准备赋值的时候检测到它仍然为A值，那我们就能说它没有被其他线程改变过吗？如果这段时间它的值曾经被改成了B，后来又被改成回A，那CAS操作就会误认为它从来没有被改变过。</p>
+<p>J.U.C为了解决这个问题，提供了一个带有标记的原子引用类“AtomicStampedReference”，它通过控制变量值的版本来保证CAS的准确性。</p>
+<h4 id="锁优化"><a href="#锁优化" class="headerlink" title="锁优化"></a>锁优化</h4><p>各种锁技术都是为了在线程之间更高效的共享数据，以及解决竞争问题，从而提高程序执行效率。</p>
+<h5 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁"></a>自旋锁</h5><p>如果物理机上有一个以上的处理器，能让两个或两个以上的线程同时执行，我们就可以让后面请求锁的那个线程“稍等一下”，但不放弃处理器的执行时间，看看持有锁的线程是否很快就会释放锁，为了让线程等待，我们只需要让线程执行一个忙循环(自旋)。</p>
+<p><strong>特点：</strong>不能代替阻塞，虽避免线程切换开销，但占用处理器时间，锁被占用时间很短，效果非常好，自旋次数默认值10。如果锁被占用时间很长，则自旋的线程会白白浪费处理器资源，不做任何工作而带来性能上的浪费。超过该次数没有成功获得锁则应当使用传统的方式去挂起线程。-XX:PreBlockSpin设置自旋次数。</p>
+<h5 id="自适应自旋锁"><a href="#自适应自旋锁" class="headerlink" title="自适应自旋锁"></a>自适应自旋锁</h5><p>意味自旋的时间不再固定，而由前一次在同一个锁上的自旋时间及锁的拥有者状态来决定。</p>
+<h5 id="锁消除"><a href="#锁消除" class="headerlink" title="锁消除"></a>锁消除</h5><p>虚拟机即时编译器在运行时，对一些代码上要求同步但是被检查到不可能存在共享数据竞争的锁进行消除。</p>
+<p>判定标准：逃逸分析的数据支持，如果判定在一段代码中，堆上的所有数据都不会逃逸出去从而被其他线程访问到，那就可以把它们当作栈上数据对待，认为它们是私有的，同步加锁就无需进行。</p>
+<p>如String类的字符串“+”操作，javac编译器会自动优化，转化为Stringbuilder的连续append操作。如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">String result = s1 + s2 + s3;</div><div class="line"><span class="built_in">return</span> result;</div><div class="line"></div><div class="line">javac编译器会自动优化</div><div class="line"></div><div class="line">StringBuilder appender = new StringBuilder();</div><div class="line">appender.append(s1);</div><div class="line">appender.append(s2);</div><div class="line">appender.append(s3);</div><div class="line"><span class="built_in">return</span> appender.toString();</div></pre></td></tr></table></figure>
+<h5 id="锁粗化"><a href="#锁粗化" class="headerlink" title="锁粗化"></a>锁粗化</h5><p>原则：我们在编写代码的时候，总是推荐将同步块的作用范围限制得最小 — 只在共享数据的实际作用域中才进行同步，目的使得需要同步的操作数量尽可能变小，如果存在锁竞争，那等待锁的线程也能尽快拿到锁。</p>
+<p>例外情况：一系列的连续操作都对同一个对象反复加锁和解锁，甚至加锁操作是出现在循环体中，即使没有线程竞争，也会导致不必要的线程损耗，这时虚拟机就会把加锁同步的范围扩展(粗化)到整个操作序列的外部，如StringBuffer的append操作。</p>
+<h5 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h5><p>使用操作系统互斥量的传统锁机制称为“重量级”锁。需强调，轻量级锁并不是用来代替重量级锁，本意是在没有多线程竞争的前提下，减少传统的重量级锁使用操作系统互斥量产生的性能消耗。对象头第一部分存储对象自身的运行时数据是实现轻量级锁和偏向锁的关键。HotSpot虚拟机对象头Mark Word如下所示:</p>
+<p><img src="/线程安全与锁优化/MarkWord.png" alt=""></p>
+<p><strong>加锁过程：</strong>代码进入同步块的时候，如果此同步对象没有被锁定(锁标志位为“01”状态)，虚拟机首先将在当前线程的栈帧中建立一个名为锁记录Lock Record的空间，用于存储锁对象目前的Mark Word的拷贝，即Displaced Mark Word，此时线程堆栈与对象头的状态如图所示：</p>
+<p><img src="/线程安全与锁优化/CAS前.png" alt=""></p>
+<p>然后，虚拟机将使用CAS操作尝试将对象的Mark Word更新为指向Lock Record的指针。如果这个更新动作成功，那么这么线程就拥有了该对象的锁，且对象Mark Word的锁标志位将变为“00”，即表示该对象处于轻量级锁状态，如下图所示：</p>
+<p><img src="/线程安全与锁优化/CAS后.png" alt=""></p>
+<p>如果更新操作失败，虚拟机首先会检查对象的Mark Word是否指向当前线程的栈帧，如果只说明当前线程已经拥有了这个对象的锁，则可直接进入同步块继续执行。否则说明这个对象的锁已经被其他线程抢占了。</p>
+<p>如果两条以上的线程争用同一个锁，那么轻量级锁将不再有效，膨胀为重量级锁，锁标志位状态变为“10”。Mark Word中存储的就是指向重量级锁的指针，后面等待锁的线程将进入阻塞状态。</p>
+<p><strong>解锁过程：</strong>通过CAS进行，如果对象的Mark Word仍然指向线程的锁记录，那就用CAS操作把对象当前的Mark Word和线程中复制的Displaced Mark Word替换回来，替换成功，整个同步过程完成。替换失败，说明有其他线程尝试过获取该锁，就需要在释放锁的同时唤醒被挂起的线程。</p>
+<p><strong>轻量级锁提升程序同步性能依据：</strong>对于绝大部分的锁，整个同步周期内都是不存在竞争的。没有竞争，CAS操作避免了使用互斥量的开销，存在锁竞争，除了互斥量的开销，还额外发生CAS操作，此时比传统的重量级锁更慢。</p>
+<h5 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h5><p>目的是消除清除数据在无竞争的情况下同步原语，进一步提高程序性能。偏向锁在无竞争情况下把整个同步都消除，连CAS操作都不做。</p>
+<p><strong>“偏”：</strong>该锁会偏向于第一个获得它的线程，如果接下来执行过程中该锁没有被其他线程获取，则持有偏向锁的线程将永远不需要再进行同步。</p>
+<p><strong>过程：</strong>锁对象第一次被线程获取时候，虚拟机会把对象头中的标志位设为“01”，即偏向模式。同时使用CAS操作把获取到这个锁的线程ID记录在对象的Mark Word中，如果CAS操作成功，持有偏向锁的线程以后每次进入这个锁相关的同步块时，虚拟机都可以不再进行任何同步操作。当有另外一个线程去尝试获取这个锁时，偏向模式宣告结束。</p>
+<p>根据锁对象目前是否处于被锁定状态，撤销偏向后恢复到未锁定或轻量级锁定状态，后序同步操作就如同上面介绍的轻量级锁那样进行。偏向锁、轻量级锁的状态转换及对象Mark Word的关系如图所示：</p>
+<p><img src="/线程安全与锁优化/偏向锁.png" alt=""></p>
+<p>偏向锁可提高带有同步但无竞争的程序性能，但它并不是一定总是对程序有利，如果程序中大多数的锁总是被多个不同的线程访问，则偏向锁就是多余的。</p>
 <h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
       
     </div>
@@ -512,8 +519,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/Mysql索引及算法原理/" rel="next" title="Mysql索引及算法原理">
-                <i class="fa fa-chevron-left"></i> Mysql索引及算法原理
+              <a href="/HashMap原理/" rel="next" title="HashMap原理">
+                <i class="fa fa-chevron-left"></i> HashMap原理
               </a>
             
           </div>
@@ -521,10 +528,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/一致性Hash算法/" rel="prev" title="一致性Hash算法">
-                一致性Hash算法 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -680,7 +683,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java与线程"><span class="nav-number">2.</span> <span class="nav-text">java与线程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#内核线程实现"><span class="nav-number">2.1.</span> <span class="nav-text">内核线程实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用户线程实现"><span class="nav-number">2.2.</span> <span class="nav-text">用户线程实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用户线程加轻量级进程混合实现"><span class="nav-number">2.3.</span> <span class="nav-text">用户线程加轻量级进程混合实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java线程调度及状态"><span class="nav-number">3.</span> <span class="nav-text">java线程调度及状态</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#java线程调度"><span class="nav-number">3.1.</span> <span class="nav-text">java线程调度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#java线程状态"><span class="nav-number">3.2.</span> <span class="nav-text">java线程状态</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java内存模型"><span class="nav-number">4.</span> <span class="nav-text">java内存模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#volatile关键字"><span class="nav-number">5.</span> <span class="nav-text">volatile关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#volatile的两个重要特性"><span class="nav-number">5.1.</span> <span class="nav-text">volatile的两个重要特性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#禁止指令重排序"><span class="nav-number">5.2.</span> <span class="nav-text">禁止指令重排序</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#long和double变量特殊规则"><span class="nav-number">6.</span> <span class="nav-text">long和double变量特殊规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#先行发生原则"><span class="nav-number">7.</span> <span class="nav-text">先行发生原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">8.</span> <span class="nav-text">完结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#线程安全"><span class="nav-number">2.</span> <span class="nav-text">线程安全</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概念"><span class="nav-number">2.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#java中操作共享数据分类"><span class="nav-number">2.2.</span> <span class="nav-text">java中操作共享数据分类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#线程安全级别"><span class="nav-number">2.3.</span> <span class="nav-text">线程安全级别</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#线程安全实现"><span class="nav-number">3.</span> <span class="nav-text">线程安全实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#互斥同步"><span class="nav-number">3.1.</span> <span class="nav-text">互斥同步</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#synchronized"><span class="nav-number">3.2.</span> <span class="nav-text">synchronized</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#reentrantLock"><span class="nav-number">3.3.</span> <span class="nav-text">reentrantLock</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#非阻塞同步"><span class="nav-number">3.4.</span> <span class="nav-text">非阻塞同步</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#锁优化"><span class="nav-number">4.</span> <span class="nav-text">锁优化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#自旋锁"><span class="nav-number">4.1.</span> <span class="nav-text">自旋锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自适应自旋锁"><span class="nav-number">4.2.</span> <span class="nav-text">自适应自旋锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#锁消除"><span class="nav-number">4.3.</span> <span class="nav-text">锁消除</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#锁粗化"><span class="nav-number">4.4.</span> <span class="nav-text">锁粗化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#轻量级锁"><span class="nav-number">4.5.</span> <span class="nav-text">轻量级锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#偏向锁"><span class="nav-number">4.6.</span> <span class="nav-text">偏向锁</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">5.</span> <span class="nav-text">完结</span></a></li></ol></div>
             
 
           </div>
@@ -837,9 +840,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://glenen.github.io/java线程与内存模型/';
-          this.page.identifier = 'java线程与内存模型/';
-          this.page.title = 'java线程与内存模型';
+          this.page.url = 'https://glenen.github.io/线程安全与锁优化/';
+          this.page.identifier = '线程安全与锁优化/';
+          this.page.title = '线程安全与锁优化';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://Glenen.disqus.com/embed.js';
