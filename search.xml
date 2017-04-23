@@ -127,7 +127,7 @@
 <p>方法级的同步是隐式的，即无需通过字节码指令来控制，它实现在方法调用和返回操作之中。虚拟机可以从方法常量池的方法表结构中的ACC_SYNCHRONIZED访问标志得知一个方法是否声明为同步方法。</p>
 <p>当方法调用时，调用指令将会检查方法的ACC_SYNCHRONIZED访问标志是否被设置，如果设置了，执行线程就要求先成功持有管程，然后才能执行方法，最后当方法完成，包括正常完成和非正常完成，释放管程。在方法执行期间，执行线程持有了管程，其他任何线程都无法再获取到同一管程。如果一个同步方法执行期间抛出了异常，并且在方法内部无法处理异常，那么这个同步方法所持有的管程将在异常抛到同步方法之外时自动释放。</p>
 <p>同步一段指令集序列通常都是由java语言中的synchronized语句块来表示的，java虚拟机的指令集中有monitorenter 和 monitorexit两条指令来支持synchronized关键字语义，正确实现synchronized关键字需要javac编译器和java虚拟机两者共同协作支持，如下代码所示：</p>
-<p><img src="/class类文件与字节码指令/代码同步.png" alt=""></p>
+<p><img src="/class类文件与字节码指令/synchronized.png" alt=""></p>
 <p>为了保证方法在异常完成时每条monitorenter和monitorexit指令依然可以正确配对执行，编译器会自动产生一个异常处理器，其声明可处理所有异常，目的用来执行monitorexit指令。</p>
 <h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>]]></content>
       
