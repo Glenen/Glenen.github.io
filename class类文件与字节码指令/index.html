@@ -94,24 +94,23 @@
 
 
 <meta name="description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
-概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。还特别对volatile关键字进行了详细的分析，以及j">
+概要此部分讲述了class类文件的结构，组成类文件的各个部分的详细描述。让读者对class类文件有一个更好的认识，也能对java语言本身有一个更深入的思考。还对java的字节码指令做了简介，各种">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java线程与内存模型">
-<meta property="og:url" content="https://glenen.github.io/java线程与内存模型/index.html">
+<meta property="og:title" content="class类文件与字节码指令">
+<meta property="og:url" content="https://glenen.github.io/class类文件与字节码指令/index.html">
 <meta property="og:site_name" content="威瑟曲">
 <meta property="og:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
-概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。还特别对volatile关键字进行了详细的分析，以及j">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/轻量级进程.png">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/用户线程.png">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/混合线程.png">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/线程状态转换关系.png">
-<meta property="og:image" content="https://glenen.github.io/java线程与内存模型/线程-主内存-工作内存的交互关系.png">
-<meta property="og:updated_time" content="2017-04-18T12:52:12.000Z">
+概要此部分讲述了class类文件的结构，组成类文件的各个部分的详细描述。让读者对class类文件有一个更好的认识，也能对java语言本身有一个更深入的思考。还对java的字节码指令做了简介，各种">
+<meta property="og:image" content="https://glenen.github.io/class类文件与字节码指令/class文件.png">
+<meta property="og:image" content="https://glenen.github.io/class类文件与字节码指令/常量池项目类型.png">
+<meta property="og:image" content="https://glenen.github.io/class类文件与字节码指令/CONSTANT_Utf8_info常量的结构.png">
+<meta property="og:image" content="https://glenen.github.io/class类文件与字节码指令/代码同步.png">
+<meta property="og:updated_time" content="2017-04-23T09:48:36.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="java线程与内存模型">
+<meta name="twitter:title" content="class类文件与字节码指令">
 <meta name="twitter:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
-概要此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。还特别对volatile关键字进行了详细的分析，以及j">
-<meta name="twitter:image" content="https://glenen.github.io/java线程与内存模型/轻量级进程.png">
+概要此部分讲述了class类文件的结构，组成类文件的各个部分的详细描述。让读者对class类文件有一个更好的认识，也能对java语言本身有一个更深入的思考。还对java的字节码指令做了简介，各种">
+<meta name="twitter:image" content="https://glenen.github.io/class类文件与字节码指令/class文件.png">
 
 
 
@@ -139,13 +138,13 @@
 
 
 
-  <link rel="canonical" href="https://glenen.github.io/java线程与内存模型/"/>
+  <link rel="canonical" href="https://glenen.github.io/class类文件与字节码指令/"/>
 
 
 
 
 
-  <title> java线程与内存模型 | 威瑟曲 </title>
+  <title> class类文件与字节码指令 | 威瑟曲 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -318,7 +317,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/java线程与内存模型/">
+    <link itemprop="mainEntityOfPage" href="https://glenen.github.io/class类文件与字节码指令/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Glenn">
@@ -339,7 +338,7 @@
             
             
               
-                java线程与内存模型
+                class类文件与字节码指令
               
             
           </h1>
@@ -354,8 +353,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-20T00:00:00+08:00">
-                2017-02-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-07T00:00:00+08:00">
+                2017-04-07
               </time>
             
 
@@ -395,9 +394,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/java线程与内存模型/#comments" itemprop="discussionUrl">
+                <a href="/class类文件与字节码指令/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="java线程与内存模型/" itemprop="commentCount"></span>
+                        data-disqus-identifier="class类文件与字节码指令/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -429,53 +428,55 @@
 
       
         <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。</p>
-<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分主要讲述java线程的底层实现，与系统级的线程的关系；还阐述了java线程的调度机制，以及java线程的五种状态的意义和相互转换。还特别对volatile关键字进行了详细的分析，以及java程序在执行过程中一些默认的先行发生原则来保障java程序执行的有序性。</p>
+<h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>此部分讲述了class类文件的结构，组成类文件的各个部分的详细描述。让读者对class类文件有一个更好的认识，也能对java语言本身有一个更深入的思考。还对java的字节码指令做了简介，各种指令的详细内容并未讨论，如有需要的可自行查阅相关资料。</p>
 <a id="more"></a>
-<h4 id="java与线程"><a href="#java与线程" class="headerlink" title="java与线程"></a>java与线程</h4><h5 id="内核线程实现"><a href="#内核线程实现" class="headerlink" title="内核线程实现"></a>内核线程实现</h5><p>使用内核线程(Kernel-Level Thread klt)实现—程序一般不直接使用内核线程，而是去使用内核线程的一种高级接口：轻量级进程(Light Weight Process  LWP)。轻量级进程和内核线程之间是1:1的关系。如下图所示：</p>
-<p><img src="/java线程与内存模型/轻量级进程.png" alt=""></p>
-<h5 id="用户线程实现"><a href="#用户线程实现" class="headerlink" title="用户线程实现"></a>用户线程实现</h5><p>狭义-完全建立在用户空间的线程库上，系统内核不能感知线程存在的实现。所有线程操作都需要用户程序自己处理。进程和用户线程之间是1:N的关系，如下图所示：</p>
-<p><img src="/java线程与内存模型/用户线程.png" alt=""></p>
-<h5 id="用户线程加轻量级进程混合实现"><a href="#用户线程加轻量级进程混合实现" class="headerlink" title="用户线程加轻量级进程混合实现"></a>用户线程加轻量级进程混合实现</h5><p>使用了用户线程加轻量级进程的混合实现，且用户线程和轻量级进程之间是N:M的关系，如下图所示：</p>
-<p><img src="/java线程与内存模型/混合线程.png" alt=""></p>
-<h4 id="java线程调度及状态"><a href="#java线程调度及状态" class="headerlink" title="java线程调度及状态"></a>java线程调度及状态</h4><h5 id="java线程调度"><a href="#java线程调度" class="headerlink" title="java线程调度"></a>java线程调度</h5><p>系统调度指系统为线程分配处理器使用权的过程。</p>
-<p>协同式线程调度：线程的执行时间由线程本身控制，线程把自己工作做完后主动通知系统切换到另一个线程，简单而容易阻塞死。</p>
-<p>抢占式线程调度：每个线程由系统分配时间，线程的切换不由线程本身决定，时间系统可控，不会阻塞，java  使用的调度方式。</p>
-<h5 id="java线程状态"><a href="#java线程状态" class="headerlink" title="java线程状态"></a>java线程状态</h5><p>线程状态：新建：创建后尚未启动；</p>
-<p>运行：可能正执行，或等待CPU分配时间；</p>
-<p>无限期等待：不会被CPU分配执行时间，需等待被其他线程显式唤醒；</p>
-<p>限期等待：不会被CPU分配执行时间，在一段时间后由系统自动唤醒；</p>
-<p>阻塞：等待着获取到一个拍他锁，该事件将由另一个线程放弃这个锁时发生；</p>
-<p>结束：已终止线程状态，线程已执行结束。</p>
-<p>java线程之间的状态转换大致可如下图所示：</p>
-<p><img src="/java线程与内存模型/线程状态转换关系.png" alt=""></p>
-<h4 id="java内存模型"><a href="#java内存模型" class="headerlink" title="java内存模型"></a>java内存模型</h4><p>JMM，屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各个平台下都能达到一致的内存访问效果。</p>
-<p>目标：定义程序中各个变量(与java编程中所说不同，包括实例字段、静态字段和构成数组对象的元素，不包括局部变量和方法参数，因为其为线程私有)的访问规则，即在虚拟机中将变量存储到内存和从内存取出变量这样的底层细节。</p>
-<p>java内存模型规定所有的变量都存储在主内存中，每个线程还有自己的工作内存，其中保存了被该线程使用到变量的主内存副本拷贝，线程对变量的所有操作都必须在工作内存中进行，而不能直接读写主内存中的变量。线程间变量值的传递均需要通过主内存来完成。如下图所示：</p>
-<p><img src="/java线程与内存模型/线程-主内存-工作内存的交互关系.png" alt=""></p>
-<p>但此外还需注意：1、如果局部变量是一个reference类型，它的引用在java堆中可被各个线程共享。但reference本身在java栈中的局部变量表中，且是线程私有的。</p>
-<p>2、对拷贝副本：假设线程中访问一个10MB的对象，并不会把整个对象都拷贝一份，这个对象的引用、对象中某个线程访问到的字段是有可能存在拷贝的，相当于只拷贝自己没有的。但不会有虚拟机实现成把整个对象都拷贝一次。</p>
-<p>3、volatile变量依然有工作内存的拷贝，但由于它特殊的操作顺序规定，所以如同直接在主内存中读写访问一般，所以上面的描述对volatile并不例外。</p>
-<h4 id="volatile关键字"><a href="#volatile关键字" class="headerlink" title="volatile关键字"></a>volatile关键字</h4><h5 id="volatile的两个重要特性"><a href="#volatile的两个重要特性" class="headerlink" title="volatile的两个重要特性"></a>volatile的两个重要特性</h5><p>1、保证此变量对所有线程的可见性，即一个线程修改了这个变量的值，新值对于其他线程来说是可以立即得知的。</p>
-<p>2、禁止指令重排序优化，普通的变量仅仅会保证在该方法等执行过程中所有依赖赋值结果的地方都能获取到正确的结果，而不能保证变量赋值的操作顺序与程序代码中的执行顺序一致。重排序优化是机器级的优化操作，提前执行指对应的汇编代码被提前执行。</p>
-<h5 id="禁止指令重排序"><a href="#禁止指令重排序" class="headerlink" title="禁止指令重排序"></a>禁止指令重排序</h5><p><strong><em>指令重排序</em></strong>：硬件架构而言，指CPU采用了允许将多条指令不按程序规定的顺序分开发送给各相应电路单元处理，但并不是说指令任意重排，CPU需要能正确处理指令依赖情况以保障程序能得出正确的执行结果。</p>
-<p>所以在本CPU中，重排序依然看起来是有序的，一个<code>lock addl…..</code>将修改同步到内存时，意味着所有之前的操作都已执行完成，这样便形成了指令重排序无法越过内存屏障的效果。</p>
-<p><strong><em>volatile如何禁止指令重排序优化</em></strong>：通过双检测获取单例模式例子的汇编代码可知，变量赋值后多执行了一个<code>lock addl…..</code>操作，该操作相当于一个内存屏障，即重排序时不能把后面的指令重排序到内存屏障之前的位置，只有一个CPU时，并不需要内存屏障，但如果有两个或者更多CPU访问统一内存，且其中有一个在观测另一个，就需要内存屏障来保证一致性。</p>
-<p><code>lock addl.....</code>是一个空操作，关键是lock前缀，它的作用是使的本CPU的Cache写入了内存，该写入操作也会引起别的CPU或者别的内核无效化其Cache，这种操作相当于对Cache中的变量做了一次前面介绍java内存模型中所说的store和write操作。因此通过该空操作，可让前面volatile变量的修改对其他CPU立即可见。</p>
-<p>volatile自己与自己比较，确定一个原则：volatile变量读操作的性能消耗与普通变量变量几乎没有什么差别，但是写操作则可能会慢一些，因为在本地代码中插入许多内存屏障指令来保证处理器不发生乱序执行，但大多数情况下volatile的总开销仍然要比锁低。</p>
-<h4 id="long和double变量特殊规则"><a href="#long和double变量特殊规则" class="headerlink" title="long和double变量特殊规则"></a>long和double变量特殊规则</h4><p>java内存模型要求lock、unlock、read、load、assign、use、store、write这8个操作都具有原子性，但是对于64位的数据类型long和double，在模型中特别定义了一条相对宽松的规定：允许虚拟机将没有被volatile修饰的64位数据的读写操作划分为两次32位的操作来进行，即允许虚拟机实现可以不保证64位数据类型的read、load、store、和write这4个操作具有原子性。</p>
-<p>但在实际操作中，目前各种平台下的商用java虚拟机几乎都选择把64位数据的读写操作作为原子操作来对待，因此编写代码时不需要将其专门声明为volatile。</p>
-<p><strong><em>注意</em></strong>：synchronized块之间的操作也具有原子性。volatile、synchronized、final也具有可见性。</p>
-<p>有序性总结：如果在本线程内观察，所有操作都是有序的；如果在一个线程中观察另一个线程，所有操作都是无序的。volatile、synchronized两个关键字保证线程之间操作的有序性。</p>
-<h4 id="先行发生原则"><a href="#先行发生原则" class="headerlink" title="先行发生原则"></a>先行发生原则</h4><p>只是根据一些关键字，java并不能保证程序在执行过程中的有序性，程序执行的有序性还需要一些java虚拟机规范的一些原则来协同。</p>
-<p>java内存模型中定义的两项操作之间的偏序关系，如果说操作A先行发生与操作B，其实就是说在发生操作B之前，操作A产生的影响能被操作B观察到，“影响”包括修改了内存中共享变量的值、发送了消息、调用了方法等。</p>
-<p>java内存模型中有一些天然的先行发生关系：<br>程序次序规则：一个线程内，按照程序代码顺序。</p>
-<p>管程锁定规则：一个unlock操作先发生于后面对同一个锁的lock操作。</p>
-<p>volatile变量规则：写操作先行发生于后面对这个变量的读操作。</p>
-<p>线程启动规则：start方法先行发生于此线程的每一个动作。</p>
-<p>线程终止规则：线程中的所有操作都先行发生于对此线程的终止检。</p>
-<p>对象终结规则：一个对象初始化完成先行发生于它的finalize方法。</p>
-<p>传递性：如果A操作先行发生于操作B，操作B先行发生于操作C，则操作A先行发生于操作C。</p>
-<p>结论：一个操作时间上的先发生不代表这个操作会是先行发生，如果一个操作先行发生，也不能代表这个操作必定是时间上先发生。例子是指令重排序。</p>
+<h4 id="class类文件"><a href="#class类文件" class="headerlink" title="class类文件"></a>class类文件</h4><h5 id="类文件结构"><a href="#类文件结构" class="headerlink" title="类文件结构"></a>类文件结构</h5><p>代码编译的结果从本地机器码转变为字节码。越来越多的程序语言选择了与操作系统和机器指令集无关的、平台中立的格式作为程序编译后的存储格式——字节码——构成平台无关性的基石。</p>
+<h5 id="java虚拟机的语言无关性"><a href="#java虚拟机的语言无关性" class="headerlink" title="java虚拟机的语言无关性"></a>java虚拟机的语言无关性</h5><p>指其他语言编写的程序也能运行在java虚拟机上。</p>
+<p><strong>基础1：</strong>仍是虚拟机和字节码存储格式，java虚拟机不与包括java在内的任何语言绑定，它只与Class文件这种特定的二进制文件格式关联，Class文件中包含了虚拟机指令集和符号表以及若干其他辅助信息。各种语言通过对应编译器编码成 .class 文件由java虚拟机执行。</p>
+<p><strong>基础2：</strong>java语言中的各种变关键字和运算符号等语义最终都有多条字节码命令组合而成，因此字节码命令所能提供的语义描述能力肯定比语言本身更加强大。所以字节码本身能支持一些java语言本身无法有效支持的一些的特性。</p>
+<h5 id="java平台无关性"><a href="#java平台无关性" class="headerlink" title="java平台无关性"></a>java平台无关性</h5><p>通过java虚拟机，java能实现一次编写各种平台运行，虚拟机就相当于与各种操作系统平台对接的适配器。</p>
+<h5 id="class类文件的结构"><a href="#class类文件的结构" class="headerlink" title="class类文件的结构"></a>class类文件的结构</h5><p>任何一个class文件都对应着唯一一个类或者接口的定义信息，但反之类或者接口并不一定都得定义在文件里，比如类或接口也可以直接通过类加载器直接生成。class文件是一组以8位字节为基础单位的二进制流，各个数据项目严格按照顺序紧凑的排列在class文件中，中间没有添加任何分隔符，这使得整个class文件中存储的内容几乎全部是程序运行的必要数据，没有空隙存在。</p>
+<p>如遇到需占用8位字节以上的数据项时，则会按照高位在前的方式分割成若干个8位字节进行存储。采用无符号数和表两种数据类型的伪结构来存储数据。其所有细节都被严格限定，不允许改变。class类文件格式如下图所示：</p>
+<p><img src="/class类文件与字节码指令/class文件.png" alt=""></p>
+<p><strong>无符号数：</strong>基本数据类型，u1  u2  u4  u8来分别代表1  2  4  8个字节的无符号数，可用来描述数字、索引引用、数量值、或者按照UTF—8编码构成的字符串值。</p>
+<p><strong>表：</strong>由多个无符号数或者其他表作为数据项构成的复合数据类型，所有表都习惯性地以“_info”结尾。表用于描述有层次关系的复合数据结构，整个class文件本质上就是一张表。</p>
+<p><strong>魔数：</strong>每个class文件的头4个字节，唯一作用是确定这个文件是否是一个能被虚拟机接受的class文件。使用魔数而不是扩展名来进行识别，因为文件扩展名可随意改动。class文件的魔数值：0xCAFEEBABE—咖啡宝贝。</p>
+<p><strong>版本号：</strong>紧接着魔数的4个字节，5  6个字节是次版本号，7  8个字节是主版本号。高版本JDK能向下兼容以前版本class文件，但不能运行超过其版本号的class文件，即使文件格式没发生任何变化。</p>
+<p><strong>常量池：</strong>紧接着主次版本号之后的是常量池入口，可理解为class文件之中的资源仓库，class文件结构中与其他项目关联最多的数据类型，也是占用class文件空间最大的数据类型项目之一，同时它还是class文件中第一个出现的表类型数据项目。</p>
+<p>常量池容量计数器从 1 开始，为了满足后面某些指向常量池的索引值的数据在特定情况下需表达不引用任何一个常量池项目的含义，可把索引值置为0来表示，除此之外其他任何容量计数器都是0开始。</p>
+<p>常量池存放字面量literal 和 符号引用symbolic reference。字面量比较接近于java语言层面的常量概念、文本字符串、声明为final的常量值等。而符号引用属于编译原理方面的概念：类和接口的全限定名fully qualified name、字段的名称和描述符descriptor、方法等名称和描述符。</p>
+<p>java代码在进行javac编译时候，虚拟机加载class文件的时候进行动态链接，即class文件中不会保存各个方法、字段的最终内存布局信息，因此这些字段、方法的符号引用不经过运行期转换的话无法得到真正的内存入口地址，也就无法被虚拟机使用，当虚拟机运行时，需要从常量池获得对应的符号引用，再在类创建时或运行时解析、翻译到具体的内存地址之中。</p>
+<p>常量池的每一项常量都是一个表，JDK1.7后共有14种结构各不相同的表结构数据。14种表都有一个共同特点，表开始的第一位是一个u1类型的标识位，代表当前这个常量属于哪种常量类型。如下图所示：</p>
+<p><img src="/class类文件与字节码指令/常量池项目类型.png" alt=""></p>
+<p>每种常量类型都有属于自己的结构，如<code>CONSTANT_Utf8_info</code>常量的结构如下图所示：</p>
+<p><img src="/class类文件与字节码指令/CONSTANT_Utf8_info常量的结构.png" alt=""></p>
+<p>注意：由于class文件中方法、字段等都需要引用<code>CONSTANT_Utf8_info</code>型常量来描述名称，所以该型常量的最大长度就是java中方法、字段名的最大长度。而这里的最大长度就是length的最大值，即u2类型能表达的最大值65536，所以java程序中如果定义了超过64KB英文字符的变量或方法名将会无法编译。</p>
+<p><strong>访问标志：</strong>紧接着常量池，用于识别一些类或者接口层次的访问信息：是类还是接口、是否为public类型、是否为abstract类型、是否被声明为final等。</p>
+<p><strong>类索引、父类索引、接口索引集合：</strong>this_class、super_class都是一个u2类型的数据，而接口索引是一组u2类型的数据等集合，class文件中由这三项数据来确定这个类等继承关系。类索引用于确定这个类的全限定名，父类索引用于确定这个类的父类的全限定名。</p>
+<p>除Object外，所有java类的父类索引都不为0. 接口索引集合用来描述这个类实现了哪些接口，这些被实现的接口将按implements语句后的接口顺序从左到右排列在接口索引集合中。</p>
+<p><strong>字段表集合：</strong>用于描述接口或者类中声明的变量。包括类级变量及实例变量，不包括方法内部声明的局部变量。字段的修饰符都是布尔值，要么有要么没有，很适合用标识位来表示，而字段叫什么名字、数据类型都是无法固定的，只能引用常量池中的常量来描述。</p>
+<p><strong>方法表集合：</strong>与class文件对字段的描述方式几乎采用了完全一致的方式。注意：方法里的java代码，经过编译器编译成字节码指令后，存放在方法属性表集合中一个名为code的属性里面。</p>
+<p><strong>属性表集合：</strong>在class文件、字段表、方法表都可以携带自己的属性表集合，以用于描述某些场景专有的信息。以下举例2个，共有11个之多。</p>
+<p>code属性：java程序方法体中的代码经过javac编译器处理后，最终变为字节码指令存储在code属性内。code属性出现在方法表的属性集合中，但并非所有的方法表都必须存在这个属性，如接口或抽象类中的方法。</p>
+<p>exceptions属性：与code属性平级，用于列举出方法中可能抛出的受检异常，也就是方法描述时throws关键字后面列举的异常。</p>
+<h4 id="字节码指令"><a href="#字节码指令" class="headerlink" title="字节码指令"></a>字节码指令</h4><p>java虚拟机的指令由一个字节长度的、代表着某种特定操作含义的数字(操作码Opcode)以及跟随其后的0到多个代表此操作所需参数(操作数Operands)构成。</p>
+<p>java虚拟机采用面向操作数栈而不是寄存器的架构，所以大多数的指令都不包含操作数，只有一个操作码。不考虑异常，java虚拟机的解释器可以使用以下执行模型来理解：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">do</span> &#123;</div><div class="line">    自动计算PC寄存器的值加1;</div><div class="line">    根据PC寄存器的指示位置，从字节码流中取出操作码;</div><div class="line">    <span class="keyword">if</span>(字节码存在操作数) 从字节码流中取出操作数;</div><div class="line">    执行操作码所定义的操作;</div><div class="line">&#125; <span class="keyword">while</span>(字节码流长度 &gt; 0);</div></pre></td></tr></table></figure>
+<p><strong>字节码与数据类型：</strong>java虚拟机中，大多数的指令都包含了其操作多对应的数据类型信息，如iload指令用于从局部变量表中加载int型数据到操作数栈中。对于大部分与数据类型相关的字节码指令，它们的操作码助记符中都有特殊来代表专门为哪种数据类型服务，i-int,  l-long,  a-reference.其他基本类型均取首字母。</p>
+<p><strong>加载和存储指令：</strong>用于将数据在帧栈中的局部变量表和操作数栈之间来回传输。将一个局部变量加载到操作数栈：类型+load 如iload。 将一个数值从操作数栈存储到局部变量表：类型+store。将一个常量加载到操作数栈：类型+const或其他。</p>
+<p><strong>运算指令：</strong>将两个操作数栈上的值进行某种特定运算，并把结果重新存入操作数栈顶。</p>
+<p><strong>类型转换指令：</strong>将两种不同的数值类型进行相互转换，一般用于实现用户代码中的显式类型的转换操作。</p>
+<p><strong>对象创建与访问指令：</strong>虽然实例和数组都是对象，但是创建和操作使用了不同的字节码指令。</p>
+<p><strong>操作数栈管理指令：</strong>pop , pop2 , swap。</p>
+<p><strong>控制转移指令：</strong>让java虚拟机有条件或无条件地从指定的位置指令而不是控制转移指令的下一条指令继续执行程序，从概念模型上理解，可以认为控制转移指令就是在有条件或无条件地修改PC寄存器的值。</p>
+<p><strong>方法调用和返回指令：</strong>invoke+具体。方法调用指令与数据类型无关，方法返回指令是根据返回值的类型区分的，如ireturn。</p>
+<p><strong>异常处理指令：</strong>ava程序中显式的抛出异常操作throw语句 及 运行时异常自动抛出，都有athrow指令来实现。</p>
+<p><strong>同步指令：</strong>支持方法级的同步和方法内部一段指令序列的同步，都使用管程Monitor来支持。方法级的同步是隐式的，无需通过字节码指令来控制，它实现在方法调用和返回操作之中。</p>
+<p>方法级的同步是隐式的，即无需通过字节码指令来控制，它实现在方法调用和返回操作之中。虚拟机可以从方法常量池的方法表结构中的ACC_SYNCHRONIZED访问标志得知一个方法是否声明为同步方法。</p>
+<p>当方法调用时，调用指令将会检查方法的ACC_SYNCHRONIZED访问标志是否被设置，如果设置了，执行线程就要求先成功持有管程，然后才能执行方法，最后当方法完成，包括正常完成和非正常完成，释放管程。在方法执行期间，执行线程持有了管程，其他任何线程都无法再获取到同一管程。如果一个同步方法执行期间抛出了异常，并且在方法内部无法处理异常，那么这个同步方法所持有的管程将在异常抛到同步方法之外时自动释放。</p>
+<p>同步一段指令集序列通常都是由java语言中的synchronized语句块来表示的，java虚拟机的指令集中有monitorenter 和 monitorexit两条指令来支持synchronized关键字语义，正确实现synchronized关键字需要javac编译期和java虚拟机两者共同协作支持，如下代码所示：</p>
+<p><img src="/class类文件与字节码指令/代码同步.png" alt=""></p>
+<p>为了保证方法在异常完成时每条monitorenter和monitorexit指令依然可以正确配对执行，编译器会自动产生一个异常处理器，其声明可处理所有异常，目的用来执行monitorexit指令。</p>
 <h4 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h4>
       
     </div>
@@ -512,8 +513,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/Mysql索引及算法原理/" rel="next" title="Mysql索引及算法原理">
-                <i class="fa fa-chevron-left"></i> Mysql索引及算法原理
+              <a href="/线程安全与锁优化/" rel="next" title="线程安全与锁优化">
+                <i class="fa fa-chevron-left"></i> 线程安全与锁优化
               </a>
             
           </div>
@@ -522,8 +523,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/一致性Hash算法/" rel="prev" title="一致性Hash算法">
-                一致性Hash算法 <i class="fa fa-chevron-right"></i>
+              <a href="/java类加载/" rel="prev" title="java类加载">
+                java类加载 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -680,7 +681,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java与线程"><span class="nav-number">2.</span> <span class="nav-text">java与线程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#内核线程实现"><span class="nav-number">2.1.</span> <span class="nav-text">内核线程实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用户线程实现"><span class="nav-number">2.2.</span> <span class="nav-text">用户线程实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用户线程加轻量级进程混合实现"><span class="nav-number">2.3.</span> <span class="nav-text">用户线程加轻量级进程混合实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java线程调度及状态"><span class="nav-number">3.</span> <span class="nav-text">java线程调度及状态</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#java线程调度"><span class="nav-number">3.1.</span> <span class="nav-text">java线程调度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#java线程状态"><span class="nav-number">3.2.</span> <span class="nav-text">java线程状态</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java内存模型"><span class="nav-number">4.</span> <span class="nav-text">java内存模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#volatile关键字"><span class="nav-number">5.</span> <span class="nav-text">volatile关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#volatile的两个重要特性"><span class="nav-number">5.1.</span> <span class="nav-text">volatile的两个重要特性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#禁止指令重排序"><span class="nav-number">5.2.</span> <span class="nav-text">禁止指令重排序</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#long和double变量特殊规则"><span class="nav-number">6.</span> <span class="nav-text">long和double变量特殊规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#先行发生原则"><span class="nav-number">7.</span> <span class="nav-text">先行发生原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">8.</span> <span class="nav-text">完结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#class类文件"><span class="nav-number">2.</span> <span class="nav-text">class类文件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#类文件结构"><span class="nav-number">2.1.</span> <span class="nav-text">类文件结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#java虚拟机的语言无关性"><span class="nav-number">2.2.</span> <span class="nav-text">java虚拟机的语言无关性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#java平台无关性"><span class="nav-number">2.3.</span> <span class="nav-text">java平台无关性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#class类文件的结构"><span class="nav-number">2.4.</span> <span class="nav-text">class类文件的结构</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#字节码指令"><span class="nav-number">3.</span> <span class="nav-text">字节码指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完结"><span class="nav-number">4.</span> <span class="nav-text">完结</span></a></li></ol></div>
             
 
           </div>
@@ -837,9 +838,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://glenen.github.io/java线程与内存模型/';
-          this.page.identifier = 'java线程与内存模型/';
-          this.page.title = 'java线程与内存模型';
+          this.page.url = 'https://glenen.github.io/class类文件与字节码指令/';
+          this.page.identifier = 'class类文件与字节码指令/';
+          this.page.title = 'class类文件与字节码指令';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://Glenen.disqus.com/embed.js';
