@@ -104,7 +104,7 @@
 <meta property="og:image" content="https://glenen.github.io/java类加载/类的生命周期.png">
 <meta property="og:image" content="https://glenen.github.io/java类加载/基本数据类型零值.png">
 <meta property="og:image" content="https://glenen.github.io/java类加载/类加载器.png">
-<meta property="og:updated_time" content="2017-04-28T15:24:10.000Z">
+<meta property="og:updated_time" content="2017-04-28T16:29:49.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java类加载">
 <meta name="twitter:description" content="前言文中所涉及内容均为java虚拟机相关，但由于java虚拟机团队也一直在改进和优化java虚拟机，其中有的内容可能会与后续版本有差异，所以文中内容仅提供参考，不可作为任何定义为任何标准的准则，敬请谅解。
@@ -445,7 +445,7 @@
 <p>元数据验证：对字节码描述的信息进行语义分析，以保证其描述的信息符合java语言规范的要求。如这个类是否有父类、该类不是抽象类，是否实现了其父类或者接口中要求实现的所有方法等等。</p>
 <p>字节码验证：通过数据流和控制流分析，确定程序语义是合法的、符合逻辑的。对方法体进行校验分析，保证被校验的类在运行时不会做出危险虚拟机安全的事件。如保证跳转指令不会跳转到方法体以外的字节码指令上。该验证不通过，肯定有问题，通过该验证并不一定就是安全的。</p>
 <p>符号引用验证：发生在虚拟机将符号引用转化为直接引用的时候，即在解析阶段中发生。可看作是对类自身以外的信息进行匹配性校验。如符号引用中通过字符串描述的全限定名是否能找到对应的类、符号引用中的类 字段 方法的访问性是否可被当前内访问。通不过该验证，将抛出IllegalAccesserror、NoSuchFieldError、NoSuchMethodError等。</p>
-<p><strong>准备：</strong>正式为类变量分配内存并设置类变量初始值的阶段，均在方法区中进行分配。该处所说的初始值通常情况下是数据类型的零值，而不是程序中赋予的值，因为这时候尚未开始执行任何java方法。而把赋值的putstatic指令是在程序被编译后，存放于类构造器<clinit>()方法之中，所以赋值操作将在初始化阶段才会执行。各种基本数据类型的零值如下图所示：</clinit></p>
+<p><strong>准备：</strong>正式为类变量分配内存并设置类变量初始值的阶段，均在方法区中进行分配。该处所说的初始值通常情况下是数据类型的零值，而不是程序中赋予的值，因为这时候尚未开始执行任何java方法。而把赋值的putstatic指令是在程序被编译后，存放于类构造器<code>&lt;clinit&gt;()</code>方法之中，所以赋值操作将在初始化阶段才会执行。各种基本数据类型的零值如下图所示：</p>
 <p><img src="/java类加载/基本数据类型零值.png" alt=""></p>
 <p>特殊情况：如果类字段的字段属性表中存在ConstantValue属性(final修饰的static变量)，那么在准备阶段变量就会被初始化为ConstantValue属性所指定的值。</p>
 <p><strong>解析：</strong>虚拟机将常量池内的符号引用替换为直接引用的过程。</p>
